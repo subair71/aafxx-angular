@@ -1,9 +1,9 @@
 name: Validate academy redesign
 on:
   push:
-    branches: [feature/stitch-academy-redesign]
+    branches: [develop, feature/stitch-academy-redesign]
   pull_request:
-    branches: [main]
+    branches: [develop, main]
 permissions:
   contents: read
 jobs:
@@ -21,6 +21,7 @@ jobs:
       - run: npm run prerender
       - run: SITE_ORIGIN=https://subair71.github.io node scripts/check-seo.mjs
       - run: node scripts/check-ui.mjs
+      - run: node scripts/check-accessibility.mjs
       - uses: actions/upload-artifact@v4
         if: always()
         with:

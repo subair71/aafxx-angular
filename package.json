@@ -6,7 +6,10 @@
     "start": "ng serve",
     "build": "ng build",
     "prerender": "node scripts/prerender.mjs",
-    "prerender:amplify": "node scripts/amplify-prerender.mjs"
+    "prerender:amplify": "node scripts/amplify-prerender.mjs",
+    "check:seo": "node scripts/check-seo.mjs",
+    "check:ui": "node scripts/check-ui.mjs",
+    "check:a11y": "node scripts/check-accessibility.mjs"
   },
   "dependencies": {
     "@angular/common": "^20.3.0",
@@ -22,6 +25,7 @@
     "@angular/build": "^20.3.0",
     "@angular/cli": "^20.3.0",
     "@angular/compiler-cli": "^20.3.0",
+    "@axe-core/playwright": "4.14.0",
     "@sparticuz/chromium": "138.0.2",
     "playwright": "1.56.1",
     "typescript": "~5.9.0"

@@ -1,47 +1,56 @@
-# AAFXX frontend handoff
+# AAFXX develop implementation
 
-The light-theme Angular frontend includes founder biography, supplied artwork, resource details, persistent cart, checkout details/payment preference/review/local summary, learning workspace, FAQ, privacy and terms.
+This implementation is on `develop`; no feature branch or main merge is required. Dark is the default before first paint, with a persistent light option. The existing Angular 20 stack, founder biography, supplied archive, concept covers, theme and cart were retained.
 
-## Before commercial launch
-- Confirm catalogue titles, prices, curricula and actual deliverable files; existing catalogue values were retained for the client presentation.
-- Obtain a verified contact inbox; contact currently opens an email draft without a recipient.
-- Connect server-side authentication, order persistence, hosted payment checkout and verified webhooks. Never grant access from client-side payment status.
-- Connect course progress, ebook delivery and transactional email.
-- Review founder-supplied qualifications and performance claims. The site does not guarantee profits.
-- Confirm business-specific legal terms, tax/refund policies and privacy requirements.
-- Update canonical origin in prerender.mjs and component metadata if the production domain changes; submit sitemap in Search Console after domain verification.
+## Reference comparison and design rationale
 
-No payment credentials are requested, checkout details stay in memory, and order summaries are explicitly local/unpaid. Cart storage contains only product IDs and quantities.
+| Reference | Observed pattern | AAFXX implementation |
+|---|---|---|
+| [BabyPips](https://www.babypips.com/learn/forex) | Sequential curriculum and progress | Foundations in order, free lessons, knowledge checks and local progress |
+| [IG Academy](https://www.ig.com/en/learn-to-trade/ig-academy/courses) | Difficulty levels, exercises and live learning | Filterable courses, comparison, expandable topics, sample lessons and honest webinar availability |
+| [Harriman House](https://www.harriman-house.com/category/trading) | Subject-based books, cover presentation and product information | Consistent concept covers, searchable topics, dedicated product URLs and explicit format/availability information |
+| [TradingView education](https://www.tradingview.com/students/) | Charts supporting learning and research | Small, clearly illustrative chart alongside a free lesson and book preview; no fabricated live quotes |
 
-## Build
+The original design uses navy/slate surfaces, readable off-white text, restrained emerald and gold, serif editorial headings and system UI fonts. No competitor assets or copy were imported. External font requests were removed. Existing founder claims are retained as supplied biography, not independently certified credentials. Unverifiable statistics, endorsements and profit promises are not added.
+
+## Implemented journeys
+
+- Shared Home, Academy, Books, Webinars, Resources, About and Contact navigation, mobile menu, theme toggle, cart and learning workspace.
+- Homepage: course paths, books, teaching approach, founder, free resources, FAQ and relevant calls to action. No unconfirmed webinar dates or testimonials.
+- Catalog search, topic, level, format, language, author and maximum preview-price filters; price sorting, reset and empty states. Only English and the supplied educator currently exist. Print/bundle filters correctly show no results.
+- Three dedicated book and three course URLs, prerequisites, audience, sample duration, proposed modules/chapters, related material, availability and publication/access caveats. Prices are illustrative, products not for sale.
+- Course comparison, eight original free reading lessons, exercises and one knowledge check per lesson, notes, completion and a downloadable CSV practice journal. Notes and progress are local only.
+- Persistent cart with quantities, removal, validated guest details, unpaid summary and explicitly labeled sandbox success/failure/cancel/retry. Sandbox results never grant real paid access. No payment details collected. Demo receipt and links to free samples are available in the workspace for the current session.
+- Webinar page with a real empty state, contact draft flow and no fictitious registration.
+- Public route titles/descriptions, canonical and social metadata, breadcrumb schema, preview Book/Course schema without offers or reviews, LearningResource schema, sitemap, noindex transactional/404 routes and a static 404 document.
+
+## Run and verify
+
+```sh
 npm ci
-npm run build -- --base-href /aafxx-angular/
-npx playwright install --with-deps chromium
-npm run prerender
+npm run build -- --base-href /
+SITE_ORIGIN=https://your-confirmed-domain.example npm run prerender:amplify
+SITE_ORIGIN=https://your-confirmed-domain.example node scripts/check-seo.mjs
+SITE_BASE=/ CHROME_PATH=/tmp/chromium node scripts/check-ui.mjs
+```
 
-The Pages workflow generates HTML for public routes plus noindex account/checkout routes. Sitemap excludes transactional routes. On GitHub project Pages, robots.txt lives below the project path; domain-wide robots control requires access to the host root.
+The last command can use an installed Playwright Chromium instead by omitting CHROME_PATH. For GitHub project Pages, build with `/aafxx-angular/` and run `npm run prerender`; the existing main deployment is unchanged. CI now validates pushes to `develop` and uploads screenshots/static output. It does not deploy main.
 
-## Stitch design branch
+`amplify.yml` runs the scripts that actually exist and publishes `dist/aafxx/browser`. The packaged Chromium is extracted by `prerender:amplify`. Set `SITE_ORIGIN` to the exact HTTPS origin in Amplify, without path or trailing components. If unset, the build succeeds as a noindex preview, with no guessed canonical or sitemap. `example.org` is used solely as an offline validation fixture, not in production source or deployment settings.
 
-`feature/stitch-academy-redesign` implements the supplied light and dark reference designs as Angular templates and CSS. Light is the default; the accessible theme button persists the selected theme in local storage. The shared design covers all 12 routes, cart, resource details, student portal and all checkout steps.
+The prerender manifest covers 29 routes. Static nested route files support direct loads. Configure the host to serve `404.html` with HTTP 404 for unknown paths; do not redirect every missing URL to the homepage with HTTP 200. An existing Amplify console-wide rewrite may need adjustment outside this repository.
 
-Reference market prices, invented testimonials, reader counts and accreditation claims were not imported. The chart is explicitly illustrative, and the existing AAFXX biography, product catalogue and unpaid checkout behaviour are retained.
+## Required before live commercial launch
 
-The branch-only `Validate academy redesign` workflow runs build, pre-render and UI checks and uploads a review artifact containing static output and mobile/desktop screenshots. It does not deploy GitHub Pages.
+1. Confirm book titles, prices, manuscripts, cover rights, publication dates, ISBNs, formats and licence terms. Current covers and catalogue are explicitly preview-only.
+2. Confirm paid curricula, instructor approvals, duration, languages, access periods and any completion-certificate policy. Free lessons are introductory website content, not extracts of the founder’s unpublished books.
+3. Supply a verified support inbox, legal business identity, support hours and reviewed privacy/refund/cancellation terms. The current contact form opens a draft with no recipient.
+4. Connect an identity provider, server-side orders and hosted payment checkout. Calculate prices/taxes on the server; verify signed, idempotent payment webhooks and grant access only from verified order state. No client-side sandbox value is an entitlement.
+5. Add protected storage, authorization per resource, expiring signed downloads, progress sync and transactional email. Real purchases currently remain locked.
+6. Confirm countries, currencies and payment methods actually supported. Physical shipping, print editions and bundles are unavailable, rather than simulated.
+7. Supply confirmed event dates, instructor, time zone, capacity and registration service before publishing webinars.
+8. Confirm the production domain, host 404 behavior, Search Console ownership and any analytics/consent requirements. No live market-data service is connected.
 
-## Amplify branch deployment
+## Quality limits
 
-The root `amplify.yml` builds this branch at `/` and pre-renders all routes. In the Amplify branch environment, set `SITE_ORIGIN` to the exact HTTPS branch URL shown by Amplify (no path). Build output is `dist/aafxx/browser`. The build uses the packaged Chromium binary for Amazon Linux compatibility. Keep this as a separate preview branch; no main-branch merge is required.
-
-For an existing Amplify app with custom build settings, ensure the branch uses the repository `amplify.yml`. Preserve existing production branches and custom domains. The root deployment has route directories for direct navigation, and image URLs follow the configured base path.
-
-
-## Catalogue and SEO completion
-
-The book collection now uses three lightweight local SVG concept covers (also in resource details), searchable/sortable catalogue views, resource-specific topic outlines and empty search states. Covers are explicitly placeholders; titles, prices and course outlines remain a preview catalogue pending client confirmation. Breadcrumbs, keyboard dialog dismissal/focus containment, mobile layout and route-relative achievement images are included.
-
-Every route now updates its description, canonical URL, Open Graph/Twitter preview and organization/site/page/breadcrumb structured data on both direct loads and in-app navigation. A local social preview PNG and favicon are included. Prerendering writes the same metadata to the HTML delivered to crawlers and social previews. Account and checkout remain noindex and excluded from the sitemap.
-
-`SITE_ORIGIN` is still required for an indexable Amplify release. When it is missing, the build now succeeds as a noindex preview with no absolute canonical or sitemap in its initial HTML, rather than failing or guessing the branch hostname. Set the exact public HTTPS origin in Amplify and redeploy to enable indexable metadata and the sitemap. Invalid origins still fail validation. Packaged Chromium now uses its supported launch arguments and a shared browser context across prerendered pages.
-
-The frontend is ready for client review. Live authentication, payments, ebook files, verified recipient inbox, order storage and fulfilment remain external integration requirements; the site does not simulate successful payment or authenticated access.
+Automated functional, overflow, metadata and keyboard checks are recorded in `VALIDATION.md`. Accessibility targets WCAG 2.2 AA; automated tests do not certify full conformance. Local lab LCP/CLS observations are not field Core Web Vitals. INP and deployed network performance require real deployment/user measurement; no unmeasured scores are claimed.
