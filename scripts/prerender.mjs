@@ -3,8 +3,8 @@ import { createServer } from "node:http";
 import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { extname, join } from "node:path";
 const root = "dist/aafxx/browser",
-  base = "/aafxx-angular/",
-  origin = "https://subair71.github.io";
+  base = process.env.SITE_BASE || "/aafxx-angular/",
+  origin = process.env.SITE_ORIGIN || "https://subair71.github.io";
 const routes = [
   "",
   "about",
@@ -85,6 +85,7 @@ try {
           content: description,
         });
         const url = origin + base + (route ? route + "/" : "");
+        document.querySelector('link[rel="canonical"]')?.setAttribute("href", url);
         set('meta[property="og:title"]', {
           property: "og:title",
           content: document.title,

@@ -28,3 +28,9 @@ The Pages workflow generates HTML for public routes plus noindex account/checkou
 Reference market prices, invented testimonials, reader counts and accreditation claims were not imported. The chart is explicitly illustrative, and the existing AAFXX biography, product catalogue and unpaid checkout behaviour are retained.
 
 The branch-only `Validate academy redesign` workflow runs build, pre-render and UI checks and uploads a review artifact containing static output and mobile/desktop screenshots. It does not deploy GitHub Pages.
+
+## Amplify branch deployment
+
+The root `amplify.yml` builds this branch at `/` and pre-renders all routes. In the Amplify branch environment, set `SITE_ORIGIN` to the exact HTTPS branch URL shown by Amplify (no path). Build output is `dist/aafxx/browser`. The build uses the packaged Chromium binary for Amazon Linux compatibility. Keep this as a separate preview branch; no main-branch merge is required.
+
+For an existing Amplify app with custom build settings, ensure the branch uses the repository `amplify.yml`. Preserve existing production branches and custom domains. The root deployment has route directories for direct navigation, and image URLs follow the configured base path.

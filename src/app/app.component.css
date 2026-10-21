@@ -755,7 +755,7 @@ nav a:hover {
 }
 .portrait-large,
 .portrait-small {
-  background-image: url("/aafxx-angular/assets/founder-biography.jpeg");
+  background-image: var(--founder-image);
   background-size: 392% auto;
   background-position: 9.3% 11.5%;
   background-repeat: no-repeat;

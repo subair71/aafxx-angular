@@ -4,7 +4,7 @@ import { readFile, mkdir } from "node:fs/promises";
 import { join, extname } from "node:path";
 import assert from "node:assert/strict";
 const root = "dist/aafxx/browser",
-  base = "/aafxx-angular/";
+  base = process.env.SITE_BASE || "/aafxx-angular/";
 const server = createServer(async (req, res) => {
   let path = req.url.split("?")[0].replace(base, "");
   if (!extname(path)) path += "index.html";

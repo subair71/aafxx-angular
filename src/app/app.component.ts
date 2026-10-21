@@ -160,6 +160,7 @@ export class AppComponent {
     return this.base + (p === "Home" ? "" : p.toLowerCase() + "/");
   }
   constructor() {
+    document.documentElement.style.setProperty("--founder-image", `url("${this.base}assets/founder-biography.jpeg")`);
     try {
       this.dark.set(localStorage.getItem("aafxx-theme") === "dark");
     } catch {}
@@ -204,7 +205,7 @@ export class AppComponent {
       .querySelector('link[rel="canonical"]')
       ?.setAttribute(
         "href",
-        "https://subair71.github.io" + this.href(this.page()),
+        location.origin + this.href(this.page()),
       );
     document
       .querySelector('meta[name="robots"]')
