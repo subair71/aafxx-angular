@@ -20,3 +20,11 @@ npx playwright install --with-deps chromium
 npm run prerender
 
 The Pages workflow generates HTML for public routes plus noindex account/checkout routes. Sitemap excludes transactional routes. On GitHub project Pages, robots.txt lives below the project path; domain-wide robots control requires access to the host root.
+
+## Stitch design branch
+
+`feature/stitch-academy-redesign` implements the supplied light and dark reference designs as Angular templates and CSS. Light is the default; the accessible theme button persists the selected theme in local storage. The shared design covers all 12 routes, cart, resource details, student portal and all checkout steps.
+
+Reference market prices, invented testimonials, reader counts and accreditation claims were not imported. The chart is explicitly illustrative, and the existing AAFXX biography, product catalogue and unpaid checkout behaviour are retained.
+
+The branch-only `Validate academy redesign` workflow runs build, pre-render and UI checks and uploads a review artifact containing static output and mobile/desktop screenshots. It does not deploy GitHub Pages.

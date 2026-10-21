@@ -1,45 +1,1090 @@
-<header><div class="wrap nav"><button class="logo" (click)="go('Home')"><span class="crest">A</span><span>AAFXX<small>TRADING ACADEMY</small></span></button><nav id="primary-navigation" aria-label="Main navigation" [class.open]="menu()"><a [href]="href(p)" *ngFor="let p of pages" [class.active]="page()===p" [attr.aria-current]="page()===p?'page':null" (click)="go(p,$event)">{{p}}</a></nav><div class="actions"><button (click)="cartVisible.set(true)">Cart ({{count()}})</button><button class="gold small" (click)="loginVisible.set(true)">Student Login</button><button class="hamburger" aria-label="Toggle navigation" aria-controls="primary-navigation" [attr.aria-expanded]="menu()" (click)="menu.set(!menu())">{{menu() ? '✕' : '☰'}}</button></div></div></header>
-<main>
-@if(page()==='Home'){
-<section class="hero"><div class="wrap hero-grid"><div class="hero-copy"><p class="kicker"><span class="eyebrow-line"></span> THE ART OF INFORMED TRADING</p><h1>Build knowledge.<br>Trade with <em>perspective.</em></h1><p class="lead">A considered approach to forex education. Explore books, structured learning and the ideas behind the AAFXX method.</p><div class="buttons"><button class="gold" (click)="go('Courses')">Explore the academy <span>↗</span></button><button class="text-button" (click)="go('Books')">Discover the library <span>→</span></button></div><div class="hero-note"><p>Knowledge first. Discipline always.<small>Educational resources for your trading journey.</small></p></div></div><div class="hero-visual"><div class="visual-top"><span>THE AAFXX LIBRARY</span><span>VOL. 01 / FEATURED READ</span></div><div class="feature-book" aria-label="Why They Call Me Prof., book cover illustration"><div class="book-top">AAFXX <span>EDUCATION SERIES</span></div><div class="feature-book-title">Why They<br>Call Me<br><em>Prof.</em></div><div class="book-rule"></div><div class="book-author">BERTHRAM C. CHIDI EKE<small>Ideas. Perspective. Discipline.</small></div></div><div class="visual-bottom"><span>A new perspective<br><strong>starts with a good book.</strong></span><button aria-label="Explore featured book" (click)="go('Books')">↗</button></div><div class="visual-orbit" aria-hidden="true"></div></div></div></section>
-<section class="wrap shortcuts"><button (click)="go('Books')"><small>01 / THE LIBRARY</small><h3>The library <span>↗</span></h3><p>Learn through practical reading</p></button><button (click)="go('Courses')"><small>02 / THE ACADEMY</small><h3>The academy <span>↗</span></h3><p>Build knowledge at your pace</p></button><button (click)="go('Strategies')"><small>03 / THE METHOD</small><h3>The method <span>↗</span></h3><p>Understand the frameworks</p></button><button (click)="go('Achievements')"><small>04 / THE JOURNEY</small><h3>The journey <span>↗</span></h3><p>Explore the founder's story</p></button></section>
-<section class="wrap section"><div class="section-head"><div><p class="kicker">EXPLORE THE LIBRARY</p><h2>A little reading.<br><em>A wider perspective.</em></h2></div><button class="link" (click)="go('Books')">View all books ↗</button></div><div class="cards"><article *ngFor="let i of items.slice(0,3)"><div class="cover"><span class="tag">{{i.tag}}</span><div class="book"><small>AAFXX</small><strong>{{i.name}}</strong><small>BERTHRAM C. CHIDI EKE</small></div></div><div class="card-body"><h3><button class="product-title" (click)="selected.set(i)">{{i.name}}</button></h3><p>{{i.detail}}</p><div class="card-bottom"><b>${{i.price}}</b><button (click)="add(i)">Add to cart ↗</button></div></div></article></div></section>
-<section class="band"><div class="wrap band-grid"><div><p class="kicker">THE AAFXX METHOD</p><h2>Learn the logic.<br><em>Master the discipline.</em></h2><p>Understand trend, direction, location, moving averages and risk management with clear educational explanations.</p><button class="gold" (click)="go('Strategies')">Explore Strategies ↗</button></div><div class="method"><div><span>01</span><h3>Read the trend</h3><p>Understand the broader market context.</p></div><div><span>02</span><h3>Find direction</h3><p>Bring structure to your chart analysis.</p></div><div><span>03</span><h3>Know your location</h3><p>Study entries and exits with intention.</p></div><div><span>04</span><h3>Define your risk</h3><p>Make capital protection part of the plan.</p></div></div></div></section>
-<section class="wrap section about-strip"><div><p class="kicker">MEET THE FOUNDER</p><h2>A trader, educator <em>& author.</em></h2><p>Discover the vision behind AAFXX and the educational principles guiding its trading resources.</p><button class="outline" (click)="go('About')">Read the Story ↗</button></div><div class="founder-card"><span class="portrait-small" role="img" aria-label="Prince Berthram Chidi Eke"></span><p class="kicker">FOUNDER'S PERSPECTIVE</p><blockquote>“My classroom is<br>the 5-Minute chart.”</blockquote><p>Prof. Berthram C. Chidi Eke<small>Founder, AAFXX</small></p></div></section>
-}
-@if(page()==='Books'||page()==='Courses'){
-<section class="page-title wrap"><p class="kicker">AAFXX {{page()==='Books'?'LIBRARY':'ACADEMY'}}</p><h1>{{page()==='Books'?'Books & Publications':'Online Training'}}</h1><p>{{page()==='Books'?'Educational books and resources for the modern trader.':'Structured learning paths for disciplined, informed trading.'}}</p></section><section class="wrap section"><div class="cards"><ng-container *ngFor="let i of items">@if(i.type===page()){<article><div class="cover"><span class="tag">{{i.tag}}</span><div class="book" [class.course]="page()==='Courses'"><small>AAFXX ACADEMY</small><strong>{{i.name}}</strong><small>{{page()==='Books'?'TRADING LIBRARY':'ONLINE TRAINING'}}</small></div></div><div class="card-body"><h3><button class="product-title" (click)="selected.set(i)">{{i.name}}</button></h3><p>{{i.detail}}</p><div class="card-bottom"><b>${{i.price}}</b><button (click)="add(i)">{{page()==='Books'?'Add to cart':'Enroll'}} ↗</button></div></div></article>}</ng-container></div></section>
-}
-@if(page()==='Strategies'){
-<section class="page-title wrap"><p class="kicker">OUR APPROACH</p><h1>Trading <em>Strategies</em></h1><p>Explore educational explanations of the methods and concepts featured in the AAFXX materials.</p></section><section class="wrap section strategy-grid"><article *ngFor="let s of strategies;index as n"><span class="number">0{{n+1}}</span><h2>{{s[0]}}</h2><p>{{s[1]}}</p><button class="link" (click)="go('Courses')">Explore related training ↗</button></article></section>
-}
-@if(page()==='Achievements'){
-<section class="page-title wrap"><p class="kicker">THE JOURNEY</p><h1>Achievements & <em>Milestones</em></h1><p>The ideas, publications and educational mission behind AAFXX. Explore the founder’s own account of his work.</p></section><section class="wrap section gallery"><article *ngFor="let image of images;index as n"><img [src]="'assets/'+image" [alt]="'AAFXX supplied achievement graphic '+(n+1)" loading="lazy"><p>From the founder’s archive · {{n+1}}</p></article></section>
-}
-@if(page()==='About'){
-<section class="page-title wrap"><p class="kicker">THE PERSON BEHIND THE METHOD</p><h1>Prince Berthram<br>Chidi Eke <em>(JP)</em></h1><p>Founder, AAFXX · Author · Financial market educator</p></section>
-<section class="wrap section about-strip"><div><p class="kicker">KNOWLEDGE. DISCIPLINE. PURPOSE.</p><h2>A lifetime of experience.<br><em>A mission to teach.</em></h2><p>Prince Berthram Chidi Eke is a Justice of the Peace in Imo State, Nigeria. His biography spans over 30 years in business systems, leadership and quantitative analysis, alongside over 14 years of live trading in forex, indices and commodities.</p><p>Known to his audience as “Prof.”, he brings a disciplined, mechanical approach to market analysis, placing structured systems, trading psychology and risk control at the centre of education.</p><p>“Trading is not gambling; it is structured systems, psychology and rigorous risk control.”</p></div><figure class="founder-photo"><div class="portrait-large" role="img" aria-label="AAFXX founder Prince Berthram Chidi Eke (JP)"></div><figcaption>Prince Berthram Chidi Eke (JP) · Founder & author</figcaption></figure></section>
-<section class="band"><div class="wrap band-grid"><div><p class="kicker">EDUCATION & LEADERSHIP</p><h2>Grounded in systems.<br><em>Driven by learning.</em></h2><p>Currently pursuing a Ph.D. in Artificial Intelligence, according to his supplied biography.</p></div><div><h3>Academic background</h3><p>M.Sc. in Management Information Systems (Computer Science), Ambrose Alli University; Postgraduate Diploma in Computer Science, Federal University of Technology Owerri; NCE in Mathematics and Physics Education, University of Ibadan.</p><h3>Business leadership</h3><p>Chairman and Managing Director of FSH Limited, Nigeria; Investor and Logistics Director at VATES Facilities Support WLL, Bahrain; Country Representative for Jollof House WLL Bahrain.</p></div></div></section>
-<section class="wrap section"><p class="kicker">THE AAFXX VISION</p><h2>Help 1,000 people build<br><em>their financial knowledge.</em></h2><p>The founder’s “1,000 Wealth Creators” mission connects practical books, MQL5 Expert Advisors, TradingView Pine Script indicators and wall-mount checklists, with and without coding. His planned four-book learning series begins with Book 1, Minor Daily, progressing from beginner to advanced study.</p><p>His work includes the AAFXX Triline System (EMA9, SMA20, MFI50, RSI50 and candle patterns at EMA9), five FINAL V3 Expert Advisors and BBB CMM trading systems.</p><button class="gold" (click)="go('Strategies')">Discover the frameworks →</button></section>
-}
-@if(page()==='Contact'){
-<section class="page-title wrap"><p class="kicker">GET IN TOUCH</p><h1>Contact <em>AAFXX</em></h1><p>Ask about books, courses, collaborations or training opportunities.</p></section><section class="wrap section contact-grid"><div><h2>Let's start a <em>conversation.</em></h2><p>Tell us what you would like to learn. Prepare an enquiry for our books, education programmes or collaborations.</p></div><form #inquiry="ngForm" (ngSubmit)="inquiry.valid && contact()"><label>Your name<input name="name" [(ngModel)]="name" required placeholder="Full name"></label><label>Email address<input name="email" type="email" [(ngModel)]="email" required placeholder="you@example.com"></label><label>Your message<textarea name="message" [(ngModel)]="message" required rows="5" placeholder="How can we help?"></textarea></label><button class="gold" type="submit" [disabled]="inquiry.invalid">Continue to Email ↗</button></form></section>
-}
+<a class="skip-link" href="#main-content">Skip to content</a>
+<header>
+  <div class="market-strip">
+    <div class="wrap market-inner">
+      <span class="market-label"><i></i> FOREX EDUCATION</span
+      ><span>EUR / USD <b>MAJORS</b></span
+      ><span>GBP / USD <b>MARKET STRUCTURE</b></span
+      ><span>XAU / USD <b>COMMODITIES</b></span
+      ><span class="strip-end">KNOWLEDGE FIRST · DISCIPLINE ALWAYS</span>
+    </div>
+  </div>
+  <div class="wrap nav">
+    <a class="logo" [href]="href('Home')" (click)="go('Home', $event)"
+      ><span>AAFXX <b>ACADEMY</b></span
+      ><small>ANYBODY WINS ANYTIME, ANYDAY, ANYWHERE</small></a
+    >
+    <nav
+      id="primary-navigation"
+      aria-label="Main navigation"
+      [class.open]="menu()"
+    >
+      <a
+        *ngFor="let p of pages"
+        [href]="href(p)"
+        [class.active]="page() === p"
+        [attr.aria-current]="page() === p ? 'page' : null"
+        (click)="go(p, $event)"
+        >{{ p }}</a
+      >
+    </nav>
+    <div class="actions">
+      <button
+        class="cart-button"
+        (click)="cartVisible.set(true)"
+        [attr.aria-label]="'Open cart, ' + count() + ' items'"
+      >
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M5 7h14l1 14H4L5 7Zm3 0V5a4 4 0 0 1 8 0v2" /></svg
+        ><span>{{ count() }}</span></button
+      ><button class="outline portal-button" (click)="loginVisible.set(true)">
+        Student Portal</button
+      ><button
+        class="theme-toggle"
+        (click)="toggleTheme()"
+        [attr.aria-label]="
+          dark() ? 'Switch to light theme' : 'Switch to dark theme'
+        "
+        [attr.aria-pressed]="dark()"
+      >
+        {{ dark() ? "☀" : "☾" }}</button
+      ><button
+        class="hamburger"
+        aria-label="Toggle navigation"
+        aria-controls="primary-navigation"
+        [attr.aria-expanded]="menu()"
+        (click)="menu.set(!menu())"
+      >
+        {{ menu() ? "✕" : "☰" }}
+      </button>
+    </div>
+  </div>
+</header>
+<main id="main-content">
+  @if (page() === "Home") {
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="kicker badge">
+            THE ART OF INFORMED TRADING · AAFXX ACADEMY
+          </p>
+          <h1>Build knowledge.<br />Trade with <em>perspective.</em></h1>
+          <p class="lead">
+            A considered approach to forex education. Explore practical books,
+            structured learning, and the principles behind the AAFXX trading
+            framework.
+          </p>
+          <div class="buttons">
+            <button class="gold" (click)="go('Courses')">
+              Explore the academy ↗</button
+            ><button class="outline" (click)="go('Books')">
+              Discover the library →
+            </button>
+          </div>
+          <div class="metric-label">
+            <span>THE FOUNDATIONS</span
+            ><span>Knowledge first · Discipline always</span>
+          </div>
+          <div class="metrics">
+            <div>
+              <strong>4 pillars</strong><small>TRADING DISCIPLINE</small>
+            </div>
+            <div><strong>5-minute</strong><small>CHART STUDY</small></div>
+            <div>
+              <strong>Books + courses</strong><small>STRUCTURED LEARNING</small>
+            </div>
+            <div>
+              <strong>Risk first</strong><small>CAPITAL AWARENESS</small>
+            </div>
+          </div>
+        </div>
+        <div
+          class="terminal"
+          aria-label="Illustrative chart showing market structure for education"
+        >
+          <div class="terminal-head">
+            <span class="window-dots"><i></i><i></i><i></i></span
+            ><strong>M5 // CHART STUDY</strong
+            ><span class="status">EDUCATIONAL</span>
+          </div>
+          <div class="terminal-data">
+            <span>CONTEXT <b>TREND</b></span
+            ><span>FOCUS <b>STRUCTURE</b></span>
+          </div>
+          <div class="chart">
+            <svg
+              viewBox="0 0 440 240"
+              role="img"
+              aria-label="Illustrative rising candlestick chart with moving averages"
+            >
+              <defs>
+                <pattern
+                  id="chart-grid"
+                  width="36"
+                  height="32"
+                  patternUnits="userSpaceOnUse"
+                >
+                  <path
+                    d="M36 0H0V32"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width=".6"
+                  />
+                </pattern>
+              </defs>
+              <rect
+                width="440"
+                height="240"
+                fill="url(#chart-grid)"
+                class="chart-grid"
+              />
+              <path
+                d="M12 194C90 190 130 170 205 128S330 90 430 47"
+                class="slow-ma"
+              />
+              <path
+                d="M12 210C90 200 145 155 215 115S335 65 430 32"
+                class="fast-ma"
+              />
+              <rect x="237" y="91" width="172" height="45" class="entry-zone" />
+              <text x="246" y="106" class="chart-label">
+                M5 · LOCATION STUDY
+              </text>
+              <g
+                *ngFor="let c of candles"
+                [attr.transform]="'translate(' + c.x + ',0)'"
+                [class.bearish]="c.down"
+                class="candle"
+              >
+                <line
+                  x1="0"
+                  x2="0"
+                  [attr.y1]="c.y - 9"
+                  [attr.y2]="c.y + c.h + 10"
+                />
+                <rect x="-5" width="10" [attr.y]="c.y" [attr.height]="c.h" />
+              </g>
+              <text x="15" y="232" class="axis-label">TREND</text>
+              <text x="178" y="232" class="axis-label">DIRECTION</text>
+              <text x="359" y="232" class="axis-label">LOCATION</text>
+            </svg>
+          </div>
+          <div class="terminal-tags">
+            <span>CONTEXT <b>Multi-timeframe</b></span
+            ><span>ANALYSIS <b>Moving averages</b></span
+            ><span>PRIORITY <b>Risk control</b></span>
+          </div>
+          <div class="terminal-foot">
+            <span class="status-dot"></span> AAFXX framework
+            <small>Illustrative chart · not live prices</small>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="wrap shortcuts">
+      <a [href]="href('Books')" (click)="go('Books', $event)"
+        ><small>01 / THE LIBRARY</small>
+        <h3>The library <span>↗</span></h3>
+        <p>
+          Learn through practical reading, clear explanations and the
+          foundations of disciplined market analysis.
+        </p>
+        <div>READING · DIGITAL <b>3 VOLUMES</b></div></a
+      ><a [href]="href('Courses')" (click)="go('Courses', $event)"
+        ><small>02 / THE ACADEMY</small>
+        <h3>The academy <span>↗</span></h3>
+        <p>
+          Build knowledge at your pace through a structured journey covering
+          principles, psychology and risk.
+        </p>
+        <div>CURRICULUM <b>SELF-PACED</b></div></a
+      ><a [href]="href('Strategies')" (click)="go('Strategies', $event)"
+        ><small>03 / THE METHOD</small>
+        <h3>The method <span>↗</span></h3>
+        <p>
+          Understand the frameworks. Study market direction, chart location and
+          thoughtful trade planning.
+        </p>
+        <div>EDUCATION <b>4 PILLARS</b></div></a
+      ><a [href]="href('Achievements')" (click)="go('Achievements', $event)"
+        ><small>04 / THE JOURNEY</small>
+        <h3>The journey <span>↗</span></h3>
+        <p>
+          Explore the founder’s story, from business leadership to a lasting
+          commitment to trading education.
+        </p>
+        <div>PHILOSOPHY <b>PRINCIPLES</b></div></a
+      >
+    </section>
+    <section class="library-section">
+      <div class="wrap section">
+        <div class="section-head">
+          <div>
+            <p class="kicker">EXPLORE THE LIBRARY</p>
+            <h2>A little reading.<br /><em>A wider perspective.</em></h2>
+          </div>
+          <a class="link" [href]="href('Books')" (click)="go('Books', $event)"
+            >View all books ↗</a
+          >
+        </div>
+        <article class="featured-volume">
+          <div>
+            <p class="kicker">
+              <span class="badge">VOL. 01 / FEATURED READ</span> AAFXX EDUCATION
+              SERIES
+            </p>
+            <h3>Why They Call Me <em>Prof.</em></h3>
+            <p class="byline">
+              BY BERTHRAM C. CHIDI EKE · IDEAS. PERSPECTIVE. DISCIPLINE.
+            </p>
+            <p>
+              An introduction to the AAFXX trading philosophy. Discover the
+              ideas behind a structured approach to charts, trading psychology
+              and risk management.
+            </p>
+            <div class="buttons">
+              <button class="gold" (click)="add(items[0])">
+                Add to cart · $29 ↗</button
+              ><button class="link" (click)="selected.set(items[0])">
+                Explore this book →
+              </button>
+            </div>
+          </div>
+          <div class="featured-book-stage">
+            <div class="feature-book">
+              <div class="book-top">AAFXX PUBLISHING <span>01</span></div>
+              <div class="feature-book-title">
+                Why They<br />Call Me<br /><em>Prof.</em>
+              </div>
+              <p>BERTHRAM C. CHIDI EKE</p>
+              <div class="book-bottom">
+                MARKET WISDOM <b>FOCUSED MINDSET</b>
+              </div>
+            </div>
+          </div>
+        </article>
+        <div class="cards compact-cards">
+          <article *ngFor="let i of items.slice(0, 3)">
+            <div class="product-meta">
+              <span class="tag">{{ i.tag }}</span
+              ><b>${{ i.price }}</b>
+            </div>
+            <div class="cover">
+              <div class="book">
+                <small>VOL. 0{{ i.id }} / AAFXX LIBRARY</small
+                ><strong>{{ i.name }}</strong
+                ><small>KNOWLEDGE · DISCIPLINE</small>
+              </div>
+            </div>
+            <div class="card-body">
+              <h3>
+                <button class="product-title" (click)="selected.set(i)">
+                  {{ i.name }}
+                </button>
+              </h3>
+              <p>{{ i.detail }}</p>
+              <div class="card-bottom">
+                <small>DIGITAL EDITION</small
+                ><button (click)="add(i)">Add to cart ↗</button>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+    <section class="wrap section method-section">
+      <div class="section-head">
+        <div>
+          <p class="kicker">THE AAFXX METHOD</p>
+          <h2>Learn the logic.<br /><em>Master the discipline.</em></h2>
+        </div>
+        <div class="section-intro">
+          <p>
+            Understand trend, direction, location, moving averages and risk
+            management with clear educational explanations.
+          </p>
+          <a
+            class="link"
+            [href]="href('Strategies')"
+            (click)="go('Strategies', $event)"
+            >Explore Strategies ↗</a
+          >
+        </div>
+      </div>
+      <div class="method">
+        <div>
+          <span>01</span>
+          <h3>Read the trend</h3>
+          <p>
+            Understand the broader market context and identify direction before
+            studying individual setups.
+          </p>
+          <small>→ Multi-timeframe alignment</small>
+        </div>
+        <div>
+          <span>02</span>
+          <h3>Find direction</h3>
+          <p>
+            Bring structure to chart analysis. Compare moving averages and
+            observe how price behaves.
+          </p>
+          <small>→ Moving averages & momentum</small>
+        </div>
+        <div>
+          <span>03</span>
+          <h3>Know your location</h3>
+          <p>
+            Study entries and exits with intention. Explore the relationship
+            between timeframes and price.
+          </p>
+          <small>→ Chart context & location</small>
+        </div>
+        <div>
+          <span>04</span>
+          <h3>Define your risk</h3>
+          <p>
+            Make capital protection part of the plan, with deliberate position
+            sizing and clear boundaries.
+          </p>
+          <small>→ Calculated risk planning</small>
+        </div>
+      </div>
+      <div class="execution-note">
+        <b>AAFXX learning framework</b>
+        <p>
+          Four connected principles. A structured approach to study, practice
+          and reflection.
+        </p>
+        <span>KNOWLEDGE → DISCIPLINE → PERSPECTIVE</span>
+      </div>
+    </section>
+    <section class="founder-section">
+      <div class="wrap section founder-grid">
+        <div class="founder-profile">
+          <div
+            class="portrait-large"
+            role="img"
+            aria-label="Prince Berthram Chidi Eke (JP)"
+          ></div>
+          <div class="founder-caption">
+            <p class="kicker">FOUNDER & EDUCATOR</p>
+            <h3>Prince Berthram Chidi Eke</h3>
+            <p>Author · Financial market educator</p>
+          </div>
+          <p class="founder-creed">KNOWLEDGE FIRST. DISCIPLINE ALWAYS.</p>
+        </div>
+        <div>
+          <p class="kicker">MEET THE FOUNDER</p>
+          <h2>A trader, educator <em>& author.</em></h2>
+          <div class="founder-card">
+            <p class="kicker">FOUNDER’S PERSPECTIVE</p>
+            <blockquote>“My classroom is the 5-Minute chart.”</blockquote>
+            <p>PRINCE BERTHRAM CHIDI EKE · FOUNDER, AAFXX</p>
+          </div>
+          <p>
+            Discover the vision behind AAFXX and the educational principles
+            guiding its trading resources. The founder’s experience connects
+            business systems, market analysis and a commitment to making complex
+            ideas easier to understand.
+          </p>
+          <p>
+            Through practical books and structured learning, explore a
+            disciplined approach to trading psychology and risk control.
+          </p>
+          <div class="buttons">
+            <button class="outline" (click)="go('About')">
+              Read the Story ↗</button
+            ><button class="link" (click)="go('Achievements')">
+              Explore the founder’s journey →
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+    <section class="wrap section">
+      <div class="section-head">
+        <div>
+          <p class="kicker">YOUR LEARNING JOURNEY</p>
+          <h2>Build your foundation.<br /><em>Deepen your perspective.</em></h2>
+        </div>
+        <p class="section-intro">
+          Choose a starting point that suits your experience. Progress through
+          knowledge, application and reflection.
+        </p>
+      </div>
+      <div class="learning-paths">
+        <article *ngFor="let i of items.slice(3); index as n">
+          <span class="kicker">0{{ n + 1 }} / {{ i.tag }}</span>
+          <h3>{{ i.name }}</h3>
+          <p>{{ i.detail }}</p>
+          <button class="link" (click)="selected.set(i)">
+            Explore the learning path →
+          </button>
+        </article>
+      </div>
+    </section>
+    <section class="wrap cta-section">
+      <div class="academy-cta">
+        <p class="kicker badge">BEGIN YOUR NEXT CHAPTER</p>
+        <h2>Elevate your trading<br /><em>perspective.</em></h2>
+        <p>
+          Turn curiosity into structured learning. Begin with our core reading
+          resources or explore the academy’s learning paths.
+        </p>
+        <div class="buttons">
+          <button class="gold" (click)="go('Courses')">
+            Begin academy training ↗</button
+          ><button class="outline" (click)="go('Books')">
+            Browse all books →
+          </button>
+        </div>
+      </div>
+    </section>
+  }
+  @if (page() === "Books" || page() === "Courses") {
+    <section class="page-title wrap">
+      <p class="kicker">
+        AAFXX {{ page() === "Books" ? "LIBRARY" : "ACADEMY" }}
+      </p>
+      <h1>
+        {{ page() === "Books" ? "Books & Publications" : "Online Training" }}
+      </h1>
+      <p>
+        {{
+          page() === "Books"
+            ? "Educational books and resources for the modern trader."
+            : "Structured learning paths for disciplined, informed trading."
+        }}
+      </p>
+    </section>
+    <section class="wrap section catalogue-section">
+      <div class="catalogue-summary">
+        <span>{{
+          page() === "Books"
+            ? "THE READING COLLECTION"
+            : "THE LEARNING COLLECTION"
+        }}</span
+        ><span>03 RESOURCES · ENGLISH</span>
+      </div>
+      <div class="cards">
+        <ng-container *ngFor="let i of items">
+          @if (i.type === page()) {
+            <article>
+              <div class="cover">
+                <span class="tag">{{ i.tag }}</span>
+                <div class="book" [class.course]="page() === 'Courses'">
+                  <small>AAFXX ACADEMY</small><strong>{{ i.name }}</strong
+                  ><small>{{
+                    page() === "Books" ? "TRADING LIBRARY" : "ONLINE TRAINING"
+                  }}</small>
+                </div>
+              </div>
+              <div class="card-body">
+                <h3>
+                  <button class="product-title" (click)="selected.set(i)">
+                    {{ i.name }}
+                  </button>
+                </h3>
+                <p>{{ i.detail }}</p>
+                <div class="card-bottom">
+                  <b>${{ i.price }}</b
+                  ><button (click)="add(i)">
+                    {{ page() === "Books" ? "Add to cart" : "Enroll" }} ↗
+                  </button>
+                </div>
+              </div>
+            </article>
+          }
+        </ng-container>
+      </div>
+    </section>
+  }
+  @if (page() === "Strategies") {
+    <section class="page-title wrap">
+      <p class="kicker">OUR APPROACH</p>
+      <h1>Trading <em>Strategies</em></h1>
+      <p>
+        Explore educational explanations of the methods and concepts featured in
+        the AAFXX materials.
+      </p>
+    </section>
+    <section class="wrap section strategy-grid">
+      <article *ngFor="let s of strategies; index as n">
+        <span class="number">0{{ n + 1 }}</span>
+        <h2>{{ s[0] }}</h2>
+        <p>{{ s[1] }}</p>
+        <button class="link" (click)="go('Courses')">
+          Explore related training ↗
+        </button>
+      </article>
+    </section>
+  }
+  @if (page() === "Achievements") {
+    <section class="page-title wrap">
+      <p class="kicker">THE JOURNEY</p>
+      <h1>Achievements & <em>Milestones</em></h1>
+      <p>
+        The ideas, publications and educational mission behind AAFXX. Explore
+        the founder’s own account of his work.
+      </p>
+    </section>
+    <section class="wrap section gallery">
+      <article *ngFor="let image of images; index as n">
+        <img
+          [src]="'assets/' + image"
+          [alt]="'AAFXX supplied achievement graphic ' + (n + 1)"
+          loading="lazy"
+        />
+        <p>From the founder’s archive · {{ n + 1 }}</p>
+      </article>
+    </section>
+  }
+  @if (page() === "About") {
+    <section class="page-title wrap">
+      <p class="kicker">THE PERSON BEHIND THE METHOD</p>
+      <h1>Prince Berthram<br />Chidi Eke <em>(JP)</em></h1>
+      <p>Founder, AAFXX · Author · Financial market educator</p>
+    </section>
+    <section class="wrap section about-strip">
+      <div>
+        <p class="kicker">KNOWLEDGE. DISCIPLINE. PURPOSE.</p>
+        <h2>A lifetime of experience.<br /><em>A mission to teach.</em></h2>
+        <p>
+          Prince Berthram Chidi Eke is a Justice of the Peace in Imo State,
+          Nigeria. His biography spans over 30 years in business systems,
+          leadership and quantitative analysis, alongside over 14 years of live
+          trading in forex, indices and commodities.
+        </p>
+        <p>
+          Known to his audience as “Prof.”, he brings a disciplined, mechanical
+          approach to market analysis, placing structured systems, trading
+          psychology and risk control at the centre of education.
+        </p>
+        <p>
+          “Trading is not gambling; it is structured systems, psychology and
+          rigorous risk control.”
+        </p>
+      </div>
+      <figure class="founder-photo">
+        <div
+          class="portrait-large"
+          role="img"
+          aria-label="AAFXX founder Prince Berthram Chidi Eke (JP)"
+        ></div>
+        <figcaption>
+          Prince Berthram Chidi Eke (JP) · Founder & author
+        </figcaption>
+      </figure>
+    </section>
+    <section class="band">
+      <div class="wrap band-grid">
+        <div>
+          <p class="kicker">EDUCATION & LEADERSHIP</p>
+          <h2>Grounded in systems.<br /><em>Driven by learning.</em></h2>
+          <p>
+            Currently pursuing a Ph.D. in Artificial Intelligence, according to
+            his supplied biography.
+          </p>
+        </div>
+        <div>
+          <h3>Academic background</h3>
+          <p>
+            M.Sc. in Management Information Systems (Computer Science), Ambrose
+            Alli University; Postgraduate Diploma in Computer Science, Federal
+            University of Technology Owerri; NCE in Mathematics and Physics
+            Education, University of Ibadan.
+          </p>
+          <h3>Business leadership</h3>
+          <p>
+            Chairman and Managing Director of FSH Limited, Nigeria; Investor and
+            Logistics Director at VATES Facilities Support WLL, Bahrain; Country
+            Representative for Jollof House WLL Bahrain.
+          </p>
+        </div>
+      </div>
+    </section>
+    <section class="wrap section">
+      <p class="kicker">THE AAFXX VISION</p>
+      <h2>Help 1,000 people build<br /><em>their financial knowledge.</em></h2>
+      <p>
+        The founder’s “1,000 Wealth Creators” mission connects practical books,
+        MQL5 Expert Advisors, TradingView Pine Script indicators and wall-mount
+        checklists, with and without coding. His planned four-book learning
+        series begins with Book 1, Minor Daily, progressing from beginner to
+        advanced study.
+      </p>
+      <p>
+        His work includes the AAFXX Triline System (EMA9, SMA20, MFI50, RSI50
+        and candle patterns at EMA9), five FINAL V3 Expert Advisors and BBB CMM
+        trading systems.
+      </p>
+      <button class="gold" (click)="go('Strategies')">
+        Discover the frameworks →
+      </button>
+    </section>
+  }
+  @if (page() === "Contact") {
+    <section class="page-title wrap">
+      <p class="kicker">GET IN TOUCH</p>
+      <h1>Contact <em>AAFXX</em></h1>
+      <p>Ask about books, courses, collaborations or training opportunities.</p>
+    </section>
+    <section class="wrap section contact-grid">
+      <div>
+        <h2>Let's start a <em>conversation.</em></h2>
+        <p>
+          Tell us what you would like to learn. Prepare an enquiry for our
+          books, education programmes or collaborations.
+        </p>
+      </div>
+      <form #inquiry="ngForm" (ngSubmit)="inquiry.valid && contact()">
+        <label
+          >Your name<input
+            name="name"
+            [(ngModel)]="name"
+            required
+            placeholder="Full name" /></label
+        ><label
+          >Email address<input
+            name="email"
+            type="email"
+            [(ngModel)]="email"
+            required
+            placeholder="you@example.com" /></label
+        ><label
+          >Your message<textarea
+            name="message"
+            [(ngModel)]="message"
+            required
+            rows="5"
+            placeholder="How can we help?"
+          ></textarea></label
+        ><button class="gold" type="submit" [disabled]="inquiry.invalid">
+          Continue to Email ↗
+        </button>
+      </form>
+    </section>
+  }
 
-@if(page()==='Checkout'){
-<section class="page-title wrap"><p class="kicker">YOUR NEXT CHAPTER</p><h1>Checkout</h1><p>Books and learning resources · All prices in USD</p></section><section class="wrap section checkout-layout"><div>
-<ol class="steps"><li [class.current]="step()===1">Details</li><li [class.current]="step()===2">Payment</li><li [class.current]="step()===3">Review</li><li [class.current]="step()===4">Summary</li></ol>
-@if(!count()){<h2>Your cart is empty</h2><button class="gold" (click)="go('Books')">Explore books</button>}
-@else if(step()===1){<form #details="ngForm" (ngSubmit)="details.valid && step.set(2)"><h2>Your details</h2><label>Full name<input name="customerName" [(ngModel)]="customer.name" required autocomplete="name"></label><label>Email for access<input name="customerEmail" [(ngModel)]="customer.email" type="email" required email autocomplete="email"></label><label>Country / region<select name="country" [(ngModel)]="customer.country" required><option value="">Select your region</option><option>Nigeria</option><option>Bahrain</option><option>India</option><option>United Kingdom</option><option>United States</option><option>Other</option></select></label><p>Digital resources. No shipping address is needed.</p><button class="gold" [disabled]="details.invalid || !customer.name.trim()">Continue to payment →</button></form>}
-@else if(step()===2){<h2>Payment preference</h2><p>Choose how you would like to pay.</p><div class="payment-options"><button [class.selected]="payment==='Card'" (click)="payment='Card'">Credit / debit card<br><small>Visa · Mastercard</small></button><button [class.selected]="payment==='Bank transfer'" (click)="payment='Bank transfer'">Bank transfer<br><small>Pay from your bank</small></button></div><p class="notice">Payments are not being collected at this time. You can review your order without entering card or bank details.</p><button class="outline" (click)="step.set(1)">Back</button> <button class="gold" (click)="step.set(3)">Review order →</button>}
-@else if(step()===3){<h2>Review your selection</h2><p>{{customer.name}}<br>{{customer.email}}<br>{{customer.country}}</p><p>Payment preference: {{payment}}</p><p>No charge will be made. Access to purchased materials requires a completed payment.</p><label class="check"><input type="checkbox" [(ngModel)]="accepted"> I have reviewed the <a [href]="href('Terms')" target="_blank">terms</a> and <a [href]="href('Privacy')" target="_blank">privacy information</a>.</label><button class="outline" (click)="step.set(2)">Back</button> <button class="gold" [disabled]="!accepted" (click)="complete()">Create order summary →</button>}
-@else {<p class="kicker">YOUR SELECTION IS READY</p><h2>Thank you, {{customer.name}}.</h2><p>Reference: <strong>{{reference}}</strong></p><p class="notice">Payment pending · This summary is held in this browser session. No payment has been taken and no order has been sent.</p><p>Keep a copy of your selection for your records.</p><button class="gold" (click)="print()">Print / save summary</button> <button class="outline" (click)="go('Books')">Continue exploring</button>}
-</div><aside class="order-summary"><p class="kicker">ORDER SUMMARY</p><div *ngFor="let x of cart()" class="cart-item"><div><b>{{x.item.name}}</b><p>{{x.item.type}} · {{x.quantity}} × ${{x.item.price}}</p></div><strong>${{x.quantity*x.item.price}}</strong></div><p>Digital delivery <span>—</span></p><h3>Total <span>${{total()}} USD</span></h3><small>Final taxes, if applicable, are calculated when payments become available.</small></aside></section>}
-@if(page()==='Account'){<section class="page-title wrap"><p class="kicker">YOUR LEARNING SPACE</p><h1>Keep learning.<br><em>Build your discipline.</em></h1><p>Explore the academy and plan your next step.</p></section><section class="wrap section"><div class="method"><div><h3>My learning</h3><p>Purchased courses will appear after account activation.</p><button class="link" (click)="go('Courses')">Browse courses →</button></div><div><h3>My library</h3><p>Find your next read in the AAFXX collection.</p><button class="link" (click)="go('Books')">Explore books →</button></div></div></section>}
-@if(page()==='FAQ'){<section class="page-title wrap"><p class="kicker">HELP CENTRE</p><h1>Frequently asked <em>questions.</em></h1></section><section class="wrap section faq"><details open><summary>Who is AAFXX for?</summary><p>Readers and traders seeking structured education in chart interpretation, discipline and risk management, from foundations to more advanced frameworks.</p></details><details><summary>What is the AAFXX method?</summary><p>A collection of educational frameworks covering trend, direction, location, moving-average relationships, multi-timeframe alignment and risk planning.</p></details><details><summary>Do these methods guarantee returns?</summary><p>No. Trading can result in substantial losses. Educational examples and the founder’s reported results do not predict future performance.</p></details><details><summary>Can I complete a payment today?</summary><p>You can select resources and prepare an order summary. Payment collection is currently unavailable; no card information is requested.</p></details><details><summary>How do I contact AAFXX?</summary><p>Use the contact page to prepare an email enquiry about resources, training or collaboration.</p></details></section>}
-@if(page()==='Privacy'||page()==='Terms'){<section class="page-title wrap"><p class="kicker">INFORMATION</p><h1>{{page()==='Privacy'?'Privacy information':'Website terms'}}</h1></section><section class="wrap section legal">@if(page()==='Privacy'){<h2>Your information</h2><p>Your cart selections are stored locally in this browser. Checkout details remain in memory for this visit and are not submitted to a server. Refreshing the page clears those details.</p><p>The contact form opens your email application; you choose whether to send the message. Do not include passwords, payment information or sensitive documents.</p><p>The website uses externally hosted Google Fonts. These requests disclose standard connection information to that provider. Clear your browser’s site data to remove stored cart selections.</p>}@else{<h2>Education and responsible use</h2><p>AAFXX resources are educational and do not constitute personalised investment advice. Forex and leveraged trading involve substantial risk. No profits or outcomes are guaranteed.</p><h3>Orders and availability</h3><p>The checkout currently prepares a local order summary. It does not create a binding purchase, collect payment or grant digital access. Availability, final charges, licence terms and applicable cancellation rights must be confirmed before a purchase is completed.</p><h3>Intellectual property</h3><p>AAFXX content and supplied artwork are presented for learning and reference. Do not redistribute paid materials without permission.</p>}</section>}
-</main><footer><div class="wrap footer-grid"><div><h2>AAFXX</h2><p>Anybody Wins Anytime, Anyday, Anywhere.</p></div><div><p>EXPLORE</p><button (click)="go('Books')">Books</button><button (click)="go('Courses')">Courses</button><button (click)="go('Strategies')">Strategies</button></div><div><p>INFORMATION</p><button (click)="go('About')">About</button><button (click)="go('Achievements')">Achievements</button><button (click)="go('Contact')">Contact</button><a [href]="href('FAQ')" (click)="go('FAQ',$event)">Help & FAQ</a><a [href]="href('Privacy')" (click)="go('Privacy',$event)">Privacy</a><a [href]="href('Terms')" (click)="go('Terms',$event)">Terms</a></div></div><div class="wrap footnote">© 2026 AAFXX. Educational content only. Forex trading involves substantial risk and may result in financial loss. No profits are guaranteed.</div></footer>
-@if(cartVisible()){<div class="overlay" (click)="cartVisible.set(false)"></div><aside class="drawer" role="dialog" aria-label="Shopping cart" aria-modal="true"><div class="modal-head"><h2>Your Cart ({{count()}})</h2><button aria-label="Close cart" (click)="cartVisible.set(false)">✕</button></div>@if(count()===0){<p>Your cart is empty.</p>}@else{<div *ngFor="let x of cart()" class="cart-item"><div><b>{{x.item.name}}</b><p><button (click)="quantity(x.item.id,-1)" aria-label="Decrease quantity">−</button> {{x.quantity}} <button (click)="quantity(x.item.id,1)" aria-label="Increase quantity">+</button> · ${{x.item.price}}</p></div><button (click)="remove(x.item.id)">Remove</button></div>}<div class="checkout"><h3>Total: ${{total()}}</h3><button class="gold" [disabled]="count()===0" (click)="checkout()">Proceed to Checkout ↗</button></div></aside>}
-@if(loginVisible()){<div class="overlay" (click)="loginVisible.set(false)"></div><div class="login-modal" role="dialog" aria-label="Student portal" aria-modal="true"><div class="modal-head"><h2>Student Portal</h2><button aria-label="Close student portal" (click)="loginVisible.set(false)">✕</button></div><p>Explore your learning workspace, reading list and order journey.</p><button class="gold" (click)="portal()">Open learning workspace →</button><p>Your purchases appear here after payment and account activation.</p></div>}
-@if(selected(); as item){<div class="overlay" (click)="selected.set(null)"></div><section class="login-modal" role="dialog" aria-modal="true" aria-label="Resource details"><div class="modal-head"><p class="kicker">AAFXX {{item.type}}</p><button aria-label="Close details" (click)="selected.set(null)">✕</button></div><h2>{{item.name}}</h2><p>{{item.detail}}</p><h3>What you will explore</h3><ul><li>Market structure and chart context</li><li>Structured analysis and trading discipline</li><li>Risk planning and reflective practice</li></ul><p>{{item.type==='Books'?'Digital reading resource':'Self-paced learning programme'}} · English</p><p>Build your knowledge at your own pace. Educational content does not guarantee trading results.</p><button class="gold" (click)="add(item);selected.set(null)">Add to cart · ${{item.price}}</button></section>}
-@if(alert()){<div class="toast" role="alert">{{alert()}} <button (click)="alert.set('')">✕</button></div>}
+  @if (page() === "Checkout") {
+    <section class="page-title wrap">
+      <p class="kicker">YOUR NEXT CHAPTER</p>
+      <h1>Checkout</h1>
+      <p>Books and learning resources · All prices in USD</p>
+    </section>
+    <section class="wrap section checkout-layout">
+      <div>
+        <ol class="steps">
+          <li [class.current]="step() === 1">Details</li>
+          <li [class.current]="step() === 2">Payment</li>
+          <li [class.current]="step() === 3">Review</li>
+          <li [class.current]="step() === 4">Summary</li>
+        </ol>
+        @if (!count()) {
+          <h2>Your cart is empty</h2>
+          <button class="gold" (click)="go('Books')">Explore books</button>
+        } @else if (step() === 1) {
+          <form #details="ngForm" (ngSubmit)="details.valid && step.set(2)">
+            <h2>Your details</h2>
+            <label
+              >Full name<input
+                name="customerName"
+                [(ngModel)]="customer.name"
+                required
+                autocomplete="name" /></label
+            ><label
+              >Email for access<input
+                name="customerEmail"
+                [(ngModel)]="customer.email"
+                type="email"
+                required
+                email
+                autocomplete="email" /></label
+            ><label
+              >Country / region<select
+                name="country"
+                [(ngModel)]="customer.country"
+                required
+              >
+                <option value="">Select your region</option>
+                <option>Nigeria</option>
+                <option>Bahrain</option>
+                <option>India</option>
+                <option>United Kingdom</option>
+                <option>United States</option>
+                <option>Other</option>
+              </select></label
+            >
+            <p>Digital resources. No shipping address is needed.</p>
+            <button
+              class="gold"
+              [disabled]="details.invalid || !customer.name.trim()"
+            >
+              Continue to payment →
+            </button>
+          </form>
+        } @else if (step() === 2) {
+          <h2>Payment preference</h2>
+          <p>Choose how you would like to pay.</p>
+          <div class="payment-options">
+            <button
+              [class.selected]="payment === 'Card'"
+              (click)="payment = 'Card'"
+            >
+              Credit / debit card<br /><small>Visa · Mastercard</small></button
+            ><button
+              [class.selected]="payment === 'Bank transfer'"
+              (click)="payment = 'Bank transfer'"
+            >
+              Bank transfer<br /><small>Pay from your bank</small>
+            </button>
+          </div>
+          <p class="notice">
+            Payments are not being collected at this time. You can review your
+            order without entering card or bank details.
+          </p>
+          <button class="outline" (click)="step.set(1)">Back</button>
+          <button class="gold" (click)="step.set(3)">Review order →</button>
+        } @else if (step() === 3) {
+          <h2>Review your selection</h2>
+          <p>
+            {{ customer.name }}<br />{{ customer.email }}<br />{{
+              customer.country
+            }}
+          </p>
+          <p>Payment preference: {{ payment }}</p>
+          <p>
+            No charge will be made. Access to purchased materials requires a
+            completed payment.
+          </p>
+          <label class="check"
+            ><input type="checkbox" [(ngModel)]="accepted" /> I have reviewed
+            the <a [href]="href('Terms')" target="_blank">terms</a> and
+            <a [href]="href('Privacy')" target="_blank">privacy information</a
+            >.</label
+          ><button class="outline" (click)="step.set(2)">Back</button>
+          <button class="gold" [disabled]="!accepted" (click)="complete()">
+            Create order summary →
+          </button>
+        } @else {
+          <p class="kicker">YOUR SELECTION IS READY</p>
+          <h2>Thank you, {{ customer.name }}.</h2>
+          <p>
+            Reference: <strong>{{ reference }}</strong>
+          </p>
+          <p class="notice">
+            Payment pending · This summary is held in this browser session. No
+            payment has been taken and no order has been sent.
+          </p>
+          <p>Keep a copy of your selection for your records.</p>
+          <button class="gold" (click)="print()">Print / save summary</button>
+          <button class="outline" (click)="go('Books')">
+            Continue exploring
+          </button>
+        }
+      </div>
+      <aside class="order-summary">
+        <p class="kicker">ORDER SUMMARY</p>
+        <div *ngFor="let x of cart()" class="cart-item">
+          <div>
+            <b>{{ x.item.name }}</b>
+            <p>{{ x.item.type }} · {{ x.quantity }} × ${{ x.item.price }}</p>
+          </div>
+          <strong>${{ x.quantity * x.item.price }}</strong>
+        </div>
+        <p>Digital delivery <span>—</span></p>
+        <h3>
+          Total <span>${{ total() }} USD</span>
+        </h3>
+        <small
+          >Final taxes, if applicable, are calculated when payments become
+          available.</small
+        >
+      </aside>
+    </section>
+  }
+  @if (page() === "Account") {
+    <section class="page-title wrap">
+      <p class="kicker">YOUR LEARNING SPACE</p>
+      <h1>Keep learning.<br /><em>Build your discipline.</em></h1>
+      <p>Explore the academy and plan your next step.</p>
+    </section>
+    <section class="wrap section">
+      <div class="method">
+        <div>
+          <h3>My learning</h3>
+          <p>Purchased courses will appear after account activation.</p>
+          <button class="link" (click)="go('Courses')">Browse courses →</button>
+        </div>
+        <div>
+          <h3>My library</h3>
+          <p>Find your next read in the AAFXX collection.</p>
+          <button class="link" (click)="go('Books')">Explore books →</button>
+        </div>
+      </div>
+    </section>
+  }
+  @if (page() === "FAQ") {
+    <section class="page-title wrap">
+      <p class="kicker">HELP CENTRE</p>
+      <h1>Frequently asked <em>questions.</em></h1>
+    </section>
+    <section class="wrap section faq">
+      <details open>
+        <summary>Who is AAFXX for?</summary>
+        <p>
+          Readers and traders seeking structured education in chart
+          interpretation, discipline and risk management, from foundations to
+          more advanced frameworks.
+        </p>
+      </details>
+      <details>
+        <summary>What is the AAFXX method?</summary>
+        <p>
+          A collection of educational frameworks covering trend, direction,
+          location, moving-average relationships, multi-timeframe alignment and
+          risk planning.
+        </p>
+      </details>
+      <details>
+        <summary>Do these methods guarantee returns?</summary>
+        <p>
+          No. Trading can result in substantial losses. Educational examples and
+          the founder’s reported results do not predict future performance.
+        </p>
+      </details>
+      <details>
+        <summary>Can I complete a payment today?</summary>
+        <p>
+          You can select resources and prepare an order summary. Payment
+          collection is currently unavailable; no card information is requested.
+        </p>
+      </details>
+      <details>
+        <summary>How do I contact AAFXX?</summary>
+        <p>
+          Use the contact page to prepare an email enquiry about resources,
+          training or collaboration.
+        </p>
+      </details>
+    </section>
+  }
+  @if (page() === "Privacy" || page() === "Terms") {
+    <section class="page-title wrap">
+      <p class="kicker">INFORMATION</p>
+      <h1>
+        {{ page() === "Privacy" ? "Privacy information" : "Website terms" }}
+      </h1>
+    </section>
+    <section class="wrap section legal">
+      @if (page() === "Privacy") {
+        <h2>Your information</h2>
+        <p>
+          Your cart selections are stored locally in this browser. Checkout
+          details remain in memory for this visit and are not submitted to a
+          server. Refreshing the page clears those details.
+        </p>
+        <p>
+          The contact form opens your email application; you choose whether to
+          send the message. Do not include passwords, payment information or
+          sensitive documents.
+        </p>
+        <p>
+          The website uses externally hosted Google Fonts. These requests
+          disclose standard connection information to that provider. Clear your
+          browser’s site data to remove stored cart selections.
+        </p>
+      } @else {
+        <h2>Education and responsible use</h2>
+        <p>
+          AAFXX resources are educational and do not constitute personalised
+          investment advice. Forex and leveraged trading involve substantial
+          risk. No profits or outcomes are guaranteed.
+        </p>
+        <h3>Orders and availability</h3>
+        <p>
+          The checkout currently prepares a local order summary. It does not
+          create a binding purchase, collect payment or grant digital access.
+          Availability, final charges, licence terms and applicable cancellation
+          rights must be confirmed before a purchase is completed.
+        </p>
+        <h3>Intellectual property</h3>
+        <p>
+          AAFXX content and supplied artwork are presented for learning and
+          reference. Do not redistribute paid materials without permission.
+        </p>
+      }
+    </section>
+  }
+</main>
+<footer>
+  <div class="wrap footer-grid">
+    <div class="footer-brand">
+      <h2>AAFXX <span>ACADEMY</span></h2>
+      <blockquote>“Anybody Wins Anytime, Anyday, Anywhere.”</blockquote>
+      <p>
+        Founded by Prince Berthram Chidi Eke. Books, courses and practical
+        frameworks for thoughtful market analysis and disciplined learning.
+      </p>
+      <div class="footer-badges">
+        <span>STRUCTURED LEARNING</span><span>RISK AWARENESS</span>
+      </div>
+    </div>
+    <div>
+      <p>ACADEMIC LIBRARY</p>
+      <a [href]="href('Books')" (click)="go('Books', $event)"
+        >Books & publications</a
+      ><a [href]="href('Courses')" (click)="go('Courses', $event)"
+        >Learning paths</a
+      ><a [href]="href('Strategies')" (click)="go('Strategies', $event)"
+        >Trading frameworks</a
+      >
+    </div>
+    <div>
+      <p>THE ACADEMY</p>
+      <a [href]="href('About')" (click)="go('About', $event)"
+        >Meet the founder</a
+      ><a [href]="href('Achievements')" (click)="go('Achievements', $event)"
+        >The journey</a
+      ><a [href]="href('Account')" (click)="go('Account', $event)"
+        >Student workspace</a
+      >
+    </div>
+    <div>
+      <p>SUPPORT</p>
+      <a [href]="href('FAQ')" (click)="go('FAQ', $event)">Help & FAQ</a
+      ><a [href]="href('Contact')" (click)="go('Contact', $event)"
+        >Contact AAFXX</a
+      ><a [href]="href('Privacy')" (click)="go('Privacy', $event)"
+        >Privacy information</a
+      ><a [href]="href('Terms')" (click)="go('Terms', $event)">Website terms</a>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="risk-note">
+      <p class="kicker">EDUCATION & RISK AWARENESS</p>
+      <p>
+        AAFXX provides educational resources. Forex and leveraged trading
+        involve substantial risk and may result in financial loss. Educational
+        frameworks and past outcomes do not guarantee future returns.
+      </p>
+    </div>
+    <div class="footnote">
+      <span>© 2026 AAFXX Trading Academy. All rights reserved.</span
+      ><span>KNOWLEDGE FIRST · DISCIPLINE ALWAYS</span>
+    </div>
+  </div>
+</footer>
+@if (cartVisible()) {
+  <div class="overlay" (click)="cartVisible.set(false)"></div>
+  <aside
+    class="drawer"
+    role="dialog"
+    aria-label="Shopping cart"
+    aria-modal="true"
+  >
+    <div class="modal-head">
+      <h2>Your Cart ({{ count() }})</h2>
+      <button aria-label="Close cart" (click)="cartVisible.set(false)">
+        ✕
+      </button>
+    </div>
+    @if (count() === 0) {
+      <p>Your cart is empty.</p>
+    } @else {
+      <div *ngFor="let x of cart()" class="cart-item">
+        <div>
+          <b>{{ x.item.name }}</b>
+          <p>
+            <button
+              (click)="quantity(x.item.id, -1)"
+              aria-label="Decrease quantity"
+            >
+              −
+            </button>
+            {{ x.quantity }}
+            <button
+              (click)="quantity(x.item.id, 1)"
+              aria-label="Increase quantity"
+            >
+              +
+            </button>
+            · ${{ x.item.price }}
+          </p>
+        </div>
+        <button (click)="remove(x.item.id)">Remove</button>
+      </div>
+    }
+    <div class="checkout">
+      <p class="kicker">YOUR SELECTION</p>
+      <h3>Total: ${{ total() }}</h3>
+      <button class="gold" [disabled]="count() === 0" (click)="checkout()">
+        Proceed to Checkout ↗
+      </button>
+    </div>
+  </aside>
+}
+@if (loginVisible()) {
+  <div class="overlay" (click)="loginVisible.set(false)"></div>
+  <div
+    class="login-modal"
+    role="dialog"
+    aria-label="Student portal"
+    aria-modal="true"
+  >
+    <div class="modal-head">
+      <h2>Student Portal</h2>
+      <button
+        aria-label="Close student portal"
+        (click)="loginVisible.set(false)"
+      >
+        ✕
+      </button>
+    </div>
+    <p>Explore your learning workspace, reading list and order journey.</p>
+    <button class="gold" (click)="portal()">Open learning workspace →</button>
+    <p>Your purchases appear here after payment and account activation.</p>
+  </div>
+}
+@if (selected(); as item) {
+  <div class="overlay" (click)="selected.set(null)"></div>
+  <section
+    class="login-modal"
+    role="dialog"
+    aria-modal="true"
+    aria-label="Resource details"
+  >
+    <div class="modal-head">
+      <p class="kicker">AAFXX {{ item.type }}</p>
+      <button aria-label="Close details" (click)="selected.set(null)">✕</button>
+    </div>
+    <h2>{{ item.name }}</h2>
+    <p>{{ item.detail }}</p>
+    <h3>What you will explore</h3>
+    <ul>
+      <li>Market structure and chart context</li>
+      <li>Structured analysis and trading discipline</li>
+      <li>Risk planning and reflective practice</li>
+    </ul>
+    <p>
+      {{
+        item.type === "Books"
+          ? "Digital reading resource"
+          : "Self-paced learning programme"
+      }}
+      · English
+    </p>
+    <p>
+      Build your knowledge at your own pace. Educational content does not
+      guarantee trading results.
+    </p>
+    <button class="gold" (click)="add(item); selected.set(null)">
+      Add to cart · ${{ item.price }}
+    </button>
+  </section>
+}
+@if (alert()) {
+  <div class="toast" role="alert">
+    {{ alert() }} <button (click)="alert.set('')">✕</button>
+  </div>
+}
