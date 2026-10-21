@@ -1,7 +1,13 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="dark">
   <head>
     <meta charset="utf-8" />
+    <script>
+      try {
+        document.documentElement.dataset.theme =
+          localStorage.getItem("aafxx-theme") === "light" ? "light" : "dark";
+      } catch {}
+    </script>
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta
