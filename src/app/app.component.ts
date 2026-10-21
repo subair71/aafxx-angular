@@ -32,7 +32,7 @@ interface Item {
   styleUrl: "./app.component.css",
 })
 export class AppComponent {
-  dark = signal(false);
+  dark = signal(true);
   candles = [
     { x: 38, y: 174, h: 18, down: true },
     { x: 77, y: 157, h: 24, down: false },
@@ -199,7 +199,7 @@ export class AppComponent {
   constructor() {
     document.documentElement.style.setProperty("--founder-image", `url("${this.base}assets/founder-biography.jpeg")`);
     try {
-      this.dark.set(localStorage.getItem("aafxx-theme") === "dark");
+      this.dark.set(localStorage.getItem("aafxx-theme") !== "light");
     } catch {}
     document.documentElement.dataset["theme"] = this.dark() ? "dark" : "light";
     window.addEventListener("seo-origin", () => this.seo());
