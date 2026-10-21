@@ -31,13 +31,13 @@
     <div class="actions">
       <button
         class="cart-button"
-        (click)="cartVisible.set(true)"
+        (click)="cartVisible.set(true); focusDialog()"
         [attr.aria-label]="'Open cart, ' + count() + ' items'"
       >
         <svg viewBox="0 0 24 24" aria-hidden="true">
           <path d="M5 7h14l1 14H4L5 7Zm3 0V5a4 4 0 0 1 8 0v2" /></svg
         ><span>{{ count() }}</span></button
-      ><button class="outline portal-button" (click)="loginVisible.set(true)">
+      ><button class="outline portal-button" (click)="loginVisible.set(true); focusDialog()">
         Student Portal</button
       ><button
         class="theme-toggle"
@@ -68,7 +68,7 @@
           <p class="kicker badge">
             THE ART OF INFORMED TRADING · AAFXX ACADEMY
           </p>
-          <h1>Build knowledge.<br />Trade with <em>perspective.</em></h1>
+          <h1 tabindex="-1">Build knowledge.<br />Trade with <em>perspective.</em></h1>
           <p class="lead">
             A considered approach to forex education. Explore practical books,
             structured learning, and the principles behind the AAFXX trading
@@ -245,22 +245,13 @@
             <div class="buttons">
               <button class="gold" (click)="add(items[0])">
                 Add to cart · $29 ↗</button
-              ><button class="link" (click)="selected.set(items[0])">
+              ><button class="link" (click)="openDetails(items[0])">
                 Explore this book →
               </button>
             </div>
           </div>
           <div class="featured-book-stage">
-            <div class="feature-book">
-              <div class="book-top">AAFXX PUBLISHING <span>01</span></div>
-              <div class="feature-book-title">
-                Why They<br />Call Me<br /><em>Prof.</em>
-              </div>
-              <p>BERTHRAM C. CHIDI EKE</p>
-              <div class="book-bottom">
-                MARKET WISDOM <b>FOCUSED MINDSET</b>
-              </div>
-            </div>
+            <img class="featured-cover" [src]="base + items[0].cover" width="600" height="840" alt="Why They Call Me Prof. — placeholder book cover" loading="lazy" decoding="async" />
           </div>
         </article>
         <div class="cards compact-cards">
@@ -270,15 +261,11 @@
               ><b>${{ i.price }}</b>
             </div>
             <div class="cover">
-              <div class="book">
-                <small>VOL. 0{{ i.id }} / AAFXX LIBRARY</small
-                ><strong>{{ i.name }}</strong
-                ><small>KNOWLEDGE · DISCIPLINE</small>
-              </div>
+              <img class="book-cover" [src]="base + i.cover" width="600" height="840" [alt]="i.name + ' — placeholder book cover'" loading="lazy" decoding="async" />
             </div>
             <div class="card-body">
               <h3>
-                <button class="product-title" (click)="selected.set(i)">
+                <button class="product-title" (click)="openDetails(i)">
                   {{ i.name }}
                 </button>
               </h3>
@@ -417,7 +404,7 @@
           <span class="kicker">0{{ n + 1 }} / {{ i.tag }}</span>
           <h3>{{ i.name }}</h3>
           <p>{{ i.detail }}</p>
-          <button class="link" (click)="selected.set(i)">
+          <button class="link" (click)="openDetails(i)">
             Explore the learning path →
           </button>
         </article>
@@ -442,11 +429,12 @@
     </section>
   }
   @if (page() === "Books" || page() === "Courses") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">
         AAFXX {{ page() === "Books" ? "LIBRARY" : "ACADEMY" }}
       </p>
-      <h1>
+      <h1 tabindex="-1">
         {{ page() === "Books" ? "Books & Publications" : "Online Training" }}
       </h1>
       <p>
@@ -464,28 +452,39 @@
             ? "THE READING COLLECTION"
             : "THE LEARNING COLLECTION"
         }}</span
-        ><span>03 RESOURCES · ENGLISH</span>
+        ><span>{{ visibleItems().length }} RESOURCES · ENGLISH · USD</span>
       </div>
+      <div class="catalogue-tools">
+        <label>Find a resource<input type="search" [ngModel]="query()" (ngModelChange)="query.set($event)" placeholder="Search by title or topic" /></label>
+        <label>Sort by<select [ngModel]="sort()" (ngModelChange)="sort.set($event)"><option value="featured">Featured collection</option><option value="price-low">Price: low to high</option><option value="price-high">Price: high to low</option></select></label>
+      </div>
+      <p class="collection-note">{{ page() === 'Books' ? 'Concept covers shown for the preview collection. Final artwork and publication details will be confirmed before release.' : 'Explore the proposed learning topics. Course availability and delivery details will be confirmed before enrolment opens.' }}</p>
+      @if (!visibleItems().length) {<div class="empty-state" role="status"><h2>No matching resources</h2><p>Try a different title or topic.</p><button class="outline" (click)="query.set('')">Clear search</button></div>}
       <div class="cards">
-        <ng-container *ngFor="let i of items">
+        <ng-container *ngFor="let i of visibleItems()">
           @if (i.type === page()) {
             <article>
               <div class="cover">
                 <span class="tag">{{ i.tag }}</span>
-                <div class="book" [class.course]="page() === 'Courses'">
+                @if (i.cover) {
+                  <img class="book-cover" [src]="base + i.cover" width="600" height="840" [alt]="i.name + ' — placeholder book cover'" loading="lazy" decoding="async" />
+                } @else {
+                <div class="book course">
                   <small>AAFXX ACADEMY</small><strong>{{ i.name }}</strong
                   ><small>{{
                     page() === "Books" ? "TRADING LIBRARY" : "ONLINE TRAINING"
                   }}</small>
                 </div>
+                }
               </div>
               <div class="card-body">
                 <h3>
-                  <button class="product-title" (click)="selected.set(i)">
+                  <button class="product-title" (click)="openDetails(i)">
                     {{ i.name }}
                   </button>
                 </h3>
                 <p>{{ i.detail }}</p>
+                <button class="link" (click)="openDetails(i)">{{ i.type === 'Books' ? 'View book details' : 'View learning topics' }} →</button>
                 <div class="card-bottom">
                   <b>${{ i.price }}</b
                   ><button (click)="add(i)">
@@ -500,9 +499,10 @@
     </section>
   }
   @if (page() === "Strategies") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">OUR APPROACH</p>
-      <h1>Trading <em>Strategies</em></h1>
+      <h1 tabindex="-1">Trading <em>Strategies</em></h1>
       <p>
         Explore educational explanations of the methods and concepts featured in
         the AAFXX materials.
@@ -520,9 +520,10 @@
     </section>
   }
   @if (page() === "Achievements") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">THE JOURNEY</p>
-      <h1>Achievements & <em>Milestones</em></h1>
+      <h1 tabindex="-1">Achievements & <em>Milestones</em></h1>
       <p>
         The ideas, publications and educational mission behind AAFXX. Explore
         the founder’s own account of his work.
@@ -531,7 +532,7 @@
     <section class="wrap section gallery">
       <article *ngFor="let image of images; index as n">
         <img
-          [src]="'assets/' + image"
+          [src]="base + 'assets/' + image"
           [alt]="'AAFXX supplied achievement graphic ' + (n + 1)"
           loading="lazy"
         />
@@ -540,9 +541,10 @@
     </section>
   }
   @if (page() === "About") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">THE PERSON BEHIND THE METHOD</p>
-      <h1>Prince Berthram<br />Chidi Eke <em>(JP)</em></h1>
+      <h1 tabindex="-1">Prince Berthram<br />Chidi Eke <em>(JP)</em></h1>
       <p>Founder, AAFXX · Author · Financial market educator</p>
     </section>
     <section class="wrap section about-strip">
@@ -624,9 +626,10 @@
     </section>
   }
   @if (page() === "Contact") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">GET IN TOUCH</p>
-      <h1>Contact <em>AAFXX</em></h1>
+      <h1 tabindex="-1">Contact <em>AAFXX</em></h1>
       <p>Ask about books, courses, collaborations or training opportunities.</p>
     </section>
     <section class="wrap section contact-grid">
@@ -648,6 +651,8 @@
           >Email address<input
             name="email"
             type="email"
+            email
+            autocomplete="email"
             [(ngModel)]="email"
             required
             placeholder="you@example.com" /></label
@@ -659,7 +664,7 @@
             rows="5"
             placeholder="How can we help?"
           ></textarea></label
-        ><button class="gold" type="submit" [disabled]="inquiry.invalid">
+        ><p class="collection-note">This opens an email draft. Add your AAFXX contact’s address before sending.</p><button class="gold" type="submit" [disabled]="inquiry.invalid">
           Continue to Email ↗
         </button>
       </form>
@@ -667,9 +672,10 @@
   }
 
   @if (page() === "Checkout") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">YOUR NEXT CHAPTER</p>
-      <h1>Checkout</h1>
+      <h1 tabindex="-1">Checkout</h1>
       <p>Books and learning resources · All prices in USD</p>
     </section>
     <section class="wrap section checkout-layout">
@@ -804,9 +810,10 @@
     </section>
   }
   @if (page() === "Account") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">YOUR LEARNING SPACE</p>
-      <h1>Keep learning.<br /><em>Build your discipline.</em></h1>
+      <h1 tabindex="-1">Keep learning.<br /><em>Build your discipline.</em></h1>
       <p>Explore the academy and plan your next step.</p>
     </section>
     <section class="wrap section">
@@ -825,9 +832,10 @@
     </section>
   }
   @if (page() === "FAQ") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">HELP CENTRE</p>
-      <h1>Frequently asked <em>questions.</em></h1>
+      <h1 tabindex="-1">Frequently asked <em>questions.</em></h1>
     </section>
     <section class="wrap section faq">
       <details open>
@@ -870,9 +878,10 @@
     </section>
   }
   @if (page() === "Privacy" || page() === "Terms") {
+    <div class="wrap breadcrumb"><a [href]="href('Home')" (click)="go('Home', $event)">Home</a><span aria-hidden="true">/</span><span>{{ page() }}</span></div>
     <section class="page-title wrap">
       <p class="kicker">INFORMATION</p>
-      <h1>
+      <h1 tabindex="-1">
         {{ page() === "Privacy" ? "Privacy information" : "Website terms" }}
       </h1>
     </section>
@@ -1058,13 +1067,12 @@
       <p class="kicker">AAFXX {{ item.type }}</p>
       <button aria-label="Close details" (click)="selected.set(null)">✕</button>
     </div>
+    @if (item.cover) {<img class="detail-cover" [src]="base + item.cover" width="600" height="840" [alt]="item.name + ' — placeholder cover'" />}
     <h2>{{ item.name }}</h2>
-    <p>{{ item.detail }}</p>
-    <h3>What you will explore</h3>
+    <p>{{ item.detail }}</p><p class="collection-note">Preview catalogue · final content, pricing and availability to be confirmed.</p>
+    <h3>Topics to explore</h3>
     <ul>
-      <li>Market structure and chart context</li>
-      <li>Structured analysis and trading discipline</li>
-      <li>Risk planning and reflective practice</li>
+      <li *ngFor="let topic of item.topics">{{ topic }}</li>
     </ul>
     <p>
       {{
@@ -1084,7 +1092,8 @@
   </section>
 }
 @if (alert()) {
-  <div class="toast" role="alert">
-    {{ alert() }} <button (click)="alert.set('')">✕</button>
+  <div class="toast" role="status">
+    {{ alert() }} <button aria-label="Dismiss notification" (click)="alert.set('')">✕</button>
   </div>
 }
+

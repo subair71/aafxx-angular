@@ -34,3 +34,14 @@ The branch-only `Validate academy redesign` workflow runs build, pre-render and 
 The root `amplify.yml` builds this branch at `/` and pre-renders all routes. In the Amplify branch environment, set `SITE_ORIGIN` to the exact HTTPS branch URL shown by Amplify (no path). Build output is `dist/aafxx/browser`. The build uses the packaged Chromium binary for Amazon Linux compatibility. Keep this as a separate preview branch; no main-branch merge is required.
 
 For an existing Amplify app with custom build settings, ensure the branch uses the repository `amplify.yml`. Preserve existing production branches and custom domains. The root deployment has route directories for direct navigation, and image URLs follow the configured base path.
+
+
+## Catalogue and SEO completion
+
+The book collection now uses three lightweight local SVG concept covers (also in resource details), searchable/sortable catalogue views, resource-specific topic outlines and empty search states. Covers are explicitly placeholders; titles, prices and course outlines remain a preview catalogue pending client confirmation. Breadcrumbs, keyboard dialog dismissal/focus containment, mobile layout and route-relative achievement images are included.
+
+Every route now updates its description, canonical URL, Open Graph/Twitter preview and organization/site/page/breadcrumb structured data on both direct loads and in-app navigation. A local social preview PNG and favicon are included. Prerendering writes the same metadata to the HTML delivered to crawlers and social previews. Account and checkout remain noindex and excluded from the sitemap.
+
+`SITE_ORIGIN` is still required for an indexable Amplify release. When it is missing, the build now succeeds as a noindex preview with no absolute canonical or sitemap in its initial HTML, rather than failing or guessing the branch hostname. Set the exact public HTTPS origin in Amplify and redeploy to enable indexable metadata and the sitemap. Invalid origins still fail validation. Packaged Chromium now uses its supported launch arguments and a shared browser context across prerendered pages.
+
+The frontend is ready for client review. Live authentication, payments, ebook files, verified recipient inbox, order storage and fulfilment remain external integration requirements; the site does not simulate successful payment or authenticated access.

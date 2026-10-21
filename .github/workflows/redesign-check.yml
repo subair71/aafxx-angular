@@ -19,6 +19,7 @@ jobs:
       - run: npm run build -- --base-href /aafxx-angular/
       - run: npx playwright install --with-deps chromium
       - run: npm run prerender
+      - run: SITE_ORIGIN=https://subair71.github.io node scripts/check-seo.mjs
       - run: node scripts/check-ui.mjs
       - uses: actions/upload-artifact@v4
         if: always()
@@ -27,3 +28,4 @@ jobs:
           path: |
             dist/aafxx/browser
             screenshots
+

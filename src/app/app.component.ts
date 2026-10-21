@@ -1,4 +1,4 @@
-import { Component, signal, computed } from "@angular/core";
+import { Component, signal, computed, HostListener } from "@angular/core";
 import { CommonModule } from "@angular/common";
 import { FormsModule } from "@angular/forms";
 type Page =
@@ -21,6 +21,8 @@ interface Item {
   price: number;
   type: "Books" | "Courses";
   tag: string;
+  cover?: string;
+  topics: string[];
 }
 @Component({
   selector: "app-root",
@@ -50,7 +52,33 @@ export class AppComponent {
       localStorage.setItem("aafxx-theme", this.dark() ? "dark" : "light");
     } catch {}
   }
+  query = signal("");
+  sort = signal("featured");
+  visibleItems = computed(() => {
+    const q = this.query().trim().toLowerCase();
+    const list = this.items.filter(i => i.type === this.page() &&
+      (!q || `${i.name} ${i.detail} ${i.tag}`.toLowerCase().includes(q)));
+    return this.sort() === "price-low" ? list.sort((a,b) => a.price-b.price) :
+      this.sort() === "price-high" ? list.sort((a,b) => b.price-a.price) : list;
+  });
   selected = signal<Item | null>(null);
+  @HostListener('document:keydown', ['$event'])
+  onKey(event: KeyboardEvent) {
+    if (event.key === 'Escape') {
+      this.selected.set(null); this.cartVisible.set(false); this.loginVisible.set(false); this.menu.set(false);
+    }
+    if (event.key === 'Tab') {
+      const dialog = document.querySelector<HTMLElement>('[aria-modal="true"]');
+      if (!dialog) return;
+      const nodes = Array.from(dialog.querySelectorAll<HTMLElement>('button:not([disabled]), a[href], input, select, textarea, [tabindex="0"]'));
+      const first = nodes[0], last = nodes[nodes.length-1];
+      if (event.shiftKey && document.activeElement === first) { event.preventDefault(); last?.focus(); }
+      else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+    }
+  }
+  openDetails(item: Item) { this.selected.set(item); this.focusDialog(); }
+  focusDialog() { setTimeout(() => document.querySelector<HTMLElement>('[aria-modal="true"] button')?.focus()); }
+
   page = signal<Page>("Home");
   menu = signal(false);
   cartVisible = signal(false);
@@ -72,6 +100,8 @@ export class AppComponent {
   items: Item[] = [
     {
       id: 1,
+      topics: ["The AAFXX learning philosophy", "A framework for chart study", "Discipline and reflective practice"],
+      cover: "assets/books/why-they-call-me-prof.svg",
       name: "Why They Call Me Prof.",
       detail: "An introduction to the AAFXX trading philosophy",
       price: 29,
@@ -80,6 +110,8 @@ export class AppComponent {
     },
     {
       id: 2,
+      topics: ["Candlesticks and market context", "Trend, direction and location", "A structured chart-reading routine"],
+      cover: "assets/books/the-5-minute-chart.svg",
       name: "The 5-Minute Chart",
       detail: "Chart reading and market structure essentials",
       price: 24,
@@ -88,6 +120,8 @@ export class AppComponent {
     },
     {
       id: 3,
+      topics: ["Building a trading journal", "Planning risk before entry", "Recognising emotional decisions"],
+      cover: "assets/books/trading-with-discipline.svg",
       name: "Trading With Discipline",
       detail: "Mindset and risk management foundations",
       price: 19,
@@ -96,6 +130,7 @@ export class AppComponent {
     },
     {
       id: 4,
+      topics: ["Currency pairs, pips and spreads", "Reading price and chart structure", "Demo practice and a learning plan"],
       name: "Forex Foundations",
       detail: "Learn the essentials of forex trading",
       price: 99,
@@ -104,6 +139,7 @@ export class AppComponent {
     },
     {
       id: 5,
+      topics: ["Trend and timeframe alignment", "Moving-average relationships", "Entry context and trade review"],
       name: "The AAFXX Method",
       detail: "Explore the frameworks and trading setups",
       price: 199,
@@ -112,6 +148,7 @@ export class AppComponent {
     },
     {
       id: 6,
+      topics: ["Risk per trade and position sizing", "Stop-loss planning and exposure", "Journaling and evaluating decisions"],
       name: "Risk & Trade Management",
       detail: "Position sizing and trading plans",
       price: 149,
@@ -165,6 +202,7 @@ export class AppComponent {
       this.dark.set(localStorage.getItem("aafxx-theme") === "dark");
     } catch {}
     document.documentElement.dataset["theme"] = this.dark() ? "dark" : "light";
+    window.addEventListener("seo-origin", () => this.seo());
     this.readLocation();
     window.addEventListener("popstate", () => this.readLocation());
     try {
@@ -193,36 +231,65 @@ export class AppComponent {
     this.seo();
   }
   seo() {
-    const title =
-      this.page() === "Home"
-        ? "AAFXX | Forex Education, Trading Books & Courses"
-        : this.page() + " | AAFXX Trading Academy";
+    const descriptions: Record<Page, string> = {
+      Home: "Explore AAFXX forex education, trading books and structured learning. Build knowledge in chart analysis, trading discipline and risk management.",
+      About: "Meet Prince Berthram Chidi Eke, founder of AAFXX. Explore his story, educational mission and approach to market analysis and disciplined learning.",
+      Books: "Browse the AAFXX trading library. Explore digital reading on the 5-minute chart, market structure, trading psychology and risk management.",
+      Courses: "Explore AAFXX learning paths in forex foundations, chart analysis and risk management. Compare topics and find a starting point for your studies.",
+      Strategies: "Study the AAFXX learning frameworks: trend, direction, location, moving averages, multi-timeframe context and risk planning.",
+      Achievements: "Explore the AAFXX founder’s journey, publications, educational projects and milestones in his own account of his work.",
+      Contact: "Prepare an AAFXX enquiry about trading books, education programmes, resources or collaboration opportunities.",
+      FAQ: "Find answers about AAFXX books, learning frameworks, resource availability, checkout and contacting the academy.",
+      Privacy: "Learn how this AAFXX website handles cart selections, checkout details, theme preferences and email enquiries.",
+      Terms: "Read the AAFXX website terms covering educational resources, availability, order summaries and responsible use.",
+      Checkout: "Review your AAFXX resource selection and prepare an unpaid order summary.",
+      Account: "Plan your reading and explore AAFXX books and learning paths in the student workspace."
+    };
+    const titles: Partial<Record<Page, string>> = {Home:"AAFXX | Forex Education, Trading Books & Courses", Books:"Trading Books & Digital Library | AAFXX Academy", Courses:"Forex Learning Paths & Courses | AAFXX Academy", About:"Our Founder & Educational Mission | AAFXX Academy"};
+    const title = titles[this.page()] || this.page() + " | AAFXX Trading Academy";
+    const description = descriptions[this.page()];
+    const configured = document.querySelector<HTMLMetaElement>('meta[name="site-origin"]')?.content;
+    const origin = configured || location.origin;
+    const preview = document.querySelector('meta[name="site-preview"]')?.getAttribute('content') === 'true';
+    const url = origin + this.href(this.page());
     document.title = title;
-    document
-      .querySelector('meta[property="og:title"]')
-      ?.setAttribute("content", title);
-    document
-      .querySelector('link[rel="canonical"]')
-      ?.setAttribute(
-        "href",
-        location.origin + this.href(this.page()),
-      );
-    document
-      .querySelector('meta[name="robots"]')
-      ?.setAttribute(
-        "content",
-        ["Checkout", "Account"].includes(this.page())
-          ? "noindex,follow"
-          : "index,follow",
-      );
+    const set = (key: string, content: string, property = false) => {
+      const attr = property ? 'property' : 'name';
+      let el = document.querySelector<HTMLMetaElement>(`meta[${attr}="${key}"]`);
+      if (!el) { el = document.createElement('meta'); el.setAttribute(attr,key); document.head.append(el); }
+      el.content = content;
+    };
+    set('description', description);
+    set('robots', preview || ['Checkout','Account'].includes(this.page()) ? 'noindex,follow' : 'index,follow,max-image-preview:large');
+    for (const prefix of ['og','twitter']) {
+      set(prefix+':title',title,prefix==='og'); set(prefix+':description',description,prefix==='og');
+      set(prefix+':image',origin+this.base+'assets/social-preview.png',prefix==='og');
+    }
+    set('og:url',url,true); set('og:type','website',true); set('og:site_name','AAFXX Trading Academy',true);
+    set('og:image:alt','AAFXX Academy — knowledge first, discipline always',true);
+    set('twitter:card','summary_large_image');
+    let canonical = document.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+    if (!canonical) { canonical=document.createElement('link'); canonical.rel='canonical'; document.head.append(canonical); }
+    canonical.href=url;
+    const graph: object[] = [
+      {'@type':'EducationalOrganization','@id':origin+this.base+'#academy',name:'AAFXX Trading Academy',url:origin+this.base,founder:{'@type':'Person',name:'Prince Berthram Chidi Eke'}},
+      {'@type':'WebSite','@id':origin+this.base+'#website',name:'AAFXX Trading Academy',url:origin+this.base},
+      {'@type':'WebPage',name:title,description,url,isPartOf:{'@id':origin+this.base+'#website'}},
+    ];
+    if (this.page() !== 'Home') graph.push({'@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:'Home',item:origin+this.base},{'@type':'ListItem',position:2,name:this.page(),item:url}]});
+    document.querySelectorAll('script[type="application/ld+json"]').forEach(el=>el.remove());
+    const schema=document.createElement('script'); schema.type='application/ld+json'; schema.textContent=JSON.stringify({'@context':'https://schema.org','@graph':graph}); document.head.append(schema);
   }
   go(p: Page, event?: Event) {
     event?.preventDefault();
+    this.query.set("");
+    this.sort.set("featured");
     this.page.set(p);
     history.pushState({}, "", this.href(p));
     this.seo();
     this.menu.set(false);
     window.scrollTo(0, 0);
+    setTimeout(() => document.querySelector<HTMLElement>("main h1")?.focus());
   }
   saveCart() {
     try {
@@ -255,6 +322,7 @@ export class AppComponent {
     this.cartVisible.set(false);
     this.step.set(1);
     this.reference = "";
+    this.accepted = false;
     this.go("Checkout");
   }
   complete() {
@@ -303,9 +371,11 @@ export class AppComponent {
     );
     this.saveCart();
     this.cartVisible.set(true);
+    this.focusDialog();
   }
   remove(id: number) {
     this.cart.update((a) => a.filter((x) => x.item.id !== id));
     this.saveCart();
   }
 }
+
