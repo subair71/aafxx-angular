@@ -6,7 +6,7 @@ const root = "dist/aafxx/browser";
 const base = process.env.SITE_BASE || "/aafxx-angular/";
 const preview = process.env.SITE_PREVIEW === "true";
 const origin = process.env.SITE_ORIGIN || "https://subair71.github.io";
-import { routes, privateRoutes } from "./routes.mjs";
+import { routes, privateRoutes, aliasRoutes } from "./routes.mjs";
 const index = await readFile(join(root, "index.html"));
 const types = {
   ".js": "text/javascript",
@@ -47,7 +47,7 @@ try {
       : {}),
   });
   const context = await browser.newContext();
-  for (const route of routes) {
+  for (const route of [...routes, ...aliasRoutes]) {
     const page = await context.newPage();
     await page.goto(
       "http://localhost:4173" + base + (route ? route + "/" : ""),

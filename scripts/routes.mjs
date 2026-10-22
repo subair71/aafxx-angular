@@ -30,3 +30,10 @@ export const routes = [
   "resources/trading-journal",
 ];
 export const privateRoutes = ["checkout", "account", "404"];
+
+export const aliasRoutes = [
+  "academy",
+  "academy/forex-foundations",
+  "academy/the-aafxx-method",
+  "academy/risk-and-trade-management",
+];

@@ -1,1351 +1,408 @@
 <a class="skip-link" href="#main-content">Skip to content</a>
-<header>
-  <div class="market-strip">
-    <div class="wrap market-inner">
-      <span class="market-label"><i></i> FOREX EDUCATION</span
-      ><span>EUR / USD <b>MAJORS</b></span
-      ><span>GBP / USD <b>MARKET STRUCTURE</b></span
-      ><span>XAU / USD <b>COMMODITIES</b></span
-      ><span class="strip-end">KNOWLEDGE FIRST · DISCIPLINE ALWAYS</span>
-    </div>
-  </div>
-  <div class="wrap nav">
-    <a class="logo" [href]="href('Home')" (click)="go('Home', $event)"
-      ><span>AAFXX <b>ACADEMY</b></span
-      ><small>KNOWLEDGE FIRST · DISCIPLINE ALWAYS</small></a
+<header class="site-header">
+  <div class="wrap nav-shell">
+    <a
+      class="brand"
+      [href]="href('Home')"
+      (click)="go('Home', $event)"
+      aria-label="AA FXX home"
+      ><span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span
+      ><span>AA FXX<small>ACADEMY & BOOKS</small></span></a
     >
+    <button
+      class="menu-toggle outline"
+      (click)="menu.set(!menu())"
+      [attr.aria-expanded]="menu()"
+      aria-controls="primary-navigation"
+      aria-label="Toggle navigation"
+    >
+      {{ menu() ? "Close" : "Menu" }}
+    </button>
     <nav
       id="primary-navigation"
       aria-label="Main navigation"
       [class.open]="menu()"
     >
-      <a
-        *ngFor="let p of pages"
-        [href]="href(p)"
-        [class.active]="page() === p"
-        [attr.aria-current]="page() === p ? 'page' : null"
-        (click)="go(p, $event)"
-        >{{ label(p) }}</a
-      >
+      @for (p of pages; track p) {
+        <a
+          [href]="href(p)"
+          (click)="go(p, $event)"
+          [attr.aria-current]="
+            page() === p ||
+            (page() === 'Detail' && detail()?.type === p) ||
+            (page() === 'Lesson' && p === 'Resources')
+              ? 'page'
+              : null
+          "
+          >{{ label(p) }}</a
+        >
+      }
     </nav>
-    <div class="actions">
-      <button
-        class="cart-button"
-        (click)="cartVisible.set(true); focusDialog()"
-        [attr.aria-label]="'Open cart, ' + count() + ' items'"
-      >
-        <svg viewBox="0 0 24 24" aria-hidden="true">
-          <path d="M5 7h14l1 14H4L5 7Zm3 0V5a4 4 0 0 1 8 0v2" /></svg
-        ><span>{{ count() }}</span></button
-      ><button
-        class="outline portal-button"
-        (click)="loginVisible.set(true); focusDialog()"
-      >
-        Student Portal</button
-      ><button
-        class="theme-toggle"
-        (click)="toggleTheme()"
-        [attr.aria-label]="
-          dark() ? 'Switch to light theme' : 'Switch to dark theme'
-        "
-        [attr.aria-pressed]="dark()"
-      >
-        {{ dark() ? "☀" : "☾" }}</button
-      ><button
-        class="hamburger"
-        aria-label="Toggle navigation"
-        aria-controls="primary-navigation"
-        [attr.aria-expanded]="menu()"
-        (click)="menu.set(!menu())"
-      >
-        {{ menu() ? "✕" : "☰" }}
-      </button>
-    </div>
+    <button
+      class="theme-toggle"
+      (click)="toggleTheme()"
+      [attr.aria-label]="
+        dark() ? 'Switch to light theme' : 'Switch to dark theme'
+      "
+    >
+      {{ dark() ? "☼" : "◐" }}
+    </button>
   </div>
 </header>
 <main id="main-content">
   @if (page() === "Home") {
-    <section class="hero">
-      <div class="wrap hero-grid">
-        <div class="hero-copy">
-          <p class="kicker badge">
-            THE ART OF INFORMED TRADING · AAFXX ACADEMY
-          </p>
-          <h1 tabindex="-1">
-            Build knowledge.<br />Trade with <em>perspective.</em>
-          </h1>
-          <p class="lead">
-            A considered approach to forex education. Explore practical books,
-            structured learning, and the principles behind the AAFXX trading
-            framework.
-          </p>
-          <div class="buttons">
-            <button class="gold" (click)="go('Courses')">
-              Explore Courses ↗</button
-            ><button class="outline" (click)="go('Books')">
-              Browse Books →
-            </button>
-          </div>
-          <div class="metric-label">
-            <span>THE FOUNDATIONS</span
-            ><span>Knowledge first · Discipline always</span>
-          </div>
-          <div class="metrics">
-            <div>
-              <strong>4 pillars</strong><small>TRADING DISCIPLINE</small>
-            </div>
-            <div><strong>5-minute</strong><small>CHART STUDY</small></div>
-            <div>
-              <strong>Books + courses</strong><small>STRUCTURED LEARNING</small>
-            </div>
-            <div>
-              <strong>Risk first</strong><small>CAPITAL AWARENESS</small>
-            </div>
-          </div>
+    <section class="hero wrap">
+      <div class="hero-copy">
+        <p class="kicker">
+          <span class="status-dot"></span> KNOWLEDGE FIRST. DISCIPLINE ALWAYS.
+        </p>
+        <h1 tabindex="-1">
+          A considered approach<br />to <em>forex learning.</em>
+        </h1>
+        <p class="lead">
+          Understand the markets. Develop your thinking. Explore structured
+          learning and trading books, with risk awareness at every step.
+        </p>
+        <div class="buttons">
+          <a
+            class="gold"
+            [href]="href('Courses')"
+            (click)="go('Courses', $event)"
+            >Explore Courses <span aria-hidden="true">↗</span></a
+          ><a
+            class="outline"
+            [href]="href('Books')"
+            (click)="go('Books', $event)"
+            >Discover Books</a
+          >
         </div>
-        <div
-          class="terminal"
-          aria-label="Illustrative chart showing market structure for education"
-        >
-          <div class="terminal-head">
-            <span class="window-dots"><i></i><i></i><i></i></span
-            ><strong>M5 // CHART STUDY</strong
-            ><span class="status">EDUCATIONAL</span>
-          </div>
-          <div class="terminal-data">
-            <span>CONTEXT <b>TREND</b></span
-            ><span>FOCUS <b>STRUCTURE</b></span>
-          </div>
-          <div class="chart">
-            <svg
-              viewBox="0 0 440 240"
-              role="img"
-              aria-label="Illustrative rising candlestick chart with moving averages"
-            >
-              <defs>
-                <pattern
-                  id="chart-grid"
-                  width="36"
-                  height="32"
-                  patternUnits="userSpaceOnUse"
-                >
-                  <path
-                    d="M36 0H0V32"
-                    fill="none"
-                    stroke="currentColor"
-                    stroke-width=".6"
-                  />
-                </pattern>
-              </defs>
-              <rect
-                width="440"
-                height="240"
-                fill="url(#chart-grid)"
-                class="chart-grid"
-              />
-              <path
-                d="M12 194C90 190 130 170 205 128S330 90 430 47"
-                class="slow-ma"
-              />
-              <path
-                d="M12 210C90 200 145 155 215 115S335 65 430 32"
-                class="fast-ma"
-              />
-              <rect x="237" y="91" width="172" height="45" class="entry-zone" />
-              <text x="246" y="106" class="chart-label">
-                M5 · LOCATION STUDY
-              </text>
-              <g
-                *ngFor="let c of candles"
-                [attr.transform]="'translate(' + c.x + ',0)'"
-                [class.bearish]="c.down"
-                class="candle"
-              >
-                <line
-                  x1="0"
-                  x2="0"
-                  [attr.y1]="c.y - 9"
-                  [attr.y2]="c.y + c.h + 10"
-                />
-                <rect x="-5" width="10" [attr.y]="c.y" [attr.height]="c.h" />
-              </g>
-              <text x="15" y="232" class="axis-label">TREND</text>
-              <text x="178" y="232" class="axis-label">DIRECTION</text>
-              <text x="359" y="232" class="axis-label">LOCATION</text>
-            </svg>
-          </div>
-          <div class="terminal-tags">
-            <span>CONTEXT <b>Multi-timeframe</b></span
-            ><span>ANALYSIS <b>Moving averages</b></span
-            ><span>PRIORITY <b>Risk control</b></span>
-          </div>
-          <div class="hero-lesson">
-            <img
-              [src]="base + items[0].cover"
-              width="60"
-              height="84"
-              alt="Preview book cover"
-            />
-            <div>
-              <span class="kicker">YOUR FIRST CHAPTER</span>
-              <p>Start with the currency pair.</p>
-              <a
-                class="link"
-                [href]="lessonHref('forex-basics')"
-                (click)="openLesson('forex-basics', $event)"
-                >Read the free lesson · 5 min →</a
-              >
-            </div>
-          </div>
-          <div class="terminal-foot">
-            <span class="status-dot"></span> AAFXX framework
-            <small>Illustrative chart · not live prices</small>
-          </div>
+        <div class="hero-foot">
+          <span>FOUNDATIONS TO ADVANCED STUDY</span
+          ><span>LEARN AT YOUR OWN PACE</span>
         </div>
       </div>
-    </section>
-    <section class="wrap shortcuts">
-      <a [href]="href('Books')" (click)="go('Books', $event)"
-        ><small>01 / THE LIBRARY</small>
-        <h3>The library <span>↗</span></h3>
-        <p>
-          Learn through practical reading, clear explanations and the
-          foundations of disciplined market analysis.
-        </p>
-        <div>READING · DIGITAL <b>3 VOLUMES</b></div></a
-      ><a [href]="href('Courses')" (click)="go('Courses', $event)"
-        ><small>02 / THE ACADEMY</small>
-        <h3>The academy <span>↗</span></h3>
-        <p>
-          Build knowledge at your pace through a structured journey covering
-          principles, psychology and risk.
-        </p>
-        <div>CURRICULUM <b>SELF-PACED</b></div></a
-      ><a [href]="href('Strategies')" (click)="go('Strategies', $event)"
-        ><small>03 / THE METHOD</small>
-        <h3>The method <span>↗</span></h3>
-        <p>
-          Understand the frameworks. Study market direction, chart location and
-          thoughtful trade planning.
-        </p>
-        <div>EDUCATION <b>4 PILLARS</b></div></a
-      ><a [href]="href('Achievements')" (click)="go('Achievements', $event)"
-        ><small>04 / THE JOURNEY</small>
-        <h3>The journey <span>↗</span></h3>
-        <p>
-          Explore the founder’s story, from business leadership to a lasting
-          commitment to trading education.
-        </p>
-        <div>PHILOSOPHY <b>PRINCIPLES</b></div></a
+      <div
+        class="hero-art"
+        aria-label="A preview of the academy’s educational reading and chart study"
       >
-    </section>
-    <section class="wrap section academy-feature">
-      <div class="section-head">
-        <div>
-          <p class="kicker">A CLEAR PATH FORWARD</p>
-          <h2>Start with curiosity.<br /><em>Learn with structure.</em></h2>
+        <div class="chart-panel">
+          <div class="chart-label">
+            <span>THE ART OF UNDERSTANDING</span><span>01 / OBSERVE</span>
+          </div>
+          <svg
+            viewBox="0 0 460 200"
+            role="img"
+            aria-label="Decorative candlestick chart, not live market data"
+          >
+            <g class="grid-lines">
+              <path
+                d="M0 40H460M0 90H460M0 140H460M50 0V200M150 0V200M250 0V200M350 0V200M450 0V200"
+              />
+            </g>
+            <path
+              class="chart-line"
+              d="M0 170Q50 130 80 150T150 115T230 100T300 65T380 50T460 20"
+            />
+            <g class="candles">
+              <path
+                d="M38 128v54m40-73v60m40-78v58m40-75v52m40-67v48m40-60v45m40-68v56m40-77v53m40-65v50m40-62v42"
+              />
+              <path
+                class="bodies"
+                d="M38 145v22m40-45v30m40-48v28m40-22v23m40-42v25m40-32v21m40-44v26m40-52v28m40-40v24m40-31v18"
+              />
+            </g></svg
+          ><small>Illustrative chart · education, not signals</small>
         </div>
-        <a class="link" [href]="href('Courses')" (click)="go('Courses', $event)"
-          >Explore all courses →</a
-        >
+        <div class="hero-book">
+          <img
+            [src]="base + items[0].cover"
+            width="600"
+            height="840"
+            alt="Why They Call Me Prof. — placeholder concept cover"
+            fetchpriority="high"
+          /><span>PLACEHOLDER COVER</span>
+        </div>
+        <div class="art-caption">
+          <span class="kicker">THE READING ROOM</span
+          ><strong>A new perspective<br />starts with a page.</strong
+          ><a [href]="itemHref(items[0])" (click)="openItem(items[0], $event)"
+            >Explore the book concept ↗</a
+          >
+        </div>
       </div>
-      <div class="learning-paths">
-        <article *ngFor="let i of items.slice(3); index as n">
-          <p class="kicker">0{{ n + 1 }} / {{ meta[i.id].level }}</p>
-          <h3>
-            <a [href]="itemHref(i)" (click)="openItem(i, $event)">{{
-              i.name
-            }}</a>
-          </h3>
-          <p>{{ i.detail }}</p>
-          <p>{{ meta[i.id].duration }}</p>
+    </section>
+    <div class="principles">
+      <div class="wrap">
+        <span>Understand before acting</span><span>Study the context</span
+        ><span>Respect the risk</span><span>Reflect on the process</span>
+      </div>
+    </div>
+    <section class="wrap section">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">YOUR LEARNING PATH</p>
+          <h2>Start where you are.<br /><em>Build from there.</em></h2>
+        </div>
+        <p>
+          Clear foundations, deeper understanding, and a more deliberate
+          approach to market study.
+        </p>
+      </div>
+      <div class="path-grid">
+        @for (
+          stage of ["Beginner", "Intermediate", "Advanced"];
+          track stage;
+          let n = $index
+        ) {
+          <a
+            class="path-card"
+            [href]="itemHref(items[n + 3])"
+            (click)="openItem(items[n + 3], $event)"
+            ><span class="index">0{{ n + 1 }}</span>
+            <h3>{{ stage }}</h3>
+            <p>
+              {{
+                n === 0
+                  ? "Currency pairs, pips, spreads and the essentials of risk."
+                  : n === 1
+                    ? "Price structure, technical context and economic expectations."
+                    : "Position sizing, trading plans and disciplined review."
+              }}
+            </p>
+            <span class="link"
+              >Explore learning path <span aria-hidden="true">↗</span></span
+            ></a
+          >
+        }
+      </div>
+    </section>
+    <section class="band">
+      <div class="wrap section">
+        <div class="section-heading">
+          <div>
+            <p class="kicker">THE ACADEMY</p>
+            <h2>Knowledge with <em>direction.</em></h2>
+          </div>
           <a
             class="link"
-            [href]="lessonHref(meta[i.id].lesson)"
-            (click)="openLesson(meta[i.id].lesson, $event)"
-            >Try a free lesson →</a
-          >
-        </article>
-      </div>
-    </section>
-    <section class="library-section">
-      <div class="wrap section">
-        <div class="section-head">
-          <div>
-            <p class="kicker">EXPLORE THE LIBRARY</p>
-            <h2>A little reading.<br /><em>A wider perspective.</em></h2>
-          </div>
-          <a class="link" [href]="href('Books')" (click)="go('Books', $event)"
-            >View all books ↗</a
+            [href]="href('Courses')"
+            (click)="go('Courses', $event)"
+            >Explore the academy →</a
           >
         </div>
-        <article class="featured-volume">
-          <div>
-            <p class="kicker">
-              <span class="badge">VOL. 01 / FEATURED READ</span> AAFXX EDUCATION
-              SERIES
-            </p>
-            <h3>Why They Call Me <em>Prof.</em></h3>
-            <p class="byline">
-              BY BERTHRAM C. CHIDI EKE · IDEAS. PERSPECTIVE. DISCIPLINE.
-            </p>
-            <p>
-              An introduction to the AAFXX trading philosophy. Discover the
-              ideas behind a structured approach to charts, trading psychology
-              and risk management.
-            </p>
-            <div class="buttons">
-              <button class="gold" (click)="openItem(items[0])">
-                Preview book →</button
-              ><button class="link" (click)="openItem(items[0])">
-                Explore this book →
-              </button>
-            </div>
-          </div>
-          <div class="featured-book-stage">
-            <img
-              class="featured-cover"
-              [src]="base + items[0].cover"
-              width="600"
-              height="840"
-              alt="Why They Call Me Prof. — placeholder book cover"
-              loading="lazy"
-              decoding="async"
+        <p class="collection-note">
+          Proposed programmes · curriculum, teaching format, fees and
+          availability await confirmation.
+        </p>
+        <div class="cards">
+          @for (i of items.slice(3); track i.id) {
+            <ng-container
+              [ngTemplateOutlet]="courseCard"
+              [ngTemplateOutletContext]="{ $implicit: i }"
             />
-          </div>
-        </article>
-        <div class="cards compact-cards">
-          <article *ngFor="let i of items.slice(0, 3)">
-            <div class="product-meta">
-              <span class="tag">{{ i.tag }}</span
-              ><b>{{ i.price | currency: "USD" }} <small>preview</small></b>
-            </div>
-            <div class="cover">
-              <img
-                class="book-cover"
-                [src]="base + i.cover"
-                width="600"
-                height="840"
-                [alt]="i.name + ' — placeholder book cover'"
-                loading="lazy"
-                decoding="async"
-              />
-            </div>
-            <div class="card-body">
-              <h3>
-                <button class="product-title" (click)="openItem(i)">
-                  {{ i.name }}
-                </button>
-              </h3>
-              <p>{{ i.detail }}</p>
-              <p class="product-info">
-                {{ meta[i.id].level }} · {{ meta[i.id].format }} · English
-              </p>
-              <div class="card-bottom">
-                <small>SAMPLE EBOOK · NOT FOR SALE</small
-                ><button (click)="add(i)">Add to sandbox cart ↗</button>
+          }
+        </div>
+      </div>
+    </section>
+    <section class="wrap section">
+      <div class="section-heading">
+        <div>
+          <p class="kicker">THE CURATED BOOKSHELF</p>
+          <h2>Read with <em>purpose.</em></h2>
+        </div>
+        <a class="link" [href]="href('Books')" (click)="go('Books', $event)"
+          >Discover all books →</a
+        >
+      </div>
+      <p class="collection-note">
+        Explore the existing catalogue concepts. Placeholder covers are shown;
+        these titles are not confirmed inventory.
+      </p>
+      <div class="cards book-grid">
+        @for (i of items.slice(0, 3); track i.id) {
+          <ng-container
+            [ngTemplateOutlet]="bookCard"
+            [ngTemplateOutletContext]="{ $implicit: i }"
+          />
+        }
+      </div>
+    </section>
+    <section class="approach band">
+      <div class="wrap section split">
+        <div>
+          <p class="kicker">OUR LEARNING APPROACH</p>
+          <h2>Less noise.<br /><em>More understanding.</em></h2>
+          <p class="lead">
+            Education built around questions, context and thoughtful practice.
+          </p>
+          <a class="link" [href]="href('About')" (click)="go('About', $event)"
+            >About AA FXX →</a
+          >
+        </div>
+        <div class="approach-steps">
+          @for (
+            step of [
+              [
+                "Observe",
+                "Learn the language of markets before interpreting the chart.",
+              ],
+              [
+                "Practise",
+                "Use illustrative examples and demo exercises to explore concepts.",
+              ],
+              [
+                "Reflect",
+                "Record your reasoning. Review the process, including its limitations.",
+              ],
+            ];
+            track step[0];
+            let n = $index
+          ) {
+            <div>
+              <span class="index">0{{ n + 1 }}</span>
+              <div>
+                <h3>{{ step[0] }}</h3>
+                <p>{{ step[1] }}</p>
               </div>
             </div>
-          </article>
-        </div>
-      </div>
-    </section>
-    <section class="wrap section method-section">
-      <div class="section-head">
-        <div>
-          <p class="kicker">THE AAFXX METHOD</p>
-          <h2>Learn the logic.<br /><em>Master the discipline.</em></h2>
-        </div>
-        <div class="section-intro">
-          <p>
-            Understand trend, direction, location, moving averages and risk
-            management with clear educational explanations.
-          </p>
-          <a
-            class="link"
-            [href]="href('Strategies')"
-            (click)="go('Strategies', $event)"
-            >Explore Strategies ↗</a
-          >
-        </div>
-      </div>
-      <div class="method">
-        <div>
-          <span>01</span>
-          <h3>Read the trend</h3>
-          <p>
-            Understand the broader market context and identify direction before
-            studying individual setups.
-          </p>
-          <small>→ Multi-timeframe alignment</small>
-        </div>
-        <div>
-          <span>02</span>
-          <h3>Find direction</h3>
-          <p>
-            Bring structure to chart analysis. Compare moving averages and
-            observe how price behaves.
-          </p>
-          <small>→ Moving averages & momentum</small>
-        </div>
-        <div>
-          <span>03</span>
-          <h3>Know your location</h3>
-          <p>
-            Study entries and exits with intention. Explore the relationship
-            between timeframes and price.
-          </p>
-          <small>→ Chart context & location</small>
-        </div>
-        <div>
-          <span>04</span>
-          <h3>Define your risk</h3>
-          <p>
-            Make capital protection part of the plan, with deliberate position
-            sizing and clear boundaries.
-          </p>
-          <small>→ Calculated risk planning</small>
-        </div>
-      </div>
-      <div class="execution-note">
-        <b>AAFXX learning framework</b>
-        <p>
-          Four connected principles. A structured approach to study, practice
-          and reflection.
-        </p>
-        <span>KNOWLEDGE → DISCIPLINE → PERSPECTIVE</span>
-      </div>
-    </section>
-    <section class="founder-section">
-      <div class="wrap section founder-grid">
-        <div class="founder-profile">
-          <div
-            class="portrait-large"
-            role="img"
-            aria-label="Prince Berthram Chidi Eke (JP)"
-          ></div>
-          <div class="founder-caption">
-            <p class="kicker">FOUNDER & EDUCATOR</p>
-            <h3>Prince Berthram Chidi Eke</h3>
-            <p>Author · Financial market educator</p>
-          </div>
-          <p class="founder-creed">KNOWLEDGE FIRST. DISCIPLINE ALWAYS.</p>
-        </div>
-        <div>
-          <p class="kicker">MEET THE FOUNDER</p>
-          <h2>A trader, educator <em>& author.</em></h2>
-          <div class="founder-card">
-            <p class="kicker">FOUNDER’S PERSPECTIVE</p>
-            <blockquote>“My classroom is the 5-Minute chart.”</blockquote>
-            <p>PRINCE BERTHRAM CHIDI EKE · FOUNDER, AAFXX</p>
-          </div>
-          <p>
-            Discover the vision behind AAFXX and the educational principles
-            guiding its trading resources. The founder’s experience connects
-            business systems, market analysis and a commitment to making complex
-            ideas easier to understand.
-          </p>
-          <p>
-            Through practical books and structured learning, explore a
-            disciplined approach to trading psychology and risk control.
-          </p>
-          <div class="buttons">
-            <button class="outline" (click)="go('About')">
-              Read the Story ↗</button
-            ><button class="link" (click)="go('Achievements')">
-              Explore the founder’s journey →
-            </button>
-          </div>
+          }
         </div>
       </div>
     </section>
     <section class="wrap section">
-      <div class="section-head">
+      <div class="section-heading">
         <div>
-          <p class="kicker">YOUR LEARNING JOURNEY</p>
-          <h2>Build your foundation.<br /><em>Deepen your perspective.</em></h2>
-        </div>
-        <p class="section-intro">
-          Choose a starting point that suits your experience. Progress through
-          knowledge, application and reflection.
-        </p>
-      </div>
-      <div class="learning-paths">
-        <article *ngFor="let i of items.slice(3); index as n">
-          <span class="kicker">0{{ n + 1 }} / {{ i.tag }}</span>
-          <h3>{{ i.name }}</h3>
-          <p>{{ i.detail }}</p>
-          <p class="product-info">
-            {{ meta[i.id].level }} · {{ meta[i.id].format }} · English
-          </p>
-          <button class="link" (click)="openItem(i)">
-            Explore the learning path →
-          </button>
-        </article>
-      </div>
-    </section>
-    <section class="wrap section">
-      <div class="section-head">
-        <div>
-          <p class="kicker">FREE LEARNING RESOURCES</p>
-          <h2>Small lessons.<br /><em>Useful foundations.</em></h2>
+          <p class="kicker">THE LEARNING JOURNAL</p>
+          <h2>A little clarity, <em>every day.</em></h2>
         </div>
         <a
           class="link"
           [href]="href('Resources')"
           (click)="go('Resources', $event)"
-          >All resources →</a
+          >All learning resources →</a
         >
       </div>
-      <div class="resource-grid">
-        <article class="resource-card" *ngFor="let l of lessons.slice(0, 3)">
-          <p class="kicker">{{ l.category }} · {{ l.minutes }} MIN</p>
-          <h3>
-            <a
-              [href]="lessonHref(l.slug)"
-              (click)="openLesson(l.slug, $event)"
-              >{{ l.title }}</a
-            >
-          </h3>
-          <p>{{ l.intro }}</p>
-        </article>
-      </div>
-      <div class="faq home-faq">
-        <h2>A few things to know.</h2>
-        <details>
-          <summary>Where should I start?</summary>
-          <p>
-            Begin with the free currency-pair lesson, then study pips, spreads
-            and leverage. Save notes and complete the knowledge checks.
-          </p>
-        </details>
-        <details>
-          <summary>Can I buy a book or course now?</summary>
-          <p>
-            The catalogue is a preview. Sandbox checkout demonstrates the
-            journey without taking payment or delivering paid materials.
-          </p>
-        </details>
-        <details>
-          <summary>Will training guarantee profitable trading?</summary>
-          <p>
-            No. Education builds understanding; forex and leveraged trading can
-            result in substantial losses.
-          </p>
-        </details>
-      </div>
-    </section>
-    <section class="wrap cta-section">
-      <div class="academy-cta">
-        <p class="kicker badge">BEGIN YOUR NEXT CHAPTER</p>
-        <h2>Elevate your trading<br /><em>perspective.</em></h2>
-        <p>
-          Turn curiosity into structured learning. Begin with our core reading
-          resources or explore the academy’s learning paths.
-        </p>
-        <div class="buttons">
-          <button class="gold" (click)="go('Courses')">
-            Begin academy training ↗</button
-          ><button class="outline" (click)="go('Books')">
-            Browse all books →
-          </button>
-        </div>
+      <div class="cards">
+        @for (l of [lessons[0], lessons[3], lessons[5]]; track l.slug) {
+          <ng-container
+            [ngTemplateOutlet]="resourceCard"
+            [ngTemplateOutletContext]="{ $implicit: l }"
+          />
+        }
       </div>
     </section>
   }
-  @if (page() === "Books" || page() === "Courses") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
+  @if (page() === "Courses" || page() === "Books") {
+    <section class="wrap page-title">
       <p class="kicker">
-        AAFXX {{ page() === "Books" ? "LIBRARY" : "ACADEMY" }}
+        {{ page() === "Books" ? "THE AA FXX BOOKSHELF" : "THE AA FXX ACADEMY" }}
       </p>
       <h1 tabindex="-1">
-        {{ page() === "Books" ? "Books & Publications" : "Online Training" }}
+        {{ page() === "Books" ? "Your next chapter" : "Build your knowledge"
+        }}<br /><em>{{
+          page() === "Books" ? "starts here." : "with intention."
+        }}</em>
       </h1>
-      <p>
+      <p class="lead">
         {{
           page() === "Books"
-            ? "Educational books and resources for the modern trader."
-            : "Structured learning paths for disciplined, informed trading."
+            ? "Discover reading concepts on chart analysis, market understanding and trading psychology."
+            : "Explore proposed learning paths from forex fundamentals to risk, analysis and disciplined practice."
         }}
       </p>
     </section>
-    <section class="wrap section catalogue-section">
-      <div class="catalogue-summary">
-        <span>{{
+    <section class="wrap catalogue-section">
+      <p class="notice">
+        {{
           page() === "Books"
-            ? "THE READING COLLECTION"
-            : "THE LEARNING COLLECTION"
-        }}</span
-        ><span>{{ visibleItems().length }} RESOURCES · ENGLISH · USD</span>
-      </div>
+            ? "Catalogue concepts, not available inventory. Covers are placeholders. Author attribution, publication details, formats, prices and availability require confirmation."
+            : "Programme outlines are proposals, not open enrolments. Final curriculum, instructors, format, duration and fees require confirmation. Free introductory guides are available now."
+        }}
+      </p>
       <div class="catalogue-tools">
         <label
-          >Find a resource<input
+          >Search {{ page() === "Books" ? "books" : "courses"
+          }}<input
             type="search"
             [ngModel]="query()"
             (ngModelChange)="query.set($event)"
-            placeholder="Search by title or topic"
-        /></label>
-        <label
-          >Sort by<select [ngModel]="sort()" (ngModelChange)="sort.set($event)">
-            <option value="featured">Featured collection</option>
-            <option value="price-low">Price: low to high</option>
-            <option value="price-high">Price: high to low</option>
+            placeholder="Search a title or topic" /></label
+        ><label
+          >Topic<select
+            aria-label="Topic"
+            [ngModel]="topic()"
+            (ngModelChange)="topic.set($event)"
+          >
+            <option>All</option>
+            @for (t of topics; track t) {
+              <option>{{ t }}</option>
+            }
+          </select></label
+        ><label
+          >Level<select
+            aria-label="Level"
+            [ngModel]="level()"
+            (ngModelChange)="level.set($event)"
+          >
+            <option>All</option>
+            <option>Beginner</option>
+            <option>Intermediate</option>
+            <option>Advanced</option>
           </select></label
         >
-      </div>
-      <details class="filter-panel" open>
-        <summary>Refine your collection</summary>
-        <div class="filter-grid">
+        @if (page() === "Courses") {
           <label
-            >Topic<select
-              aria-label="Topic"
-              [ngModel]="topic()"
-              (ngModelChange)="topic.set($event)"
-            >
-              <option>All</option>
-              <option *ngFor="let t of topics">{{ t }}</option>
-            </select></label
-          >
-          <label
-            >Level<select
-              aria-label="Level"
-              [ngModel]="level()"
-              (ngModelChange)="level.set($event)"
-            >
-              <option>All</option>
-              <option>Beginner</option>
-              <option>Intermediate</option>
-              <option>Advanced</option>
-            </select></label
-          >
-          <label
-            >Format<select
-              aria-label="Format"
+            >Learning format<select
+              aria-label="Learning format"
               [ngModel]="format()"
               (ngModelChange)="format.set($event)"
             >
               <option>All</option>
-              <option>Ebook</option>
+              <option>To be confirmed</option>
               <option>Self-paced</option>
-              <option>Print</option>
-              <option>Bundle</option>
+              <option>Live online</option>
             </select></label
           >
-          <label
-            >Language<select
-              aria-label="Language"
-              [ngModel]="language()"
-              (ngModelChange)="language.set($event)"
-            >
-              <option>All</option>
-              <option>English</option>
-            </select></label
-          ><label
-            >Author / programme lead<select
-              aria-label="Author / programme lead"
-              [ngModel]="author()"
-              (ngModelChange)="author.set($event)"
-            >
-              <option>All</option>
-              <option>Prince Berthram Chidi Eke</option>
-            </select></label
-          >
-          <label
-            >Maximum preview price (USD)<input
-              type="number"
-              min="0"
-              max="1000"
-              [ngModel]="maxPrice()"
-              (ngModelChange)="maxPrice.set($event)"
-          /></label>
-        </div>
-        <p>
-          English collection · Author / programme lead: Prince Berthram Chidi
-          Eke. Print editions and bundles are not available.
-        </p>
+        }
         <button class="link" (click)="resetFilters()">Reset filters</button>
-      </details>
-      <p class="collection-note">
-        {{
-          page() === "Books"
-            ? "Concept covers shown for the preview collection. Final artwork and publication details will be confirmed before release."
-            : "Explore the proposed learning topics. Course availability and delivery details will be confirmed before enrolment opens."
-        }}
-      </p>
-      @if (!visibleItems().length) {
-        <div class="empty-state" role="status">
-          <h2>No matching resources</h2>
-          <p>Try a different title or topic.</p>
-          <button class="outline" (click)="resetFilters()">Clear search</button>
-        </div>
-      }
-      <div class="cards">
-        <ng-container *ngFor="let i of visibleItems()">
-          @if (i.type === page()) {
-            <article>
-              <div class="cover">
-                <span class="tag">{{ i.tag }}</span>
-                @if (i.cover) {
-                  <img
-                    class="book-cover"
-                    [src]="base + i.cover"
-                    width="600"
-                    height="840"
-                    [alt]="i.name + ' — placeholder book cover'"
-                    loading="lazy"
-                    decoding="async"
-                  />
-                } @else {
-                  <div class="book course">
-                    <small>AAFXX ACADEMY</small><strong>{{ i.name }}</strong
-                    ><small>{{
-                      page() === "Books" ? "TRADING LIBRARY" : "ONLINE TRAINING"
-                    }}</small>
-                  </div>
-                }
-              </div>
-              <div class="card-body">
-                <h3>
-                  <button class="product-title" (click)="openItem(i)">
-                    {{ i.name }}
-                  </button>
-                </h3>
-                <p>{{ i.detail }}</p>
-                <p class="product-info">
-                  {{ meta[i.id].level }} · {{ meta[i.id].format }} · English
-                </p>
-                <button class="link" (click)="openItem(i)">
-                  {{
-                    i.type === "Books"
-                      ? "View book details"
-                      : "View learning topics"
-                  }}
-                  →
-                </button>
-                @if (i.type === "Courses") {
-                  <p>{{ meta[i.id].duration }}</p>
-                  <button
-                    class="link"
-                    [attr.aria-pressed]="comparison().includes(i.id)"
-                    (click)="compare(i.id)"
-                  >
-                    {{
-                      comparison().includes(i.id)
-                        ? "Remove from comparison"
-                        : "Compare course"
-                    }}
-                  </button>
-                }
-                <div class="card-bottom">
-                  <b>{{ i.price | currency: "USD" }} <small>preview</small></b
-                  ><button (click)="add(i)">
-                    {{
-                      page() === "Books"
-                        ? "Add to sandbox cart"
-                        : "Preview enrollment"
-                    }}
-                    ↗
-                  </button>
-                </div>
-              </div>
-            </article>
-          }
-        </ng-container>
       </div>
-    </section>
-  }
-  @if (page() === "Courses" && comparison().length) {
-    <section class="wrap section">
-      <h2>Compare your learning paths</h2>
-      <div class="table-scroll">
-        <table>
-          <caption>
-            Preview course comparison
-          </caption>
-          <thead>
-            <tr>
-              <th>Course</th>
-              <th>Level</th>
-              <th>Sample study time</th>
-              <th>Prerequisites</th>
-              <th>Preview price</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let i of compareItems()">
-              <th>
-                <a [href]="itemHref(i)" (click)="openItem(i, $event)">{{
-                  i.name
-                }}</a>
-              </th>
-              <td>{{ meta[i.id].level }}</td>
-              <td>{{ meta[i.id].duration }}</td>
-              <td>{{ meta[i.id].prerequisite }}</td>
-              <td>{{ i.price | currency: "USD" }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-  }
-  @if (page() === "Strategies") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">OUR APPROACH</p>
-      <h1 tabindex="-1">Trading <em>Strategies</em></h1>
-      <p>
-        Explore educational explanations of the methods and concepts featured in
-        the AAFXX materials.
+      <p role="status" class="results-count">
+        {{ visibleItems().length }}
+        {{ page() === "Books" ? "book concepts" : "learning paths" }}
       </p>
-    </section>
-    <section class="wrap section strategy-grid">
-      <article *ngFor="let s of strategies; index as n">
-        <span class="number">0{{ n + 1 }}</span>
-        <h2>{{ s[0] }}</h2>
-        <p>{{ s[1] }}</p>
-        <button class="link" (click)="go('Courses')">
-          Explore related training ↗
-        </button>
-      </article>
-    </section>
-  }
-  @if (page() === "Achievements") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">THE JOURNEY</p>
-      <h1 tabindex="-1">Achievements & <em>Milestones</em></h1>
-      <p>
-        The ideas, publications and educational mission behind AAFXX. Explore
-        the founder’s own account of his work.
-      </p>
-    </section>
-    <section class="wrap section gallery">
-      <article *ngFor="let image of images; index as n">
-        <img
-          [src]="base + 'assets/' + image"
-          [alt]="'AAFXX supplied achievement graphic ' + (n + 1)"
-          loading="lazy"
-        />
-        <p>From the founder’s archive · {{ n + 1 }}</p>
-      </article>
-    </section>
-  }
-  @if (page() === "About") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">THE PERSON BEHIND THE METHOD</p>
-      <h1 tabindex="-1">Prince Berthram<br />Chidi Eke <em>(JP)</em></h1>
-      <p>Founder, AAFXX · Author · Financial market educator</p>
-    </section>
-    <section class="wrap section about-strip">
-      <div>
-        <p class="kicker">KNOWLEDGE. DISCIPLINE. PURPOSE.</p>
-        <h2>A lifetime of experience.<br /><em>A mission to teach.</em></h2>
-        <p>
-          Prince Berthram Chidi Eke is a Justice of the Peace in Imo State,
-          Nigeria. His biography spans over 30 years in business systems,
-          leadership and quantitative analysis, alongside over 14 years of live
-          trading in forex, indices and commodities.
-        </p>
-        <p>
-          Known to his audience as “Prof.”, he brings a disciplined, mechanical
-          approach to market analysis, placing structured systems, trading
-          psychology and risk control at the centre of education.
-        </p>
-        <p>
-          “Trading is not gambling; it is structured systems, psychology and
-          rigorous risk control.”
-        </p>
-      </div>
-      <figure class="founder-photo">
-        <div
-          class="portrait-large"
-          role="img"
-          aria-label="AAFXX founder Prince Berthram Chidi Eke (JP)"
-        ></div>
-        <figcaption>
-          Prince Berthram Chidi Eke (JP) · Founder & author
-        </figcaption>
-      </figure>
-    </section>
-    <section class="band">
-      <div class="wrap band-grid">
-        <div>
-          <p class="kicker">EDUCATION & LEADERSHIP</p>
-          <h2>Grounded in systems.<br /><em>Driven by learning.</em></h2>
-          <p>
-            Currently pursuing a Ph.D. in Artificial Intelligence, according to
-            his supplied biography.
-          </p>
-        </div>
-        <div>
-          <h3>Academic background</h3>
-          <p>
-            M.Sc. in Management Information Systems (Computer Science), Ambrose
-            Alli University; Postgraduate Diploma in Computer Science, Federal
-            University of Technology Owerri; NCE in Mathematics and Physics
-            Education, University of Ibadan.
-          </p>
-          <h3>Business leadership</h3>
-          <p>
-            Chairman and Managing Director of FSH Limited, Nigeria; Investor and
-            Logistics Director at VATES Facilities Support WLL, Bahrain; Country
-            Representative for Jollof House WLL Bahrain.
-          </p>
-        </div>
-      </div>
-    </section>
-    <section class="wrap section">
-      <p class="kicker">THE AAFXX VISION</p>
-      <h2>Help 1,000 people build<br /><em>their financial knowledge.</em></h2>
-      <p>
-        The founder’s “1,000 Wealth Creators” mission connects practical books,
-        MQL5 Expert Advisors, TradingView Pine Script indicators and wall-mount
-        checklists, with and without coding. His planned four-book learning
-        series begins with Book 1, Minor Daily, progressing from beginner to
-        advanced study.
-      </p>
-      <p>
-        His work includes the AAFXX Triline System (EMA9, SMA20, MFI50, RSI50
-        and candle patterns at EMA9), five FINAL V3 Expert Advisors and BBB CMM
-        trading systems.
-      </p>
-      <button class="gold" (click)="go('Strategies')">
-        Discover the frameworks →
-      </button>
-    </section>
-  }
-  @if (page() === "Contact") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">GET IN TOUCH</p>
-      <h1 tabindex="-1">Contact <em>AAFXX</em></h1>
-      <p>Ask about books, courses, collaborations or training opportunities.</p>
-    </section>
-    <section class="wrap section contact-grid">
-      <div>
-        <h2>Let's start a <em>conversation.</em></h2>
-        <p>
-          Tell us what you would like to learn. Prepare an enquiry for our
-          books, education programmes or collaborations.
-        </p>
-      </div>
-      <p class="notice">
-        English enquiries. A verified support inbox and support hours are
-        awaiting confirmation. The form prepares an email draft; add your known
-        AAFXX recipient before sending. No payments or international shipping
-        are currently offered.
-      </p>
-      <form #inquiry="ngForm" (ngSubmit)="inquiry.valid && contact()">
-        <label
-          >Your name<input
-            name="name"
-            [(ngModel)]="name"
-            required
-            placeholder="Full name" /></label
-        ><label
-          >Email address<input
-            name="email"
-            type="email"
-            email
-            autocomplete="email"
-            [(ngModel)]="email"
-            required
-            placeholder="you@example.com" /></label
-        ><label
-          >Your message<textarea
-            name="message"
-            [(ngModel)]="message"
-            required
-            rows="5"
-            placeholder="How can we help?"
-          ></textarea>
-        </label>
-        <p class="collection-note">
-          This opens an email draft. Add your AAFXX contact’s address before
-          sending.
-        </p>
-        <button class="gold" type="submit" [disabled]="inquiry.invalid">
-          Continue to Email ↗
-        </button>
-      </form>
-    </section>
-  }
-
-  @if (page() === "Checkout") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">YOUR NEXT CHAPTER</p>
-      <h1 tabindex="-1">Checkout</h1>
-      <p>Sandbox checkout · preview prices in USD · no real purchase</p>
-    </section>
-    <section class="wrap section checkout-layout">
-      <div>
-        <ol class="steps">
-          <li [class.current]="step() === 1">Details</li>
-          <li [class.current]="step() === 2">Payment</li>
-          <li [class.current]="step() === 3">Review</li>
-          <li [class.current]="step() === 4">Summary</li>
-        </ol>
-        @if (!count()) {
-          <h2>Your cart is empty</h2>
-          <button class="gold" (click)="go('Books')">Explore books</button>
-        } @else if (step() === 1) {
-          <form #details="ngForm" (ngSubmit)="details.valid && step.set(2)">
-            <h2>Your details</h2>
-            <label
-              >Full name<input
-                name="customerName"
-                [(ngModel)]="customer.name"
-                required
-                autocomplete="name" /></label
-            ><label
-              >Email for access<input
-                name="customerEmail"
-                [(ngModel)]="customer.email"
-                type="email"
-                required
-                email
-                autocomplete="email" /></label
-            ><label
-              >Country / region<select
-                name="country"
-                [(ngModel)]="customer.country"
-                required
-              >
-                <option value="">Select your region</option>
-                <option>Nigeria</option>
-                <option>Bahrain</option>
-                <option>India</option>
-                <option>United Kingdom</option>
-                <option>United States</option>
-                <option>Other</option>
-              </select></label
-            >
-            <p>Digital resources. No shipping address is needed.</p>
-            <button
-              class="gold"
-              [disabled]="details.invalid || !customer.name.trim()"
-            >
-              Continue to payment →
-            </button>
-          </form>
-        } @else if (step() === 2) {
-          <h2>Sandbox payment preview</h2>
-          <p>Demonstration only. These are not enabled payment methods.</p>
-          <div class="payment-options">
-            <button
-              [class.selected]="payment === 'Card'"
-              (click)="payment = 'Card'"
-            >
-              Credit / debit card<br /><small>Visa · Mastercard</small></button
-            ><button
-              [class.selected]="payment === 'Bank transfer'"
-              (click)="payment = 'Bank transfer'"
-            >
-              Bank transfer<br /><small>Pay from your bank</small>
-            </button>
-          </div>
-          <p class="notice">
-            Payments are not being collected at this time. You can review your
-            order without entering card or bank details.
-          </p>
-          <button class="outline" (click)="step.set(1)">Back</button>
-          <button class="gold" (click)="step.set(3)">Review order →</button>
-        } @else if (step() === 3) {
-          <h2>Review your selection</h2>
-          <p>
-            {{ customer.name }}<br />{{ customer.email }}<br />{{
-              customer.country
-            }}
-          </p>
-          <p>Payment preference: {{ payment }}</p>
-          <p>
-            No charge will be made. Access to purchased materials requires a
-            completed payment.
-          </p>
-          <label class="check"
-            ><input type="checkbox" [(ngModel)]="accepted" /> I have reviewed
-            the <a [href]="href('Terms')" target="_blank">terms</a> and
-            <a [href]="href('Privacy')" target="_blank">privacy information</a
-            >.</label
-          ><button class="outline" (click)="step.set(2)">Back</button>
-          <button class="gold" [disabled]="!accepted" (click)="complete()">
-            Create unpaid summary →
-          </button>
-          <div class="sandbox-controls">
-            <h3>Test the payment journey</h3>
-            <p>No charge, real order or paid access will be created.</p>
-            <label
-              >Sandbox result<select
-                aria-label="Sandbox result"
-                [(ngModel)]="sandboxOutcome"
-              >
-                <option value="success">Successful demo</option>
-                <option value="failed">Failed demo</option>
-                <option value="canceled">Canceled demo</option>
-              </select></label
-            ><button
-              class="gold"
-              [disabled]="!accepted || paymentState() === 'processing'"
-              (click)="runSandbox()"
-            >
-              {{
-                paymentState() === "processing"
-                  ? "Processing demo…"
-                  : "Run sandbox payment"
-              }}
-            </button>
-            @if (paymentState() === "failed") {
-              <p role="alert">
-                Demo payment failed. Your selection is preserved. Try again.
-              </p>
-            }
-            @if (paymentState() === "canceled") {
-              <p role="status">
-                Demo payment canceled. No charge was made. You can retry.
-              </p>
-            }
-          </div>
-        } @else {
-          <p class="kicker">
-            {{
-              paymentState() === "success"
-                ? "SANDBOX PAYMENT COMPLETE"
-                : "UNPAID SUMMARY"
-            }}
-          </p>
-          <h2>Thank you, {{ customer.name }}.</h2>
-          <p>
-            Reference: <strong>{{ reference }}</strong>
-          </p>
-          <p class="notice">
-            {{
-              paymentState() === "success"
-                ? "Demo receipt only"
-                : "Payment pending"
-            }}
-            · This summary is held in this browser session. No payment has been
-            taken and no order has been sent.
-          </p>
-          <p>
-            Keep a copy of your selection for your records. This is not proof of
-            purchase.
-          </p>
-          <button class="gold" (click)="print()">Print / save summary</button
-          ><button class="outline" (click)="go('Account')">
-            Open learning workspace
-          </button>
-          <button class="outline" (click)="go('Books')">
-            Continue exploring
-          </button>
+      <div class="cards" [class.book-grid]="page() === 'Books'">
+        @for (i of visibleItems(); track i.id) {
+          <ng-container
+            [ngTemplateOutlet]="page() === 'Books' ? bookCard : courseCard"
+            [ngTemplateOutletContext]="{ $implicit: i }"
+          />
         }
       </div>
-      <aside class="order-summary">
-        <p class="kicker">ORDER SUMMARY</p>
-        <div *ngFor="let x of cart()" class="cart-item">
-          <div>
-            <b>{{ x.item.name }}</b>
-            <p>{{ x.item.type }} · {{ x.quantity }} × ${{ x.item.price }}</p>
-          </div>
-          <strong>${{ x.quantity * x.item.price }}</strong>
-        </div>
-        <p>Digital delivery <span>—</span></p>
-        <h3>
-          Total <span>${{ total() }} USD</span>
-        </h3>
-        <small
-          >Final taxes, if applicable, are calculated when payments become
-          available.</small
-        >
-      </aside>
-    </section>
-  }
-  @if (page() === "Account") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">YOUR LEARNING SPACE</p>
-      <h1 tabindex="-1">Keep learning.<br /><em>Build your discipline.</em></h1>
-      <p>Your free learning progress, saved on this browser.</p>
-    </section>
-    <section class="wrap section">
-      <div class="method">
-        <div>
-          <h3>
-            {{ completed().length }} / {{ lessons.length }} lessons completed
-          </h3>
-          <progress
-            [value]="completed().length"
-            [max]="lessons.length"
-            aria-label="Free lesson completion"
-          ></progress>
-          <p>Complete a knowledge check to record your progress.</p>
-          <a
-            class="link"
-            [href]="href('Resources')"
-            (click)="go('Resources', $event)"
-            >Continue free learning →</a
-          ><button class="link" (click)="clearLearning()">
-            Reset local progress and notes
-          </button>
-          <button class="link" (click)="go('Courses')">Browse courses →</button>
-        </div>
-        <div>
-          <h3>My library</h3>
+      @if (!visibleItems().length) {
+        <div class="empty-state">
+          <h2>No matching {{ page() === "Books" ? "books" : "courses" }}</h2>
           <p>
-            No paid materials are unlocked. Sign-in, real orders and protected
-            delivery are not yet connected.
+            Try another topic or clear your filters. Confirmed
+            {{ format() !== "All" ? format() : "" }} programmes may not yet be
+            listed.
           </p>
-          @if (sandboxOrder(); as order) {
-            <p>
-              Sandbox receipt: {{ order.reference }} ·
-              {{ order.total | currency: "USD" }}
-            </p>
-            <p>Demo access only. No purchase was made.</p>
-            <a
-              class="lesson-row"
-              *ngFor="let entry of order.items"
-              [href]="lessonHref(meta[entry.item.id].lesson)"
-              (click)="openLesson(meta[entry.item.id].lesson, $event)"
-              >{{ entry.item.name }} · open free sample →</a
-            >
-          }
-          <button class="link" (click)="go('Books')">Explore books →</button>
+          <button class="outline" (click)="resetFilters()">
+            Clear filters
+          </button>
         </div>
-      </div>
-    </section>
-  }
-  @if (page() === "FAQ") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">HELP CENTRE</p>
-      <h1 tabindex="-1">Frequently asked <em>questions.</em></h1>
-    </section>
-    <section class="wrap section faq">
-      <details open>
-        <summary>Who is AAFXX for?</summary>
-        <p>
-          Readers and traders seeking structured education in chart
-          interpretation, discipline and risk management, from foundations to
-          more advanced frameworks.
-        </p>
-      </details>
-      <details>
-        <summary>What is the AAFXX method?</summary>
-        <p>
-          A collection of educational frameworks covering trend, direction,
-          location, moving-average relationships, multi-timeframe alignment and
-          risk planning.
-        </p>
-      </details>
-      <details>
-        <summary>Do these methods guarantee returns?</summary>
-        <p>
-          No. Trading can result in substantial losses. Educational examples and
-          the founder’s reported results do not predict future performance.
-        </p>
-      </details>
-      <details>
-        <summary>Can I complete a payment today?</summary>
-        <p>
-          You can select resources and prepare an order summary. Payment
-          collection is currently unavailable; no card information is requested.
-        </p>
-      </details>
-      <details>
-        <summary>How do I contact AAFXX?</summary>
-        <p>
-          Use the contact page to prepare an email enquiry about resources,
-          training or collaboration.
-        </p>
-      </details>
-    </section>
-  }
-  @if (page() === "Privacy" || page() === "Terms") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
-      ><span aria-hidden="true">/</span><span>{{ page() }}</span>
-    </div>
-    <section class="page-title wrap">
-      <p class="kicker">INFORMATION</p>
-      <h1 tabindex="-1">
-        {{ page() === "Privacy" ? "Privacy information" : "Website terms" }}
-      </h1>
-    </section>
-    <section class="wrap section legal">
-      @if (page() === "Privacy") {
-        <h2>Your information</h2>
-        <p>
-          Your cart selections are stored locally in this browser. Checkout
-          details remain in memory for this visit and are not submitted to a
-          server. Refreshing the page clears those details.
-        </p>
-        <p>
-          The contact form opens your email application; you choose whether to
-          send the message. Do not include passwords, payment information or
-          sensitive documents.
-        </p>
-        <p>
-          Theme, free lesson progress and notes are saved in this browser. Clear
-          site data or reset learning progress to remove them. No payment
-          details are collected.
-        </p>
-      } @else {
-        <h2>Education and responsible use</h2>
-        <p>
-          AAFXX resources are educational and do not constitute personalised
-          investment advice. Forex and leveraged trading involve substantial
-          risk. No profits or outcomes are guaranteed.
-        </p>
-        <h3>Orders and availability</h3>
-        <p>
-          The checkout currently prepares a local order summary. It does not
-          create a binding purchase, collect payment or grant digital access.
-          Availability, final charges, licence terms and applicable cancellation
-          rights must be confirmed before a purchase is completed.
-        </p>
-        <h3>Intellectual property</h3>
-        <p>
-          AAFXX content and supplied artwork are presented for learning and
-          reference. Do not redistribute paid materials without permission.
-        </p>
       }
     </section>
   }
   @if (page() === "Detail" && detail(); as i) {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a> /
-      <a [href]="href(i.type)" (click)="go(i.type, $event)">{{
+    <nav class="wrap breadcrumb" aria-label="Breadcrumb">
+      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
+      ><span>/</span
+      ><a [href]="href(i.type)" (click)="go(i.type, $event)">{{
         label(i.type)
-      }}</a>
-      / <span>{{ i.name }}</span>
-    </div>
+      }}</a
+      ><span>/</span><span>{{ i.name }}</span>
+    </nav>
     <section class="wrap section detail-layout">
       <div class="detail-art">
         @if (i.cover) {
@@ -1353,152 +410,190 @@
             [src]="base + i.cover"
             width="600"
             height="840"
-            [alt]="i.name + ' — concept cover'"
-          />
+            [alt]="i.name + ' — placeholder concept cover'"
+          /><span class="cover-label">PLACEHOLDER COVER</span>
         } @else {
-          <span class="kicker">AAFXX / ACADEMY</span>
-          <h2>{{ i.name }}</h2>
-          <span class="tag">{{ meta[i.id].level }}</span>
-          <p>Observe. Practice. Reflect.</p>
+          <div class="course-art">
+            <span class="kicker">AA FXX / LEARNING PATH</span
+            ><span class="art-number">0{{ i.id - 3 }}</span
+            ><span>{{ meta[i.id].level }}</span>
+          </div>
         }
-        <small
-          >Preview
-          {{
-            i.type === "Books" ? "cover and publication" : "programme"
-          }}</small
-        >
       </div>
       <div>
         <p class="kicker">{{ meta[i.id].topic }} · {{ meta[i.id].level }}</p>
         <h1 tabindex="-1">{{ i.name }}</h1>
-        <p class="lead">{{ i.detail }}</p>
-        <p class="notice">
-          Preview catalogue · not available for purchase. Content, prices and
-          delivery details require confirmation.
+        <p class="lead">{{ i.detail }}.</p>
+        <p>
+          {{
+            i.type === "Books"
+              ? "This catalogue concept brings together the study themes below. It is intended as a starting point for a conversation about reading, rather than a published review or a confirmed book listing."
+              : "A proposed learning path for developing clear vocabulary, thoughtful observation and a structured practice routine. Use the free guides below while programme details are being confirmed."
+          }}
         </p>
         <dl class="facts">
           <div>
-            <dt>Format</dt>
-            <dd>{{ meta[i.id].format }}</dd>
+            <dt>Intended reader</dt>
+            <dd>{{ meta[i.id].audience }}</dd>
           </div>
           <div>
-            <dt>Language</dt>
-            <dd>English</dd>
-          </div>
-          <div>
-            <dt>{{ i.type === "Books" ? "Author" : "Programme lead" }}</dt>
-            <dd>Prince Berthram Chidi Eke</dd>
+            <dt>Prerequisites</dt>
+            <dd>{{ meta[i.id].prerequisite }}</dd>
           </div>
           <div>
             <dt>
-              {{ i.type === "Books" ? "Publication" : "Sample study time" }}
+              {{
+                i.type === "Books"
+                  ? "Author / edition"
+                  : "Instructor / duration"
+              }}
             </dt>
-            <dd>{{ meta[i.id].duration }}</dd>
+            <dd>To be confirmed</dd>
+          </div>
+          <div>
+            <dt>Language / format</dt>
+            <dd>To be confirmed</dd>
           </div>
         </dl>
-        <p class="price-label">
-          {{ i.price | currency: "USD" }} <small>Illustrative price</small>
+        <p class="notice">
+          {{
+            i.type === "Books"
+              ? "Concept listing · publication, price and availability unconfirmed."
+              : "Proposed programme · enrolment and fees unconfirmed."
+          }}
         </p>
-        <div class="buttons">
-          <button class="gold" (click)="add(i)">Add to sandbox cart</button
-          ><a
-            class="outline"
-            [href]="lessonHref(meta[i.id].lesson)"
-            (click)="openLesson(meta[i.id].lesson, $event)"
-            >Read a free lesson →</a
-          >
-        </div>
-        <p>
-          Digital preview only. Print editions, bundles, shipping destinations
-          and payment methods are not available. No card details are collected.
-        </p>
+        <a class="gold" [href]="enquiryHref(i)" (click)="enquire(i, $event)"
+          >{{
+            i.type === "Books"
+              ? "Enquire About This Book"
+              : "Enquire About This Course"
+          }}
+          ↗</a
+        >
       </div>
     </section>
     <section class="wrap section detail-body">
       <div>
-        <p class="kicker">YOUR LEARNING OBJECTIVES</p>
-        <h2>A clearer understanding,<br /><em>one topic at a time.</em></h2>
-        <p>For {{ meta[i.id].audience.toLowerCase() }}.</p>
-        <p><b>Prerequisites:</b> {{ meta[i.id].prerequisite }}.</p>
-        <div class="faq">
-          <details *ngFor="let topic of i.topics; index as n">
-            <summary>{{ n + 1 }}. {{ topic }}</summary>
-            <p>
-              Proposed {{ i.type === "Books" ? "chapter" : "module" }}. Explore
-              the topic through definitions, illustrative examples and a
-              reflective practice exercise. Final
-              {{ i.type === "Books" ? "manuscript" : "curriculum" }} is awaiting
-              confirmation.
-            </p>
-          </details>
-        </div>
+        <p class="kicker">
+          {{
+            i.type === "Books"
+              ? "TOPICS TO EXPLORE"
+              : "PROPOSED LEARNING OUTCOMES"
+          }}
+        </p>
+        <h2>A framework for <em>understanding.</em></h2>
+        <ul class="outcomes">
+          @for (t of i.topics; track t) {
+            <li>{{ t }}</li>
+          }
+        </ul>
+        <p>
+          These are proposed study themes.
+          {{
+            i.type === "Books"
+              ? "A verified manuscript or table of contents is not yet available. No third-party content or sample chapters are distributed here."
+              : "The final taught curriculum is not yet available. The following original website guides offer independent introductory study."
+          }}
+        </p>
+        <h3>
+          {{
+            i.type === "Books"
+              ? "Related free reading"
+              : "Introductory study modules"
+          }}
+        </h3>
         @if (i.type === "Courses") {
-          <h3>Available free sample lessons</h3>
+          @for (l of courseLessons(i.id); track l.slug; let n = $index) {
+            <details class="module">
+              <summary>0{{ n + 1 }} · {{ l.title }}</summary>
+              <p>{{ l.intro }} {{ l.sections[0][1] }}</p>
+              <a
+                class="link"
+                [href]="lessonHref(l.slug)"
+                (click)="openLesson(l.slug, $event)"
+                >Read the free guide →</a
+              >
+            </details>
+          }
+        } @else {
           <a
             class="lesson-row"
-            *ngFor="let l of courseLessons(i.id)"
-            [href]="lessonHref(l.slug)"
-            (click)="openLesson(l.slug, $event)"
-            ><span>{{ l.title }}</span
-            ><small>{{ l.minutes }} min →</small></a
+            [href]="lessonHref(meta[i.id].lesson)"
+            (click)="openLesson(meta[i.id].lesson, $event)"
+            >Explore a related introductory guide →</a
           >
         }
-        <h3>About the educator</h3>
-        <p>
-          Prince Berthram Chidi Eke is the founder of AAFXX. The academy’s
-          supplied biography describes a focus on structured market analysis,
-          psychology and risk.
-        </p>
-        <a class="link" [href]="href('About')" (click)="go('About', $event)"
-          >Read the founder’s story →</a
-        >
+        <h3 class="spaced">Before you enquire</h3>
+        <details class="module">
+          <summary>
+            {{
+              i.type === "Books"
+                ? "Can I buy or download this book?"
+                : "Can I enrol in this programme?"
+            }}
+          </summary>
+          <p>
+            {{
+              i.type === "Books"
+                ? "No purchase or download is currently offered. Ask for confirmed authorship, format, edition, price and availability before buying. The cover shown is a placeholder."
+                : "Enrolment is not open on this website. Ask for the final curriculum, prerequisites, schedule, delivery format, instructor and fees."
+            }}
+          </p>
+        </details>
+        <details class="module">
+          <summary>Is the free reading part of a paid product?</summary>
+          <p>
+            No. These are original introductory website resources. They do not
+            provide paid course access or reproduce unpublished book chapters.
+          </p>
+        </details>
       </div>
       <aside class="info-panel">
-        <h3>Before you enroll or buy</h3>
-        <p>
-          Access periods, final duration, publication date, ISBN, refund terms
-          and licensing will be published when confirmed. Free lessons are
-          original introductory website resources, not extracts from an
-          unpublished book.
+        <p class="kicker">KEEP EXPLORING</p>
+        <h3>
+          {{
+            i.type === "Books"
+              ? "More from the bookshelf"
+              : "Related learning paths"
+          }}
+        </h3>
+        @for (r of related(i); track r.id) {
+          <a
+            class="lesson-row"
+            [href]="itemHref(r)"
+            (click)="openItem(r, $event)"
+            >{{ r.name }} →</a
+          >
+        }
+        <p class="spaced">
+          Prefer to start with the basics? The learning journal is free to read.
         </p>
-        <p>
-          No accredited qualification is offered. Any future certificate would
-          be a completion certificate unless accreditation is verified.
-        </p>
-        <h3>Continue exploring</h3>
         <a
-          class="lesson-row"
-          *ngFor="
-            let related of i.type === 'Books'
-              ? items.slice(3)
-              : items.slice(0, 3)
-          "
-          [href]="itemHref(related)"
-          (click)="openItem(related, $event)"
-          >{{ related.name }} →</a
+          class="link"
+          [href]="href('Resources')"
+          (click)="go('Resources', $event)"
+          >Browse all guides →</a
         >
       </aside>
     </section>
   }
   @if (page() === "Resources") {
     <section class="wrap page-title">
-      <p class="kicker">THE LEARNING JOURNAL / FREE RESOURCES</p>
-      <h1 tabindex="-1">
-        Understand the market.<br /><em>Develop your process.</em>
-      </h1>
-      <p>
-        Short reading lessons, practical exercises and knowledge checks. Start
-        anywhere, or follow the foundations in order.
+      <p class="kicker">THE LEARNING JOURNAL</p>
+      <h1 tabindex="-1">Make room for<br /><em>understanding.</em></h1>
+      <p class="lead">
+        Original introductory guides, forex terminology and practical exercises.
+        No account required.
       </p>
     </section>
-    <section class="wrap section">
+    <section class="wrap catalogue-section">
       <div class="catalogue-tools">
         <label
-          >Search free resources<input
+          >Search resources<input
             type="search"
             [ngModel]="query()"
             (ngModelChange)="query.set($event)"
-            placeholder="Try risk or psychology" /></label
+            placeholder="Try currency pairs or risk" /></label
         ><label
           >Resource topic<select
             aria-label="Resource topic"
@@ -1506,61 +601,37 @@
             (ngModelChange)="topic.set($event)"
           >
             <option>All</option>
-            <option *ngFor="let t of topics">{{ t }}</option>
+            @for (t of topics; track t) {
+              <option>{{ t }}</option>
+            }
           </select></label
-        >
+        ><button class="link" (click)="resetFilters()">Reset filters</button>
       </div>
-      <div class="resource-grid">
-        @for (l of lessons; track l.slug) {
-          @if (
-            (topic() === "All" || l.category === topic()) &&
-            (l.title + " " + l.category)
-              .toLowerCase()
-              .includes(query().toLowerCase())
-          ) {
-            <article class="resource-card">
-              <p class="kicker">{{ l.category }} · {{ l.minutes }} MIN</p>
-              <h2>
-                <a
-                  [href]="lessonHref(l.slug)"
-                  (click)="openLesson(l.slug, $event)"
-                  >{{ l.title }}</a
-                >
-              </h2>
-              <p>{{ l.intro }}</p>
-              <a
-                class="link"
-                [href]="lessonHref(l.slug)"
-                (click)="openLesson(l.slug, $event)"
-                >{{
-                  completed().includes(l.slug)
-                    ? "Revisit lesson"
-                    : "Read lesson"
-                }}
-                →</a
-              >
-            </article>
-          }
+      <p role="status" class="results-count">
+        {{ filteredLessons().length }} guides
+      </p>
+      <div class="cards">
+        @for (l of filteredLessons(); track l.slug) {
+          <ng-container
+            [ngTemplateOutlet]="resourceCard"
+            [ngTemplateOutletContext]="{ $implicit: l }"
+          />
         }
       </div>
-      <p class="collection-note">
-        Use “All” and clear the search to see every lesson.
-      </p>
       @if (!filteredLessons().length) {
-        <div class="empty-state" role="status">
-          <h2>No matching lessons</h2>
+        <div class="empty-state">
+          <h2>No matching guides</h2>
           <button class="outline" (click)="resetFilters()">
-            Clear resource filters
+            Clear filters
           </button>
         </div>
       }
       <div class="download-panel">
         <div>
-          <p class="kicker">A SMALL HABIT. A BETTER RECORD.</p>
+          <p class="kicker">OBSERVE. RECORD. REFLECT.</p>
           <h2>Your practice journal.</h2>
           <p>
-            A blank CSV worksheet for demo-trading observations. Open it in your
-            spreadsheet app.
+            A blank CSV worksheet for recording demo observations and questions.
           </p>
         </div>
         <button class="gold" (click)="downloadJournal()">
@@ -1570,45 +641,45 @@
     </section>
   }
   @if (page() === "Lesson") {
-    <div class="wrap breadcrumb">
-      <a [href]="href('Resources')" (click)="go('Resources', $event)"
-        >Resources</a
-      >
-      / <span>{{ lesson().title }}</span>
-    </div>
+    <nav class="wrap breadcrumb" aria-label="Breadcrumb">
+      <a [href]="href('Home')" (click)="go('Home', $event)">Home</a
+      ><span>/</span
+      ><a [href]="href('Resources')" (click)="go('Resources', $event)"
+        >Learning Resources</a
+      ><span>/</span><span>{{ lesson().title }}</span>
+    </nav>
     <section class="wrap page-title">
-      <p class="kicker">
-        {{ lesson().category }} · {{ lesson().minutes }} MIN READ · FREE
-      </p>
+      <p class="kicker">{{ lesson().category }} · INTRODUCTORY GUIDE</p>
       <h1 tabindex="-1">{{ lesson().title }}</h1>
-      <p>{{ lesson().intro }}</p>
-      <small
-        >AAFXX website learning guide · Published and updated 22 October 2026 ·
-        English</small
-      >
+      <p class="lead">{{ lesson().intro }}</p>
     </section>
     <section class="wrap section lesson-layout">
       <article class="reading">
-        <section *ngFor="let part of lesson().sections">
-          <h2>{{ part[0] }}</h2>
-          <p>{{ part[1] }}</p>
-        </section>
+        @for (part of lesson().sections; track part[0]) {
+          <section>
+            <h2>{{ part[0] }}</h2>
+            <p>{{ part[1] }}</p>
+          </section>
+        }
         <p class="notice">
-          Educational examples only. Forex and leveraged trading involve
-          substantial risk. No result is guaranteed.
+          Educational examples, not personal financial advice. Forex and
+          leveraged trading involve substantial risk. No result is guaranteed.
         </p>
         <fieldset class="quiz">
           <legend>Check your understanding</legend>
           <h3>{{ lesson().question }}</h3>
-          <label *ngFor="let choice of lesson().answers; index as n"
-            ><input
-              type="radio"
-              name="answer"
-              [value]="n"
-              [ngModel]="answer()"
-              (ngModelChange)="answer.set($event); checked.set(false)"
-            />{{ choice }}</label
-          ><button
+          @for (choice of lesson().answers; track choice; let n = $index) {
+            <label
+              ><input
+                type="radio"
+                name="answer"
+                [value]="n"
+                [ngModel]="answer()"
+                (ngModelChange)="answer.set($event); checked.set(false)"
+              />{{ choice }}</label
+            >
+          }
+          <button
             class="gold"
             [disabled]="answer() < 0"
             (click)="checked.set(true)"
@@ -1621,277 +692,524 @@
               {{ lesson().explanation }}
             </p>
           }
-          <button
-            class="outline"
-            [disabled]="!checked() || answer() !== lesson().correct"
-            (click)="markComplete()"
-          >
-            {{
-              completed().includes(lesson().slug)
-                ? "Completed ✓"
-                : "Mark lesson complete"
-            }}
-          </button>
         </fieldset>
-        <label class="notes-label"
-          >Your study notes<textarea
-            rows="5"
-            maxlength="5000"
-            [ngModel]="notes()[lesson().slug] || ''"
-            (ngModelChange)="saveNote($event)"
-            placeholder="What did you learn? What will you practice?"
-          ></textarea></label
-        ><small
-          >Notes and progress stay in this browser. They are not synced to an
-          account.</small
-        >
       </article>
       <aside class="info-panel">
-        <p class="kicker">CONTINUE LEARNING</p>
-        <a
-          class="lesson-row"
-          *ngFor="let l of lessons"
-          [href]="lessonHref(l.slug)"
-          (click)="openLesson(l.slug, $event)"
-          [attr.aria-current]="l.slug === lesson().slug ? 'page' : null"
-          ><span>{{ l.title }}</span
-          ><span>{{ completed().includes(l.slug) ? "✓" : "→" }}</span></a
-        ><button class="link" (click)="downloadJournal()">
-          Download practice journal</button
-        ><a
-          class="link"
-          [href]="href('Courses')"
-          (click)="go('Courses', $event)"
-          >Explore related courses →</a
+        <p class="kicker">CONTINUE YOUR READING</p>
+        @for (l of relatedLessons(); track l.slug) {
+          <a
+            class="lesson-row"
+            [href]="lessonHref(l.slug)"
+            (click)="openLesson(l.slug, $event)"
+            >{{ l.title }} →</a
+          >
+        }
+        <a class="link" [href]="href('Courses')" (click)="go('Courses', $event)"
+          >Explore learning paths →</a
         ><a class="link" [href]="href('Books')" (click)="go('Books', $event)"
-          >Explore related books →</a
-        >
+          >Discover trading books →</a
+        ><button class="outline spaced" (click)="downloadJournal()">
+          Download practice journal
+        </button>
       </aside>
     </section>
   }
-  @if (page() === "Webinars") {
+  @if (page() === "Contact") {
     <section class="wrap page-title">
-      <p class="kicker">LIVE LEARNING</p>
-      <h1 tabindex="-1">
-        Bring your questions.<br /><em>Build your understanding.</em>
-      </h1>
-      <p>
-        Explore market concepts through guided discussion and practical
-        examples.
+      <p class="kicker">A CONVERSATION ABOUT LEARNING</p>
+      <h1 tabindex="-1">What would you<br />like to <em>explore?</em></h1>
+      <p class="lead">
+        Prepare an enquiry about a learning path, a book or the academy.
       </p>
     </section>
-    <section class="wrap section">
-      <div class="empty-state">
-        <p class="kicker">UPCOMING SESSIONS</p>
-        <h2>The next session is being planned.</h2>
+    <section class="wrap section contact-grid">
+      <div>
+        <h2>Start with <em>a question.</em></h2>
         <p>
-          No dates are confirmed. Published events will show the instructor,
-          language, time zone, duration and registration terms.
+          Tell us what you are interested in and what you would like to
+          understand. Include your experience level and any questions about
+          availability.
+        </p>
+        @if (config.email) {
+          <a class="link" [href]="'mailto:' + config.email">{{
+            config.email
+          }}</a>
+        } @else {
+          <p class="notice">
+            Direct enquiries are not available yet. A verified AA FXX contact
+            address has not been provided. You can copy or download your enquiry
+            and share it with your existing academy contact.
+          </p>
+        }
+        <p>
+          No payment is requested. Fees, schedules and publication details need
+          confirmation.
+        </p>
+      </div>
+      <form #inquiry="ngForm" (ngSubmit)="inquiry.valid && contact()">
+        <label
+          >Enquiry about<input
+            name="subject"
+            [(ngModel)]="subject"
+            required
+            maxlength="200" /></label
+        ><label
+          >Your name<input
+            name="name"
+            #fullName="ngModel"
+            [(ngModel)]="name"
+            required
+            pattern=".*\S.*"
+            maxlength="120"
+            autocomplete="name"
+            [attr.aria-invalid]="fullName.touched && fullName.invalid"
+            aria-describedby="name-error"
+        /></label>
+        @if (fullName.touched && fullName.invalid) {
+          <small id="name-error" class="error">Enter your name.</small>
+        }
+        <label
+          >Email address<input
+            name="email"
+            #emailField="ngModel"
+            type="email"
+            email
+            required
+            pattern="[^\s@]+@[^\s@]+\.[^\s@]+"
+            [(ngModel)]="email"
+            maxlength="254"
+            autocomplete="email"
+            [attr.aria-invalid]="emailField.touched && emailField.invalid"
+            aria-describedby="email-error"
+        /></label>
+        @if (emailField.touched && emailField.invalid) {
+          <small id="email-error" class="error"
+            >Enter a valid reply email address.</small
+          >
+        }
+        <label
+          >Your message<textarea
+            name="message"
+            #messageField="ngModel"
+            [(ngModel)]="message"
+            required
+            pattern="[\s\S]*\S[\s\S]*"
+            rows="5"
+            maxlength="4000"
+            [attr.aria-invalid]="messageField.touched && messageField.invalid"
+            aria-describedby="message-error"
+          ></textarea>
+        </label>
+        @if (messageField.touched && messageField.invalid) {
+          <small id="message-error" class="error"
+            >Add your question or learning interests.</small
+          >
+        }
+        <p class="collection-note">
+          Your details stay on this page until you choose to copy, download or
+          open an email draft. Nothing is submitted to a server.
+        </p>
+        <div class="buttons">
+          <button
+            class="gold"
+            type="submit"
+            [disabled]="inquiry.invalid || busy()"
+          >
+            {{
+              busy()
+                ? "Preparing…"
+                : config.email
+                  ? "Prepare email enquiry"
+                  : "Copy enquiry"
+            }}</button
+          ><button
+            class="outline"
+            type="button"
+            [disabled]="inquiry.invalid || busy()"
+            (click)="downloadDraft()"
+          >
+            Download enquiry
+          </button>
+        </div>
+        <p class="form-status" role="status" aria-live="polite">
+          {{ alert() }}
+        </p>
+      </form>
+    </section>
+  }
+  @if (page() === "About") {
+    <section class="wrap page-title">
+      <p class="kicker">ABOUT AA FXX</p>
+      <h1 tabindex="-1">Knowledge first.<br /><em>Discipline always.</em></h1>
+      <p class="lead">
+        An academy focused on market understanding, structured study and
+        thoughtful practice.
+      </p>
+    </section>
+    <section class="wrap section split">
+      <div>
+        <h2>The person behind <em>the approach.</em></h2>
+        <p>
+          Prince Berthram Chidi Eke is the founder of AA FXX. Known to his
+          audience as “Prof.”, his supplied biography describes an approach
+          centred on market systems, trading psychology and risk control.
+        </p>
+        <p>
+          The academy brings together reading, educational frameworks and
+          practical exercises. Its purpose is to help learners ask better
+          questions about the markets and the decisions they make.
         </p>
         <a
-          class="gold"
-          [href]="href('Resources')"
-          (click)="go('Resources', $event)"
-          >Start a free lesson</a
-        ><a
           class="outline"
-          [href]="href('Contact')"
-          (click)="go('Contact', $event)"
-          >Ask about training</a
+          [href]="base + 'assets/founder-biography.jpeg'"
+          target="_blank"
+          rel="noopener"
+          >Read the supplied biography ↗</a
+        >
+      </div>
+      <div class="info-panel">
+        <p class="kicker">FROM THE FOUNDER’S BIOGRAPHY</p>
+        <h3>Systems. Psychology. Risk.</h3>
+        <p>
+          The supplied account describes a background in business systems,
+          leadership and quantitative analysis, alongside forex, indices and
+          commodities study.
+        </p>
+        <p>
+          His planned four-book learning series begins with Book 1,
+          <i>Minor Daily</i>, progressing from beginner to advanced study.
+          Publication details remain unconfirmed.
+        </p>
+        <a
+          class="link"
+          [href]="href('Strategies')"
+          (click)="go('Strategies', $event)"
+          >Explore the learning frameworks →</a
+        ><a
+          class="link"
+          [href]="href('Achievements')"
+          (click)="go('Achievements', $event)"
+          >View the supplied archive →</a
         >
       </div>
     </section>
   }
+  @if (page() === "Strategies") {
+    <section class="wrap page-title">
+      <p class="kicker">THE AA FXX APPROACH</p>
+      <h1 tabindex="-1">Frameworks for<br /><em>thoughtful study.</em></h1>
+      <p class="lead">
+        Explore the founder’s supplied educational themes. These are study
+        frameworks, not signals or promises of performance.
+      </p>
+    </section>
+    <section class="wrap section cards">
+      @for (s of strategies; track s[0]) {
+        <article class="resource-card">
+          <h2>{{ s[0] }}</h2>
+          <p>{{ s[1] }}</p>
+          <a
+            class="link"
+            [href]="href('Resources')"
+            (click)="go('Resources', $event)"
+            >Build your foundations →</a
+          >
+        </article>
+      }
+    </section>
+  }
+  @if (page() === "Achievements") {
+    <section class="wrap page-title">
+      <p class="kicker">THE FOUNDER’S ARCHIVE</p>
+      <h1 tabindex="-1">The story<br /><em>behind the academy.</em></h1>
+      <p class="lead">
+        Original materials supplied for the existing AA FXX website. They are
+        presented as an archive, not independent verification of credentials or
+        trading results.
+      </p>
+    </section>
+    <section class="wrap section archive-grid">
+      @for (img of images; track img; let n = $index) {
+        <a [href]="base + 'assets/' + img" target="_blank" rel="noopener"
+          ><img
+            [src]="base + 'assets/' + img"
+            loading="lazy"
+            width="600"
+            height="800"
+            [alt]="'Supplied founder archive document ' + (n + 1)"
+          /><span>View original document {{ n + 1 }} ↗</span></a
+        >
+      }
+    </section>
+  }
+  @if (page() === "Webinars" || page() === "Checkout" || page() === "Account") {
+    <section class="wrap page-title">
+      <p class="kicker">
+        {{ page() === "Webinars" ? "LIVE LEARNING" : "AA FXX ACADEMY" }}
+      </p>
+      <h1 tabindex="-1">
+        {{
+          page() === "Webinars"
+            ? "Learning through conversation."
+            : page() === "Checkout"
+              ? "Enquiries before purchases."
+              : "Open learning. No login needed."
+        }}
+      </h1>
+      <p class="lead">
+        {{
+          page() === "Webinars"
+            ? "No upcoming sessions are confirmed. Dates, instructors, time zones and registration details will be published when available."
+            : page() === "Checkout"
+              ? "Online checkout is not available. Please confirm publication details, course availability and pricing before arranging a purchase."
+              : "Student accounts and paid lesson access are not available. You can read all introductory website guides without signing in."
+        }}
+      </p>
+      <div class="buttons">
+        <a
+          class="gold"
+          [href]="href('Resources')"
+          (click)="go('Resources', $event)"
+          >Explore free guides</a
+        ><a
+          class="outline"
+          [href]="href('Contact')"
+          (click)="go('Contact', $event)"
+          >Prepare an enquiry</a
+        >
+      </div>
+    </section>
+  }
+  @if (page() === "Privacy" || page() === "Terms") {
+    <section class="wrap page-title">
+      <p class="kicker">WEBSITE INFORMATION</p>
+      <h1 tabindex="-1">
+        {{ page() === "Privacy" ? "Privacy information" : "Website terms" }}
+      </h1>
+    </section>
+    <article class="wrap reading legal section">
+      @if (page() === "Privacy") {
+        <h2>Your information</h2>
+        <p>
+          This website does not submit enquiry forms to a server. Form details
+          remain in page memory until you copy them, download a text file, or
+          choose to prepare an email when a verified recipient is configured.
+          Sending an email is a separate action in your email application.
+        </p>
+        <h2>Browser storage</h2>
+        <p>
+          The site stores your light or dark theme preference in this browser.
+          No account, payment information or learning progress is collected by
+          this application. Previously stored demo cart or study data from
+          earlier versions is no longer used.
+        </p>
+        <h2>Hosting and contact</h2>
+        <p>
+          The hosting provider may process routine connection information to
+          deliver the website. A verified privacy contact and business identity
+          have not yet been supplied. Avoid entering sensitive personal
+          information in enquiry drafts.
+        </p>
+      } @else {
+        <h2>Educational purpose</h2>
+        <p>
+          Resources explain concepts and support independent learning. They are
+          not personalised investment advice, trade signals or guarantees of
+          results. Forex and leveraged trading involve substantial financial
+          risk.
+        </p>
+        <h2>Catalogue and availability</h2>
+        <p>
+          Current course and book listings are proposed concepts, with
+          placeholder covers where indicated. They do not constitute confirmed
+          inventory or open enrolment. Final content, authorship, format, fees
+          and availability must be confirmed before purchasing.
+        </p>
+        <h2>Content and rights</h2>
+        <p>
+          Original website guides may be read freely. No copyrighted third-party
+          PDFs or unlicensed sample chapters are offered. Listing or discussing
+          a third-party work does not imply ownership, publication rights or
+          affiliation.
+        </p>
+        <h2>Purchases and accounts</h2>
+        <p>
+          This website does not process payments or provide paid student
+          accounts. An enquiry draft does not create a purchase or reserve a
+          place.
+        </p>
+      }
+    </article>
+  }
   @if (page() === "NotFound") {
     <section class="wrap page-title">
       <p class="kicker">404 / PAGE NOT FOUND</p>
-      <h1 tabindex="-1">Let’s find your next chapter.</h1>
+      <h1 tabindex="-1">Let’s find your<br /><em>next chapter.</em></h1>
       <p>This page may have moved or the address may be incorrect.</p>
       <a class="gold" [href]="href('Home')" (click)="go('Home', $event)"
         >Back to home</a
       >
     </section>
   }
+  @if (page() === "FAQ") {
+    <section class="wrap page-title">
+      <p class="kicker">A LITTLE MORE CLARITY</p>
+      <h1 tabindex="-1">Frequently asked questions.</h1>
+    </section>
+  }
+  @if (page() === "Home" || page() === "FAQ") {
+    <section class="wrap section faq-layout">
+      <div>
+        <p class="kicker">GOOD QUESTIONS. CLEAR ANSWERS.</p>
+        <h2>Before you<br /><em>begin.</em></h2>
+        <a class="link" [href]="href('Contact')" (click)="go('Contact', $event)"
+          >Have another question? →</a
+        >
+      </div>
+      <div class="faq">
+        @for (faq of faqs; track faq[0]) {
+          <details>
+            <summary>{{ faq[0] }}</summary>
+            <p>{{ faq[1] }}</p>
+          </details>
+        }
+      </div>
+    </section>
+  }
+  @if (
+    page() === "Home" ||
+    page() === "Courses" ||
+    page() === "Books" ||
+    page() === "About"
+  ) {
+    <section class="wrap section">
+      <div class="final-cta">
+        <div>
+          <p class="kicker">THE NEXT STEP IS A QUESTION</p>
+          <h2>Find your direction.<br /><em>Start a conversation.</em></h2>
+          <p>
+            Explore which learning path or reading topic fits your interests.
+          </p>
+        </div>
+        <a class="gold" [href]="href('Contact')" (click)="go('Contact', $event)"
+          >Enquire About Courses ↗</a
+        >
+      </div>
+    </section>
+  }
 </main>
 <footer>
   <div class="wrap footer-grid">
     <div class="footer-brand">
-      <h2>AAFXX <span>ACADEMY</span></h2>
-      <blockquote>“Knowledge first. Discipline always.”</blockquote>
+      <a class="brand" [href]="href('Home')" (click)="go('Home', $event)"
+        >AA FXX <small>ACADEMY & BOOKS</small></a
+      >
       <p>
-        Founded by Prince Berthram Chidi Eke. Books, courses and practical
-        frameworks for thoughtful market analysis and disciplined learning.
+        Knowledge first. Discipline always.<br />Forex education and thoughtful
+        reading.
       </p>
-      <div class="footer-badges">
-        <span>STRUCTURED LEARNING</span><span>RISK AWARENESS</span>
-      </div>
     </div>
     <div>
-      <p>ACADEMIC LIBRARY</p>
-      <a [href]="href('Books')" (click)="go('Books', $event)"
-        >Books & publications</a
-      ><a [href]="href('Courses')" (click)="go('Courses', $event)"
-        >Learning paths</a
-      ><a [href]="href('Strategies')" (click)="go('Strategies', $event)"
-        >Trading frameworks</a
+      <h2>Explore</h2>
+      <a [href]="href('Courses')" (click)="go('Courses', $event)">Academy</a
+      ><a [href]="href('Books')" (click)="go('Books', $event)">Books</a
+      ><a [href]="href('Resources')" (click)="go('Resources', $event)"
+        >Learning Resources</a
       >
     </div>
     <div>
-      <p>THE ACADEMY</p>
-      <a [href]="href('About')" (click)="go('About', $event)"
-        >Meet the founder</a
-      ><a [href]="href('Achievements')" (click)="go('Achievements', $event)"
-        >The journey</a
-      ><a [href]="href('Account')" (click)="go('Account', $event)"
-        >Student workspace</a
-      >
-    </div>
-    <div>
-      <p>SUPPORT</p>
-      <a [href]="href('FAQ')" (click)="go('FAQ', $event)">Help & FAQ</a
+      <h2>The academy</h2>
+      <a [href]="href('About')" (click)="go('About', $event)">About AA FXX</a
+      ><a [href]="href('FAQ')" (click)="go('FAQ', $event)"
+        >Questions & answers</a
       ><a [href]="href('Contact')" (click)="go('Contact', $event)"
-        >Contact AAFXX</a
-      ><a [href]="href('Privacy')" (click)="go('Privacy', $event)"
+        >Contact & enquiries</a
+      >
+      @if (config.email) {
+        <a [href]="'mailto:' + config.email">{{ config.email }}</a>
+      } @else {
+        <small>Contact details awaiting confirmation.</small>
+      }
+    </div>
+    <div>
+      <h2>Information</h2>
+      <a [href]="href('Privacy')" (click)="go('Privacy', $event)"
         >Privacy information</a
       ><a [href]="href('Terms')" (click)="go('Terms', $event)">Website terms</a>
     </div>
   </div>
   <div class="wrap">
-    <div class="risk-note">
-      <p class="kicker">EDUCATION & RISK AWARENESS</p>
-      <p>
-        AAFXX provides educational resources. Forex and leveraged trading
-        involve substantial risk and may result in financial loss. Educational
-        frameworks and past outcomes do not guarantee future returns.
-      </p>
-    </div>
+    <p class="risk-note">
+      For education only. Forex and leveraged trading involve substantial risk
+      and can result in financial loss. Learning resources and illustrative
+      examples do not guarantee trading outcomes.
+    </p>
     <div class="footnote">
-      <span>© 2026 AAFXX Trading Academy. All rights reserved.</span
-      ><span>KNOWLEDGE FIRST · DISCIPLINE ALWAYS</span>
+      <span>© 2026 AA FXX Academy</span
+      ><span>UNDERSTAND. PRACTISE. REFLECT.</span>
     </div>
   </div>
 </footer>
-@if (cartVisible()) {
-  <div class="overlay" (click)="closeDialogs()"></div>
-  <aside
-    class="drawer"
-    role="dialog"
-    aria-label="Shopping cart"
-    aria-modal="true"
-  >
-    <div class="modal-head">
-      <h2>Sandbox cart ({{ count() }})</h2>
-      <p>Preview products · no real purchase</p>
-      <button aria-label="Close cart" (click)="closeDialogs()">✕</button>
-    </div>
-    @if (count() === 0) {
-      <p>Your cart is empty.</p>
-    } @else {
-      <div *ngFor="let x of cart()" class="cart-item">
-        <div>
-          <b>{{ x.item.name }}</b>
-          <p>
-            <button
-              (click)="quantity(x.item.id, -1)"
-              aria-label="Decrease quantity"
-            >
-              −
-            </button>
-            {{ x.quantity }}
-            <button
-              (click)="quantity(x.item.id, 1)"
-              aria-label="Increase quantity"
-            >
-              +
-            </button>
-            · ${{ x.item.price }}
-          </p>
-        </div>
-        <button (click)="remove(x.item.id)">Remove</button>
-      </div>
-    }
-    <div class="checkout">
-      <p class="kicker">YOUR SELECTION</p>
-      <h3>Total: ${{ total() }}</h3>
-      <button class="gold" [disabled]="count() === 0" (click)="checkout()">
-        Proceed to Checkout ↗
-      </button>
-    </div>
-  </aside>
-}
-@if (loginVisible()) {
-  <div class="overlay" (click)="closeDialogs()"></div>
-  <div
-    class="login-modal"
-    role="dialog"
-    aria-label="Student portal"
-    aria-modal="true"
-  >
-    <div class="modal-head">
-      <h2>Student Portal</h2>
-      <button aria-label="Close student portal" (click)="closeDialogs()">
-        ✕
-      </button>
-    </div>
-    <p>Explore your learning workspace, reading list and order journey.</p>
-    <button class="gold" (click)="portal()">Open learning workspace →</button>
-    <p>
-      No sign-in is required for free lessons. Paid accounts and delivery are
-      not connected.
-    </p>
-  </div>
-}
-@if (selected(); as item) {
-  <div class="overlay" (click)="closeDialogs()"></div>
-  <section
-    class="login-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-label="Resource details"
-  >
-    <div class="modal-head">
-      <p class="kicker">AAFXX {{ item.type }}</p>
-      <button aria-label="Close details" (click)="closeDialogs()">✕</button>
-    </div>
-    @if (item.cover) {
-      <img
-        class="detail-cover"
-        [src]="base + item.cover"
+<ng-template #bookCard let-i
+  ><article class="book-card">
+    <a class="book-stage" [href]="itemHref(i)" (click)="openItem(i, $event)"
+      ><img
+        [src]="base + i.cover"
         width="600"
         height="840"
-        [alt]="item.name + ' — placeholder cover'"
-      />
-    }
-    <h2>{{ item.name }}</h2>
-    <p>{{ item.detail }}</p>
-    <p class="collection-note">
-      Preview catalogue · final content, pricing and availability to be
-      confirmed.
-    </p>
-    <h3>Topics to explore</h3>
-    <ul>
-      <li *ngFor="let topic of item.topics">{{ topic }}</li>
-    </ul>
-    <p>
-      {{
-        item.type === "Books"
-          ? "Digital reading resource"
-          : "Self-paced learning programme"
-      }}
-      · English
-    </p>
-    <p>
-      Build your knowledge at your own pace. Educational content does not
-      guarantee trading results.
-    </p>
-    <button class="gold" (click)="add(item); selected.set(null)">
-      Add to sandbox cart · ${{ item.price }}
-    </button>
-  </section>
-}
-@if (alert()) {
-  <div class="toast" role="status">
-    {{ alert() }}
-    <button aria-label="Dismiss notification" (click)="alert.set('')">✕</button>
-  </div>
-}
+        loading="lazy"
+        [alt]="i.name + ' — placeholder concept cover'"
+      /><span class="cover-label">PLACEHOLDER COVER</span></a
+    >
+    <div class="card-body">
+      <p class="kicker">{{ meta[i.id].topic }}</p>
+      <h3>
+        <a [href]="itemHref(i)" (click)="openItem(i, $event)">{{ i.name }}</a>
+      </h3>
+      <p>{{ i.detail }}.</p>
+      <small>Catalogue concept · author to be confirmed</small
+      ><a class="link" [href]="itemHref(i)" (click)="openItem(i, $event)"
+        >Explore book →</a
+      >
+    </div>
+  </article></ng-template
+>
+<ng-template #courseCard let-i
+  ><article class="course-card">
+    <div class="course-card-art" aria-hidden="true">
+      <span>0{{ i.id - 3 }}</span
+      ><svg viewBox="0 0 240 70">
+        <path
+          d="M0 62L25 50L45 55L70 32L95 38L120 20L150 30L180 12L205 20L240 5"
+        />
+      </svg>
+    </div>
+    <div class="card-body">
+      <p class="kicker">{{ meta[i.id].level }} · PROPOSED PATH</p>
+      <h3>
+        <a [href]="itemHref(i)" (click)="openItem(i, $event)">{{ i.name }}</a>
+      </h3>
+      <p>{{ i.detail }}.</p>
+      <a class="link" [href]="itemHref(i)" (click)="openItem(i, $event)"
+        >Explore learning path →</a
+      >
+    </div>
+  </article></ng-template
+>
+<ng-template #resourceCard let-l
+  ><article class="resource-card">
+    <p class="kicker">{{ l.category }}</p>
+    <h3>
+      <a [href]="lessonHref(l.slug)" (click)="openLesson(l.slug, $event)">{{
+        l.title
+      }}</a>
+    </h3>
+    <p>{{ l.intro }}</p>
+    <a
+      class="link"
+      [href]="lessonHref(l.slug)"
+      (click)="openLesson(l.slug, $event)"
+      >Read the guide →</a
+    >
+  </article></ng-template
+>
