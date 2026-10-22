@@ -178,6 +178,57 @@ nav a:hover {
   font-size: 13px;
   margin-bottom: 4px;
 }
+/* Decorative gradient layers stay behind content and never capture input. */
+.hero,
+.page-title,
+.academy-cta {
+  position: relative;
+  isolation: isolate;
+  overflow: clip;
+}
+.hero::before,
+.page-title::before,
+.academy-cta::before {
+  content: "";
+  position: absolute;
+  inset: -15%;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse at 75% 30%, color-mix(in srgb, var(--green) 15%, transparent), transparent 52%),
+    radial-gradient(ellipse at 25% 70%, color-mix(in srgb, var(--gold) 9%, transparent), transparent 48%);
+  animation: ambient-gradient-drift 18s ease-in-out infinite alternate;
+}
+.page-title::before {
+  animation-delay: -6s;
+  animation-duration: 22s;
+}
+.academy-cta::before {
+  background:
+    radial-gradient(ellipse at 75% 30%, #6ee7b72b, transparent 52%),
+    radial-gradient(ellipse at 25% 70%, #f0cc6a17, transparent 48%);
+  animation-delay: -10s;
+  animation-duration: 20s;
+}
+@keyframes ambient-gradient-drift {
+  from { transform: translate3d(-3%, -2%, 0) scale(1); }
+  to { transform: translate3d(3%, 2%, 0) scale(1.06); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero::before,
+  .page-title::before,
+  .academy-cta::before {
+    animation: none;
+    transform: none;
+  }
+}
+@media print {
+  .hero::before,
+  .page-title::before,
+  .academy-cta::before {
+    display: none;
+  }
+}
 /* Reference hero and illustrative terminal */
 .hero {
   background: radial-gradient(ellipse at 61% 20%, var(--soft), transparent 54%);
