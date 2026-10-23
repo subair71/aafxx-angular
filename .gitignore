@@ -3,5 +3,8 @@ node_modules/
 dist/
 screenshots/
 .angular/
-
-node_modules
+.env
+.env.*
+!.env.example
+*.local.json
+.aws-sam/

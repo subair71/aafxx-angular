@@ -1,634 +1,177 @@
-import { Component, signal, computed, HostListener } from "@angular/core";
-import { CommonModule } from "@angular/common";
-import { FormsModule } from "@angular/forms";
-import { lessons, catalogueMeta } from "./learning-content";
-import { enquiryConfig } from "./enquiry-config";
-type Page =
-  | "Home"
-  | "Courses"
-  | "Books"
-  | "Resources"
-  | "About"
-  | "Contact"
-  | "Detail"
-  | "Lesson"
-  | "Strategies"
-  | "Achievements"
-  | "Webinars"
-  | "Checkout"
-  | "Account"
-  | "FAQ"
-  | "Privacy"
-  | "Terms"
-  | "NotFound";
-interface Item {
-  id: number;
-  name: string;
-  detail: string;
-  type: "Books" | "Courses";
-  tag: string;
-  cover?: string;
-  topics: string[];
-}
-@Component({
-  selector: "app-root",
-  standalone: true,
-  imports: [CommonModule, FormsModule],
-  templateUrl: "./app.component.html",
-  styleUrl: "./app.component.css",
-})
+import { Component, HostListener, computed, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { lessons, catalogueMeta } from './learning-content';
+import { BOOKS, BUNDLE, AUTHOR, Book, BookFormat } from './catalogue';
+import { checkoutFor, bundleCheckout, formatPrice, integrationAvailable, submitContact, submitWaitlist, downloadRecoveryAvailable, recoverDownloads } from './commerce';
+import { integrationConfig } from './integration-config';
+import { updateSeo } from './seo';
+import { BookCardComponent } from './book-card.component';
+import { IconComponent } from './icon.component';
+
+type Page = 'Home'|'Books'|'Book'|'Academy'|'Course'|'Checklist'|'About'|'EAs'|'Contact'|'CheckoutSuccess'|'CheckoutCancel'|'Privacy'|'Terms'|'Refund'|'Resources'|'Lesson'|'FAQ'|'Webinars'|'Checkout'|'Account'|'NotFound';
+interface Course {id: number; title: string; description: string; topics: string[]}
+
+@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,BookCardComponent,IconComponent],templateUrl:'./app.component.html',styleUrl:'./app.component.css'})
 export class AppComponent {
-  meta = catalogueMeta;
+  base = new URL(document.baseURI).pathname;
+  books = BOOKS;
+  bundle = BUNDLE;
+  author = AUTHOR;
+  config = integrationConfig;
   lessons = lessons;
-  page = signal<Page>("Home");
-  detail = signal<Item | null>(null);
-  lesson = signal(lessons[0]);
-  dark = signal(true);
+  meta = catalogueMeta;
+  price = formatPrice;
+  page = signal<Page>('Home');
+  book = signal<Book>(BOOKS[0]);
+  bookFormat = signal<BookFormat>('pdf');
   menu = signal(false);
-  query = signal("");
-  topic = signal("All");
-  level = signal("All");
-  format = signal("All");
+  dark = signal(true);
+  query = signal('');
+  topic = signal('All');
+  level = signal('All');
+  learningFormat = signal('All');
   answer = signal(-1);
   checked = signal(false);
-  alert = signal("");
+  lesson = signal(lessons[0]);
+  course = signal<Course>({id:4,title:'Forex Foundations',description:'Learn the essentials of forex trading.',topics:[]});
   busy = signal(false);
-  name = "";
-  email = "";
-  message = "";
-  subject = "General enquiry";
-  config = enquiryConfig;
-  pages: Page[] = ["Home", "Courses", "Books", "Resources", "About", "Contact"];
-  topics = [
-    "Forex Fundamentals",
-    "Technical Analysis",
-    "Fundamental Analysis",
-    "Risk Management",
-    "Trading Psychology",
-    "Trading Journals",
+  formMessage = signal('');
+  formError = signal(false);
+  waitBusy = signal(false);
+  waitMessage = signal('');
+  waitError = signal(false);
+  waitJoined = signal(false);
+  recoveryBusy = signal(false); recoveryMessage = signal(''); recoveryError = signal(false);
+  recoveryEmail = ''; recoverySession = ''; recoveryWebsite = ''; recoveryStartedAt = Date.now();
+  name = ''; email = ''; subject = 'General enquiry'; message = ''; consent = false; website = '';
+  waitEmail = ''; waitConsent = false; waitWebsite = '';
+  startedAt = Date.now(); waitStartedAt = Date.now();
+  pages: Page[] = ['Home','Books','Academy','Checklist','About'];
+  topics = ['Forex Fundamentals','Technical Analysis','Fundamental Analysis','Risk Management','Trading Psychology','Trading Journals'];
+  paths: Record<Page,string> = {Home:'',Books:'books',Book:'books',Academy:'academy',Course:'courses',Checklist:'checklist',About:'about',EAs:'expert-advisors',Contact:'contact',CheckoutSuccess:'checkout/success',CheckoutCancel:'checkout/cancel',Privacy:'privacy-policy',Terms:'terms',Refund:'refund-policy',Resources:'resources',Lesson:'resources',FAQ:'faq',Webinars:'webinars',Checkout:'checkout',Account:'account',NotFound:'404'};
+  courses: Course[] = [
+    {id:4,title:'Forex Foundations',description:'Currency pairs, market terminology and the essentials of risk.',topics:['Currency pairs, pips and spreads','Reading price and chart structure','Practice and a considered learning plan']},
+    {id:5,title:'The AAFXX Method',description:'An introduction to the academy’s focus on chart context and structured study.',topics:['Market structure and context','Moving averages as analytical tools','Disciplined observation and trade review']},
+    {id:6,title:'Risk & Trade Management',description:'Understand exposure, plan your process and reflect on decisions.',topics:['Position sizing and exposure','Risk and the limitations of stop orders','Trading journals and reflective practice']},
+  ];
+  methods = [
+    {number:'01',name:'The Standard Checklist',detail:'The central framework of AAFXX’s educational approach, bringing a structured focus to forex study.',icon:'book-open'},
+    {number:'02',name:'LOW IN, MIDDLE OUT',detail:'The academy’s named methodology with a stated 5-minute and 15-minute execution focus.',icon:'chart-no-axes-combined'},
+    {number:'03',name:'BBB FLOW',detail:'A named AAFXX methodology focused on understanding trend flow within its educational framework.',icon:'globe'},
+    {number:'04',name:'Leader Alignment',detail:'A methodology taught alongside BBB FLOW as part of the academy’s approach to market context.',icon:'shield-check'},
   ];
   faqs = [
-    [
-      "Where should I start?",
-      "Begin with currency pairs, pips and spreads, then study leverage and risk. Our free reading guides include examples and practice questions without requiring an account.",
-    ],
-    [
-      "Can I enrol in a course now?",
-      "The academy catalogue describes proposed learning paths. Schedules, instructors, delivery formats and fees are not yet confirmed. Prepare an enquiry to discuss your learning interests.",
-    ],
-    [
-      "Are the books available to buy?",
-      "The current book listings are catalogue concepts, with clearly labelled placeholder covers. Publication details and availability must be confirmed before any purchase.",
-    ],
-    [
-      "Do I need trading experience?",
-      "The beginner resources assume no prior knowledge. Intermediate and advanced paths identify the concepts to study first.",
-    ],
-    [
-      "Will education guarantee trading results?",
-      "No. Learning can improve your understanding, but forex and leveraged trading involve financial risk. Educational examples are not trading recommendations.",
-    ],
+    ['What does each book cost?','Each individual book is listed at USD 27 for PDF or USD 47 for print. The four-book library is USD 97. Bundle format and delivery details will be confirmed before ordering opens.'],
+    ['Can I purchase a book now?','Ordering opens when the payment and delivery arrangements for that edition are ready. The format selector shows the correct price; an unavailable Buy Now button means that edition cannot currently be purchased.'],
+    ['How will I receive a PDF or printed book?','Digital delivery will be available only after payment is verified. Print destinations, shipping costs and fulfilment arrangements must be confirmed before print ordering opens. No delivery timeframe is promised here.'],
+    ['Where should I begin learning?','Start with the free forex foundations guides. They cover currency pairs, pips, spreads and leverage before you move on to chart context, risk planning and trading discipline.'],
+    ['Are courses open for enrolment?','The academy presents proposed learning paths and free introductory reading. Course schedules, teaching formats, final curricula and fees have not yet been confirmed.'],
+    ['When will the Expert Advisors launch?','The planned release year is 2027. The Expert Advisors page is for launch interest only. There are no EA purchases, prices or verified performance results available here.'],
+    ['Does the academy guarantee trading results?','No. Anybody Wins is the brand tagline and 1000 Wealth Creators is an educational aspiration. Forex and leveraged trading involve risk, and education does not guarantee financial outcomes.'],
   ];
-  base = new URL(document.baseURI).pathname;
-  visibleItems = computed(() =>
-    this.items.filter(
-      (i) =>
-        i.type === this.page() &&
-        (!this.query().trim() ||
-          (i.name + " " + i.detail + " " + this.meta[i.id].topic)
-            .toLowerCase()
-            .includes(this.query().trim().toLowerCase())) &&
-        (this.level() === "All" || this.meta[i.id].level === this.level()) &&
-        (this.topic() === "All" || this.meta[i.id].topic === this.topic()) &&
-        (this.format() === "All" || this.format() === "To be confirmed"),
-    ),
-  );
-  filteredLessons = computed(() =>
-    lessons.filter(
-      (l) =>
-        (this.topic() === "All" || l.category === this.topic()) &&
-        (l.title + " " + l.category)
-          .toLowerCase()
-          .includes(this.query().trim().toLowerCase()),
-    ),
-  );
-  resetFilters() {
-    this.query.set("");
-    this.topic.set("All");
-    this.level.set("All");
-    this.format.set("All");
+  visibleBooks = computed(()=>BOOKS.filter(b=>(b.title+' '+b.subtitle+' '+b.topics.join(' ')).toLowerCase().includes(this.query().trim().toLowerCase())));
+  visibleCourses = computed(()=>this.courses.filter(c=>(c.title+' '+c.description+' '+this.meta[c.id].topic).toLowerCase().includes(this.query().trim().toLowerCase())&&(this.topic()==='All'||this.meta[c.id].topic===this.topic())&&(this.level()==='All'||this.meta[c.id].level===this.level())&&(this.learningFormat()==='All'||this.learningFormat()==='To be confirmed')));
+  filteredLessons = computed(()=>lessons.filter(l=>(this.topic()==='All'||l.category===this.topic())&&(l.title+' '+l.category).toLowerCase().includes(this.query().trim().toLowerCase())));
+  relatedBooks = computed(()=>BOOKS.filter(b=>b.id!==this.book().id));
+
+  constructor(){
+    try { this.dark.set(localStorage.getItem('aafxx-theme')!=='light'); } catch {}
+    this.setTheme(); this.readLocation();
+    window.addEventListener('popstate',()=>{this.resetFilters();this.menu.set(false);this.readLocation();});
+    window.addEventListener('seo-origin',()=>this.seo());
   }
-  label(p: Page) {
-    return p === "Courses"
-      ? "Academy"
-      : p === "Resources"
-        ? "Learning Resources"
-        : p;
+  setTheme(){document.documentElement.dataset['theme']=this.dark()?'dark':'light';}
+  toggleTheme(){this.dark.update(v=>!v);this.setTheme();try{localStorage.setItem('aafxx-theme',this.dark()?'dark':'light');}catch{}}
+  toggleMenu(){this.menu.update(v=>!v);if(this.menu())setTimeout(()=>document.querySelector<HTMLElement>('#primary-navigation a')?.focus());}
+  @HostListener('document:keydown.escape') escape(){if(this.menu()){this.menu.set(false);document.querySelector<HTMLElement>('.menu-toggle')?.focus();}}
+  @HostListener('document:click',['$event']) outside(event:MouseEvent){if(this.menu()&&event.target instanceof Element&&!event.target.closest('.site-header'))this.menu.set(false);}
+  resetFilters(){this.query.set('');this.topic.set('All');this.level.set('All');this.learningFormat.set('All');}
+  label(p:Page):string{return ({Books:'Books Shop',Academy:'Academy',Checklist:'The Checklist',EAs:'Expert Advisors',Privacy:'Privacy Policy',Terms:'Terms & Conditions',Refund:'Refund Policy',Resources:'Learning Resources',FAQ:'Frequently Asked Questions',CheckoutSuccess:'Checkout status',CheckoutCancel:'Checkout cancelled',NotFound:'Page not found'} as Partial<Record<Page,string>>)[p]||p;}
+  href(p:Page){return this.base+(this.paths[p]?this.paths[p]+'/':'');}
+  bookHref(b:Book){return this.href('Books')+b.slug+'/';}
+  courseHref(c:Course){return this.base+'courses/'+this.meta[c.id].slug+'/';}
+  lessonHref(slug:string){return this.href('Resources')+slug+'/';}
+  active(p:Page){return this.page()===p||(p==='Books'&&this.page()==='Book')||(p==='Academy'&&['Course','Resources','Lesson'].includes(this.page()));}
+  navigate(url:string,event?:Event){
+    if(event instanceof MouseEvent&&(event.ctrlKey||event.metaKey||event.shiftKey||event.altKey||event.button!==0))return;
+    event?.preventDefault();history.pushState({},'',url);this.menu.set(false);this.resetFilters();this.formMessage.set('');this.waitMessage.set('');this.readLocation();window.scrollTo(0,0);setTimeout(()=>document.querySelector<HTMLElement>('main h1')?.focus());
   }
-  href(p: Page) {
-    return this.base + (p === "Home" ? "" : p.toLowerCase() + "/");
-  }
-  itemHref(i: Item) {
-    return this.href(i.type) + this.meta[i.id].slug + "/";
-  }
-  lessonHref(slug: string) {
-    return this.href("Resources") + slug + "/";
-  }
-  enquiryHref(i: Item) {
-    return this.href("Contact") + "?subject=" + encodeURIComponent(i.name);
-  }
-  related(i: Item) {
-    return this.items.filter((x) => x.type === i.type && x.id !== i.id);
-  }
-  relatedLessons() {
-    return lessons
-      .filter((l) => l.slug !== this.lesson().slug)
-      .sort(
-        (a, b) =>
-          Number(b.category === this.lesson().category) -
-          Number(a.category === this.lesson().category),
-      )
-      .slice(0, 3);
-  }
-  courseLessons(id: number) {
-    return id === 4
-      ? lessons.slice(0, 3)
-      : id === 5
-        ? lessons.slice(3, 5)
-        : lessons.slice(5);
-  }
-  constructor() {
-    try {
-      this.dark.set(localStorage.getItem("aafxx-theme") !== "light");
-    } catch {}
-    document.documentElement.dataset["theme"] = this.dark() ? "dark" : "light";
-    this.readLocation();
-    window.addEventListener("popstate", () => {
-      this.resetFilters();
-      this.menu.set(false);
-      this.readLocation();
-    });
-    window.addEventListener("seo-origin", () => this.seo());
-  }
-  toggleTheme() {
-    this.dark.update((v) => !v);
-    document.documentElement.dataset["theme"] = this.dark() ? "dark" : "light";
-    try {
-      localStorage.setItem("aafxx-theme", this.dark() ? "dark" : "light");
-    } catch {}
-  }
-  @HostListener("document:keydown.escape") escape() {
-    this.menu.set(false);
-    document.querySelector<HTMLElement>(".menu-toggle")?.focus();
-  }
-  follow(event?: Event) {
-    if (
-      event instanceof MouseEvent &&
-      (event.ctrlKey ||
-        event.metaKey ||
-        event.shiftKey ||
-        event.altKey ||
-        event.button !== 0)
-    )
-      return false;
-    event?.preventDefault();
-    return true;
-  }
-  navigate(url: string, event?: Event) {
-    if (!this.follow(event)) return;
-    history.pushState({}, "", url);
-    this.resetFilters();
-    this.menu.set(false);
-    this.alert.set("");
-    this.readLocation();
-    window.scrollTo(0, 0);
-    setTimeout(() => document.querySelector<HTMLElement>("main h1")?.focus());
-  }
-  go(p: Page, event?: Event) {
-    this.navigate(this.href(p), event);
-  }
-  openItem(i: Item, event?: Event) {
-    this.navigate(this.itemHref(i), event);
-  }
-  openLesson(slug: string, event?: Event) {
-    this.navigate(this.lessonHref(slug), event);
-  }
-  enquire(i: Item, event?: Event) {
-    this.navigate(this.enquiryHref(i), event);
-  }
-  readLocation() {
-    const parts = location.pathname
-      .slice(this.base.length)
-      .split("/")
-      .filter(Boolean);
-    const part = parts[0] === "academy" ? "courses" : parts[0];
-    this.detail.set(null);
-    this.checked.set(false);
-    this.answer.set(-1);
-    if (parts.length === 2 && ["books", "courses"].includes(part)) {
-      const i = this.items.find(
-        (i) =>
-          this.meta[i.id].slug === parts[1] && i.type.toLowerCase() === part,
-      );
-      this.detail.set(i || null);
-      this.page.set(i ? "Detail" : "NotFound");
-    } else if (parts.length === 2 && part === "resources") {
-      const l = lessons.find((l) => l.slug === parts[1]);
-      if (l) this.lesson.set(l);
-      this.page.set(l ? "Lesson" : "NotFound");
-    } else {
-      const all: Page[] = [
-        ...this.pages,
-        "Strategies",
-        "Achievements",
-        "Webinars",
-        "Checkout",
-        "Account",
-        "FAQ",
-        "Privacy",
-        "Terms",
-      ];
-      this.page.set(
-        !parts.length
-          ? "Home"
-          : parts.length === 1
-            ? all.find((p) => p.toLowerCase() === part) || "NotFound"
-            : "NotFound",
-      );
-    }
-    if (this.page() === "Contact")
-      this.subject =
-        new URLSearchParams(location.search).get("subject")?.slice(0, 200) ||
-        "General enquiry";
+  go(p:Page,event?:Event){this.navigate(this.href(p),event);}
+  skipToContent(event:Event){event.preventDefault();this.menu.set(false);const main=document.getElementById('main-content');main?.focus({preventScroll:true});main?.scrollIntoView({block:'start'});}
+  openBook(b:Book,event?:Event){this.navigate(this.bookHref(b),event);}
+  enquiryHref(title:string){return this.href('Contact')+'?subject='+encodeURIComponent(title);}
+  enquiry(title:string,event?:Event){this.navigate(this.enquiryHref(title),event);}
+  readLocation(){
+    let route='';try{route=decodeURIComponent(location.pathname).slice(this.base.length).replace(/^\/+|\/+$/g,'');}catch{this.page.set('NotFound');this.seo();return;}
+    const aliases:Record<string,string>={'courses':'academy','privacy':'privacy-policy','strategies':'checklist','achievements':'about','books/why-they-call-me-prof':'books','books/the-5-minute-chart':'books','books/trading-with-discipline':'books'};
+    for(const c of this.courses)aliases['academy/'+this.meta[c.id].slug]='courses/'+this.meta[c.id].slug;
+    if(aliases[route]){route=aliases[route];history.replaceState({},'',this.base+route+'/'+location.search+location.hash);}
+    this.answer.set(-1);this.checked.set(false);this.bookFormat.set('pdf');
+    const parts=route.split('/');
+    if(parts[0]==='books'&&parts.length===2){const b=BOOKS.find(b=>b.slug===parts[1]);if(b)this.book.set(b);this.page.set(b?'Book':'NotFound');}
+    else if(parts[0]==='courses'&&parts.length===2){const c=this.courses.find(c=>this.meta[c.id].slug===parts[1]);if(c)this.course.set(c);this.page.set(c?'Course':'NotFound');}
+    else if(parts[0]==='resources'&&parts.length===2){const l=lessons.find(l=>l.slug===parts[1]);if(l)this.lesson.set(l);this.page.set(l?'Lesson':'NotFound');}
+    else this.page.set((Object.keys(this.paths) as Page[]).find(p=>!['Book','Course','Lesson'].includes(p)&&this.paths[p]===route)||'NotFound');
+    if(this.page()==='Contact'){this.subject=new URLSearchParams(location.search).get('subject')?.slice(0,200)||'General enquiry';this.startedAt=Date.now();}
+    if(this.page()==='EAs')this.waitStartedAt=Date.now();
+    if(this.page()==='CheckoutSuccess'){this.recoveryStartedAt=Date.now();const id=new URLSearchParams(location.search).get('session_id')||'';this.recoverySession=/^cs_(?:test_|live_)?[A-Za-z0-9]+$/.test(id)?id:'';}
     this.seo();
   }
-  draft() {
-    return `AA FXX enquiry: ${this.subject}\n\nName: ${this.name.trim()}\nReply email: ${this.email.trim()}\n\n${this.message.trim()}`;
+  checkout(){return checkoutFor(this.book(),this.bookFormat());}
+  bundleStatus(){return bundleCheckout();}
+  bundlePdfSavings(){const b=this.config.payments.bundle;return b.contentsConfirmed&&b.format==='pdf'&&b.includedSkus.length===4&&this.books.every(book=>b.includedSkus.includes(book.formats.pdf.sku));}
+  changeFormat(format:BookFormat){this.bookFormat.set(format);}
+  contactAvailable(){return integrationAvailable('contact');}
+  waitlistAvailable(){return integrationAvailable('waitlist');}
+  async contact(){
+    if(this.busy())return;this.busy.set(true);this.formMessage.set('');
+    try{const r=await submitContact({name:this.name,email:this.email,subject:this.subject,message:this.message,consent:this.consent,website:this.website,startedAt:this.startedAt});this.formError.set(!r.ok);this.formMessage.set(r.message);if(r.ok){this.message='';this.consent=false;}}
+    finally{this.busy.set(false);}
   }
-  async contact() {
-    if (
-      this.busy() ||
-      !this.name.trim() ||
-      !this.message.trim() ||
-      !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)
-    )
-      return;
-    this.busy.set(true);
-    this.alert.set("");
-    try {
-      if (this.config.email) {
-        location.href =
-          "mailto:" +
-          this.config.email +
-          "?subject=" +
-          encodeURIComponent("AA FXX: " + this.subject) +
-          "&body=" +
-          encodeURIComponent(this.draft());
-        this.alert.set(
-          "Email draft prepared. Review and send it in your email application. This website has not sent your enquiry.",
-        );
-      } else {
-        await navigator.clipboard.writeText(this.draft());
-        this.alert.set(
-          "Enquiry copied. Nothing has been sent. Share it with your existing AA FXX contact.",
-        );
-      }
-    } catch {
-      this.alert.set(
-        "Copy was unavailable. Download your enquiry below and share it with your existing AA FXX contact. Nothing has been sent.",
-      );
-    } finally {
-      this.busy.set(false);
-    }
+  async joinWaitlist(){
+    if(this.waitBusy()||this.waitJoined())return;this.waitBusy.set(true);this.waitMessage.set('');
+    try{const r=await submitWaitlist({email:this.waitEmail,consent:this.waitConsent,website:this.waitWebsite,startedAt:this.waitStartedAt});this.waitError.set(!r.ok);this.waitMessage.set(r.message);if(r.ok)this.waitJoined.set(true);}
+    finally{this.waitBusy.set(false);}
   }
-  downloadDraft() {
-    this.download("aafxx-enquiry.txt", this.draft(), "text/plain");
-    this.alert.set("Enquiry downloaded. Nothing has been sent.");
-  }
-  downloadJournal() {
-    this.download(
-      "aafxx-practice-journal.csv",
-      "Date,Time zone,Instrument,Timeframe,Hypothesis,Invalidation,Planned risk,Costs,Outcome,Followed plan,Reflection\n",
-      "text/csv",
-    );
-  }
-  download(name: string, content: string, type: string) {
-    const url = URL.createObjectURL(new Blob([content], { type }));
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = name;
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
-  items: Item[] = [
-    {
-      id: 1,
-      topics: [
-        "The AAFXX learning philosophy",
-        "A framework for chart study",
-        "Discipline and reflective practice",
-      ],
-      cover: "assets/books/why-they-call-me-prof.svg",
-      name: "Why They Call Me Prof.",
-      detail: "An introduction to the AAFXX trading philosophy",
-      type: "Books",
-      tag: "FEATURED",
-    },
-    {
-      id: 2,
-      topics: [
-        "Candlesticks and market context",
-        "Trend, direction and location",
-        "A structured chart-reading routine",
-      ],
-      cover: "assets/books/the-5-minute-chart.svg",
-      name: "The 5-Minute Chart",
-      detail: "Chart reading and market structure essentials",
-      type: "Books",
-      tag: "CHART STUDY",
-    },
-    {
-      id: 3,
-      topics: [
-        "Building a trading journal",
-        "Planning risk before entry",
-        "Recognising emotional decisions",
-      ],
-      cover: "assets/books/trading-with-discipline.svg",
-      name: "Trading With Discipline",
-      detail: "Mindset and risk management foundations",
-      type: "Books",
-      tag: "MINDSET",
-    },
-    {
-      id: 4,
-      topics: [
-        "Currency pairs, pips and spreads",
-        "Reading price and chart structure",
-        "Demo practice and a learning plan",
-      ],
-      name: "Forex Foundations",
-      detail: "Learn the essentials of forex trading",
-      type: "Courses",
-      tag: "BEGINNER",
-    },
-    {
-      id: 5,
-      topics: [
-        "Trend and timeframe alignment",
-        "Moving-average relationships",
-        "Entry context and trade review",
-      ],
-      name: "The AAFXX Method",
-      detail: "Explore the frameworks and trading setups",
-      type: "Courses",
-      tag: "INTERMEDIATE",
-    },
-    {
-      id: 6,
-      topics: [
-        "Risk per trade and position sizing",
-        "Stop-loss planning and exposure",
-        "Journaling and evaluating decisions",
-      ],
-      name: "Risk & Trade Management",
-      detail: "Position sizing and trading plans",
-      type: "Courses",
-      tag: "ADVANCED",
-    },
-  ];
-  strategies = [
-    [
-      "Triline System",
-      "EMA9, SMA20, MFI50, RSI50 and candle patterns at EMA9 form the founder’s structured chart-reading framework.",
-    ],
-    [
-      "Expert Advisors & Automation",
-      "The founder’s work includes five FINAL V3 Expert Advisors, BBB CMM systems and TradingView Pine Script indicators.",
-    ],
-    [
-      "SMA20 & EMA23",
-      "Explore moving-average relationships and market context.",
-    ],
-    [
-      "Low In · Middle Out",
-      "Study entries and exits across the 5-minute and 15-minute charts.",
-    ],
-    ["BBB Flow", "Learn an educational approach to price action and momentum."],
-    ["Leader Alignment", "Understand 30-minute and 1-hour market direction."],
-    [
-      "Risk Management",
-      "Build trading plans with defined risk and capital protection.",
-    ],
-  ];
-  images = [
-    "founder-certificate.jpeg",
-    "fe9b14fe-1a82-4e0c-92a7-ec8b0747807e.jpeg",
-    "d6d34d47-c09e-4fe7-b52b-32f168c35934.jpeg",
-    "e6bb140e-0abc-4df5-8310-6c1b15a74194.jpeg",
-    "2d392788-070e-4e9f-8538-21b24af8138b.jpeg",
-  ];
-  seo() {
-    const descriptions: Record<Page, string> = {
-      Webinars:
-        "Explore AAFXX live learning and upcoming session availability.",
-      Resources:
-        "Free forex guides covering currency pairs, risk, analysis and trading psychology, with practical exercises.",
-      Detail: this.detail()?.detail || "AAFXX resource details",
-      Lesson: this.lesson().intro,
-      NotFound: "The requested AAFXX page could not be found.",
-      Home: "Explore AAFXX forex education, trading books and structured learning. Build knowledge in chart analysis, trading discipline and risk management.",
-      About:
-        "Meet Prince Berthram Chidi Eke, founder of AAFXX. Explore his story, educational mission and approach to market analysis and disciplined learning.",
-      Books:
-        "Browse the AAFXX trading library. Explore digital reading on the 5-minute chart, market structure, trading psychology and risk management.",
-      Courses:
-        "Explore AAFXX learning paths in forex foundations, chart analysis and risk management. Compare topics and find a starting point for your studies.",
-      Strategies:
-        "Study the AAFXX learning frameworks: trend, direction, location, moving averages, multi-timeframe context and risk planning.",
-      Achievements:
-        "Explore the AAFXX founder’s journey, publications, educational projects and milestones in his own account of his work.",
-      Contact:
-        "Prepare an AAFXX enquiry about trading books, education programmes, resources or collaboration opportunities.",
-      FAQ: "Answers about forex study, proposed books and courses, publication availability and academy enquiries.",
-      Privacy:
-        "Learn how AA FXX handles theme preferences, enquiry drafts and visitor data.",
-      Terms:
-        "Read the AA FXX terms for educational content, proposed publications and responsible use.",
-      Checkout:
-        "Online checkout is unavailable. Prepare an enquiry about AA FXX books and learning programmes.",
-      Account:
-        "AA FXX account services are unavailable. Explore open learning resources without signing in.",
+  recoveryAvailable(){return downloadRecoveryAvailable();}
+  async recover(){if(this.recoveryBusy())return;this.recoveryBusy.set(true);try{const r=await recoverDownloads({sessionId:this.recoverySession,email:this.recoveryEmail,website:this.recoveryWebsite,startedAt:this.recoveryStartedAt});this.recoveryError.set(!r.ok);this.recoveryMessage.set(r.message);}finally{this.recoveryBusy.set(false);}}
+  draft(){return `AAFXX enquiry: ${this.subject.trim()}\n\nName: ${this.name.trim()}\nReply email: ${this.email.trim()}\n\n${this.message.trim()}`;}
+  async copyDraft(){try{await navigator.clipboard.writeText(this.draft());this.formError.set(false);this.formMessage.set('Enquiry copied. Nothing has been sent. Share it with your existing AAFXX contact.');}catch{this.formError.set(true);this.formMessage.set('Copy is unavailable. You can download your enquiry and share it with your existing AAFXX contact. Nothing has been sent.');}}
+  downloadDraft(){this.download('aafxx-enquiry.txt',this.draft(),'text/plain');this.formError.set(false);this.formMessage.set('Enquiry downloaded. Nothing has been sent.');}
+  downloadJournal(){this.download('aafxx-practice-journal.csv','Date,Time zone,Instrument,Timeframe,Hypothesis,Invalidation,Planned risk,Costs,Outcome,Followed plan,Reflection\n','text/csv');}
+  download(name:string,content:string,type:string){const url=URL.createObjectURL(new Blob([content],{type}));const link=document.createElement('a');link.href=url;link.download=name;link.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
+  courseLessons(id:number){return id===4?lessons.slice(0,3):id===5?lessons.slice(3,5):lessons.slice(5);}
+  relatedLessons(){return lessons.filter(l=>l.slug!==this.lesson().slug).slice(0,3);}
+  canonicalPath(){return this.page()==='Book'?this.bookHref(this.book()):this.page()==='Course'?this.courseHref(this.course()):this.page()==='Lesson'?this.lessonHref(this.lesson().slug):this.href(this.page());}
+  seo(){
+    const descriptions:Record<Page,string>={
+      Home:'Discover AAFXX – Anybody Wins Trading Academy. Explore four forex education books, the Standard Checklist and structured learning with Prince Prof. Berthram Chidi Eke.',
+      Books:'Explore the four-book AAFXX collection. Individual PDF editions are USD 27, print editions USD 47, and the complete library USD 97. Check edition availability.',
+      Book:this.book().description,Academy:'Explore AAFXX forex education: foundations, market structure, SMA20 / EMA23, named methodologies, discipline and risk awareness.',Course:this.course().description,
+      Checklist:'Discover the educational focus of the AAFXX Standard Checklist, LOW IN MIDDLE OUT, BBB FLOW and Leader Alignment. Official checklist artwork is pending.',
+      About:'Meet Prince Prof. Berthram Chidi Eke, founder of AAFXX – Anybody Wins Trading Academy in Manama, Bahrain, with an online global educational mission.',
+      EAs:'AAFXX Expert Advisors are planned for 2027. Learn about automated trading risks and check availability of the launch-interest waitlist.',
+      Contact:'Contact AAFXX about its forex education books, learning programmes and Expert Advisors. Check online enquiry availability or prepare a message.',
+      CheckoutSuccess:'Review the next steps after AAFXX checkout. Payment and delivery must be verified before any order or download can be confirmed.',
+      CheckoutCancel:'Return to the AAFXX books collection after leaving checkout. Review payment confirmation before making another purchase.',
+      Privacy:'Read how the AAFXX website currently handles theme preferences, enquiry drafts, optional forms and payment information.',
+      Terms:'Read AAFXX website terms for educational material, named trading methodologies, publication information and responsible use.',
+      Refund:'Review the status of AAFXX purchase and refund terms. Merchant-approved product, delivery and refund conditions are required before orders open.',
+      Resources:'Read eight free introductory forex guides with practice questions, glossary explanations and a downloadable trading study journal.',
+      Lesson:this.lesson().intro,FAQ:'Answers about AAFXX book formats, USD pricing, delivery readiness, academy learning paths, Expert Advisors and trading risk.',
+      Webinars:'Check AAFXX live-learning availability and explore free study guides while webinar schedules await confirmation.',
+      Checkout:'AAFXX purchasing uses configured book-specific checkout links. Find your chosen edition and its current availability in the Books Shop.',
+      Account:'Explore AAFXX free learning resources without an account. Account services and paid learning access are not currently available.',
+      NotFound:'The requested AAFXX page could not be found. Return to the Books Shop, academy or learning resources.',
     };
-    const titles: Partial<Record<Page, string>> = {
-      Home: "AAFXX | Forex Education, Trading Books & Courses",
-      Books: "Trading Books & Digital Library | AAFXX Academy",
-      Courses: "Forex Learning Paths & Courses | AAFXX Academy",
-      About: "Our Founder & Educational Mission | AAFXX Academy",
-    };
-    const title =
-      this.page() === "Detail"
-        ? this.detail()!.name + " | AAFXX Academy"
-        : this.page() === "Lesson"
-          ? this.lesson().title + " | AAFXX Academy"
-          : titles[this.page()] || this.page() + " | AAFXX Trading Academy";
-    const description = descriptions[this.page()];
-    const configured = document.querySelector<HTMLMetaElement>(
-      'meta[name="site-origin"]',
-    )?.content;
-    const origin = configured || location.origin;
-    const preview =
-      document
-        .querySelector('meta[name="site-preview"]')
-        ?.getAttribute("content") === "true";
-    const url =
-      origin +
-      (this.page() === "Detail"
-        ? this.itemHref(this.detail()!)
-        : this.page() === "Lesson"
-          ? this.lessonHref(this.lesson().slug)
-          : this.page() === "NotFound"
-            ? location.pathname
-            : this.href(this.page()));
-    document.title = title;
-    const set = (key: string, content: string, property = false) => {
-      const attr = property ? "property" : "name";
-      let el = document.querySelector<HTMLMetaElement>(
-        `meta[${attr}="${key}"]`,
-      );
-      if (!el) {
-        el = document.createElement("meta");
-        el.setAttribute(attr, key);
-        document.head.append(el);
-      }
-      el.content = content;
-    };
-    set("description", description);
-    set(
-      "robots",
-      preview || ["Checkout", "Account", "NotFound"].includes(this.page())
-        ? "noindex,follow"
-        : "index,follow,max-image-preview:large",
-    );
-    for (const prefix of ["og", "twitter"]) {
-      set(prefix + ":title", title, prefix === "og");
-      set(prefix + ":description", description, prefix === "og");
-      set(
-        prefix + ":image",
-        origin + this.base + "assets/social-preview.png",
-        prefix === "og",
-      );
-    }
-    set("og:url", url, true);
-    set("og:type", "website", true);
-    set("og:site_name", "AAFXX Trading Academy", true);
-    set(
-      "og:image:alt",
-      "AAFXX Academy — knowledge first, discipline always",
-      true,
-    );
-    set("twitter:card", "summary_large_image");
-    let canonical = document.querySelector<HTMLLinkElement>(
-      'link[rel="canonical"]',
-    );
-    if (!canonical) {
-      canonical = document.createElement("link");
-      canonical.rel = "canonical";
-      document.head.append(canonical);
-    }
-    canonical.href = url;
-    const graph: object[] = [
-      {
-        "@type": "EducationalOrganization",
-        "@id": origin + this.base + "#academy",
-        name: "AAFXX Trading Academy",
-        url: origin + this.base,
-        founder: { "@type": "Person", name: "Prince Berthram Chidi Eke" },
-      },
-      {
-        "@type": "WebSite",
-        "@id": origin + this.base + "#website",
-        name: "AAFXX Trading Academy",
-        url: origin + this.base,
-      },
-      {
-        "@type": "WebPage",
-        name: title,
-        description,
-        url,
-        isPartOf: { "@id": origin + this.base + "#website" },
-      },
-    ];
-    const crumbs: object[] = [
-      {
-        "@type": "ListItem",
-        position: 1,
-        name: "Home",
-        item: origin + this.base,
-      },
-    ];
-    if (this.page() === "Detail") {
-      const item = this.detail()!;
-      crumbs.push(
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: this.label(item.type),
-          item: origin + this.href(item.type),
-        },
-        { "@type": "ListItem", position: 3, name: item.name, item: url },
-      );
-    } else if (this.page() === "Lesson")
-      crumbs.push(
-        {
-          "@type": "ListItem",
-          position: 2,
-          name: "Resources",
-          item: origin + this.href("Resources"),
-        },
-        {
-          "@type": "ListItem",
-          position: 3,
-          name: this.lesson().title,
-          item: url,
-        },
-      );
-    else
-      crumbs.push({
-        "@type": "ListItem",
-        position: 2,
-        name: this.label(this.page()),
-        item: url,
-      });
-    if (this.page() !== "Home" && this.page() !== "NotFound")
-      graph.push({ "@type": "BreadcrumbList", itemListElement: crumbs });
-    if (this.page() === "Lesson")
-      graph.push({
-        "@type": "LearningResource",
-        name: this.lesson().title,
-        description,
-        url,
-        inLanguage: "en",
-        learningResourceType: "Reading lesson",
-        isAccessibleForFree: true,
-      });
-    document
-      .querySelectorAll('script[type="application/ld+json"]')
-      .forEach((el) => el.remove());
-    const schema = document.createElement("script");
-    schema.type = "application/ld+json";
-    schema.textContent = JSON.stringify({
-      "@context": "https://schema.org",
-      "@graph": graph,
-    });
-    document.head.append(schema);
-    if (preview) {
-      document.querySelector("link[rel=canonical]")?.remove();
-      document
-        .querySelectorAll(
-          'meta[property="og:url"],meta[property="og:image"],meta[name="twitter:image"],script[type="application/ld+json"]',
-        )
-        .forEach((el) => el.remove());
-    }
+    const titles:Partial<Record<Page,string>>={Home:'AAFXX | Anybody Wins Trading Academy & Books',Books:'Books Shop | AAFXX Trading Library',Academy:'Forex Education & Learning Paths | AAFXX Academy',Checklist:'The AAFXX Standard Checklist | Anybody Wins',About:'Our Founder & Mission | AAFXX',EAs:'Expert Advisors — Coming 2027 | AAFXX'};
+    const title=this.page()==='Book'?this.book().title+' | AAFXX':this.page()==='Course'?this.course().title+' | AAFXX Academy':this.page()==='Lesson'?this.lesson().title+' | AAFXX':titles[this.page()]||this.label(this.page())+' | AAFXX';
+    const crumbs=[{name:'Home',path:this.base}];
+    if(this.page()==='Book')crumbs.push({name:'Books Shop',path:this.href('Books')},{name:this.book().title,path:this.bookHref(this.book())});
+    else if(this.page()==='Course')crumbs.push({name:'Academy',path:this.href('Academy')},{name:this.course().title,path:this.courseHref(this.course())});
+    else if(this.page()==='Lesson')crumbs.push({name:'Resources',path:this.href('Resources')},{name:this.lesson().title,path:this.lessonHref(this.lesson().slug)});
+    else if(this.page()!=='Home')crumbs.push({name:this.label(this.page()),path:this.canonicalPath()});
+    updateSeo({title,description:descriptions[this.page()],path:this.canonicalPath(),noindex:['CheckoutSuccess','CheckoutCancel','Checkout','Account','NotFound','Refund','Privacy','Terms'].includes(this.page()),breadcrumbs:crumbs,learningResource:this.page()==='Lesson',...(this.page()==='Book'?{book:{id:this.book().id,title:this.book().title,subtitle:this.book().subtitle,description:this.book().description,author:this.book().author,cover:this.book().cover,offers:(['pdf','print'] as BookFormat[]).flatMap(format=>{const c=checkoutFor(this.book(),format);return c.available&&c.environment==='live'&&c.url?[{sku:c.sku,format,price:this.book().formats[format].price,url:c.url}]:[]})}}:{})});
   }
 }

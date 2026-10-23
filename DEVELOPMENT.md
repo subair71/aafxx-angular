@@ -1,52 +1,94 @@
-# AA FXX education and book marketing platform
+# AAFXX `dev-aafxx` implementation
 
-Implementation target: `develop`. Angular 20 is retained. No `main` merge or hosting configuration change is required by this work.
+## Branch boundary and starting point
 
-## Source audit and decisions
+Implementation target: **`dev-aafxx`**, created from the latest fetched `origin/develop` at **`4542b9ecb2d1e6c2d418385ac121bd37058add97`**. Angular 20, the existing repository, static prerendering and AWS Amplify hosting model are retained. The work must be committed and pushed only to `dev-aafxx`; merging into `develop` or `main`, replacing the existing `develop` deployment, and changing production DNS are outside this implementation.
 
-The starting branch contained a single standalone Angular component with pathname-based navigation, six preview catalogue entries, eight original lessons, supplied founder documents, SVG concept covers, SEO/prerender tooling and AWS Amplify configuration. There was no verified contact recipient, enquiry backend, real checkout, identity provider or confirmed commercial catalogue. The previous prices were illustrative and its checkout was a sandbox.
+The starting branch had a standalone Angular shell with pathname-based navigation, proposed learning paths, eight free lessons, three illustrative book concepts, founder/certificate artwork, draft-only enquiries and SEO tooling. It did not have verified payment links, paid PDFs, shipping configuration, a functioning enquiry backend or the four newly specified cover assets.
 
-The application now uses one coherent navy/teal design with dark as the first-paint default, a persistent light option, compact mobile navigation, restrained chart artwork, responsive cards, CSS transitions and reduced-motion overrides. Existing local images and catalogue URLs are retained. No external font or market-data request is needed.
+## Design and content decisions
 
-## Pages and journeys
+The application now follows the supplied black/charcoal, white and gold (`#D4AF37`) direction. Dark remains the initial theme, with the existing saved light preference respected. The layout uses system body fonts, an editorial serif display treatment, local SVG icons, thin borders, restrained chart-inspired decoration, responsive product cards, touch-friendly controls and reduced-motion support. No external market-data feed or global Stripe.js dependency is required.
 
-- Home: learning pathway, proposed course highlights, book concepts, learning approach, original guides, FAQ and enquiry CTA.
-- `/courses/`: search, level, topic and learning-format filters with truthful empty states. No confirmed live/self-paced programmes are implied.
-- `/books/`: searchable, topic/level-filtered concept catalogue. Three existing detail URLs retain labelled placeholder covers. No invented prices, stock, authorship, formats, editions or purchase buttons.
-- Six detail pages: proposed topics/outcomes, audience, prerequisites, module-related free guides, related listings, FAQs and title-specific enquiry links.
-- `/resources/`: eight expanded original introductory guides, topic/search filters, related reading, breadcrumbs, knowledge questions and a CSV practice journal. No login, paid access or progress dashboard is shown.
-- About, supplied archive, learning frameworks, FAQ, privacy information and terms remain accessible.
-- Old `/checkout/` and `/account/` URLs show truthful unavailable-service pages with alternatives and `noindex`. Webinars show no confirmed event dates. No simulated transaction or certificate/access entitlement remains.
-- `/academy/` and its three detail aliases have prerendered documents and canonicals pointing to the preserved `/courses/` URLs. Unknown routes render a noindex 404 page.
+The merchant's four titles, subtitles, author, USD prices and named methodologies replace the former illustrative book concepts. The original logo, book covers and Checklist screenshot remain missing, so the application uses clearly labelled artwork-pending spaces and a text brand treatment. It does not claim that the official assets have been integrated. Original certificate/biography files remain preserved in the repository; they are not presented as independently verified credentials, trading performance evidence or the new books' covers.
 
-## Enquiries and required business input
+The 1000 Wealth Creators mission is an aspiration. Academy paths remain proposed, with no invented curriculum, confirmed teaching format, enrolment price, student count or result. Expert Advisors remain a 2027 waitlist concept without sales or backtest claims.
 
-`src/app/enquiry-config.ts` has an intentionally empty `email`. Only populate it with a business-approved, verified address. With a verified address, the form opens an addressed email draft; it does not claim delivery. Without one, the form validates name, reply email and message, then copies or downloads a text enquiry for the visitor to share with an existing academy contact. Clipboard rejection has a download fallback. Selection is stored in the contact URL so it survives refresh and shared links. Form details are not sent to a server or saved in local storage.
+## Source map
 
-Still required from the business:
+| Area | Main source |
+| --- | --- |
+| Shell, pathname navigation and page content | `src/app/app.component.ts`, `.html`, `.css` |
+| Shared palette, typography and focus/motion behavior | `src/styles.css` |
+| Four-book catalogue, eight edition SKUs and bundle price | `src/app/catalogue.ts` |
+| Reusable book cards and format selectors | `src/app/book-card.component.ts`, `.css` |
+| Local SVG icon component and attribution | `src/app/icon.component.ts`, `public/assets/icons/` |
+| Public merchant integration settings | `src/app/integration-config.ts` |
+| Payment readiness and HTTP submission clients | `src/app/commerce.ts` |
+| Preserved introductory guides and course metadata | `src/app/learning-content.ts` |
+| Page metadata and truthful structured data | `src/app/seo.ts` |
+| Build configuration, prerendering and route manifest | `scripts/` |
+| Optional private AWS integration backend | `backend/` |
 
-1. Verified public contact channel and legal/privacy contact information. Direct delivery cannot be enabled from the repository's current information.
-2. Approved course titles, curriculum, instructors, format, duration, schedules, fees and availability. Existing entries remain explicitly proposed learning paths.
-3. Confirmed book authorship, publication rights, manuscript descriptions, licensed covers, language, edition, formats, prices, availability and retailer links. Existing concepts are not presented as available inventory.
-4. Exact production `SITE_ORIGIN` in Amplify to enable production canonicals and sitemap. No domain is guessed.
+The application preserves its small existing navigation approach instead of introducing a framework migration. Native anchors remain usable for copying links and opening new tabs. Compatibility paths resolve to the new canonical page structure, and transaction/account/unknown pages do not grant access or imply a completed action.
 
-## SEO, hosting and performance
+## Pages and compatibility
 
-Unique titles/descriptions, canonical URLs, Open Graph/Twitter metadata, semantic headings and breadcrumb/website/learning-resource schema are updated on navigation and present in generated HTML. Concept listings do not emit Book/Course offers, ratings or unverified product schema.
+The new primary routes are `/`, `/books/`, four `/books/:slug/` pages, `/academy/`, `/checklist/`, `/about/`, `/expert-advisors/`, `/contact/`, `/checkout/success/`, `/checkout/cancel/`, `/privacy-policy/`, `/terms/` and `/refund-policy/`.
 
-`amplify.yml` references `build` and `prerender:amplify`, both present and exercised. An absent `SITE_ORIGIN` deliberately generates a noindex preview without guessed canonical URLs or sitemap. With an HTTPS origin configured, indexable public routes receive a sitemap. Legacy transaction/account and 404 URLs are excluded. Configure hosting to return `404.html` with status 404 for missing URLs; an Amplify console rewrite can override this and needs deployment-level verification.
+The three existing `/courses/:slug/` detail routes, eight `/resources/:slug/` guides, resources listing, FAQ, webinar availability, legacy checkout and account information remain accessible. Course search/level/topic/format filters, resource filtering, quiz feedback and the practice-journal download are retained.
 
-The final application is approximately 303 kB raw / 82 kB estimated compressed including Angular and polyfills. The existing small single-component routing approach is preserved instead of adding a routing dependency solely for code splitting. Local SVG covers, system fonts, lazy archive/catalogue images and CSS-only animation keep requests light.
+Compatibility redirects are client-side URL replacements backed by generated HTML, not claimed HTTP 301 responses:
 
-## Commands
+| Previous path | Canonical path |
+| --- | --- |
+| `/courses/` | `/academy/` |
+| `/privacy/` | `/privacy-policy/` |
+| `/strategies/` | `/checklist/` |
+| `/achievements/` | `/about/` |
+| Three former concept-book detail URLs | `/books/` |
+| `/academy/:existing-course-slug/` | `/courses/:existing-course-slug/` |
 
-```sh
+The route manifest contains **43 rendered URLs: 33 canonical pages and 10 aliases**. Only **25** are possible production sitemap entries. Checkout, account, 404 and the three pending policy pages are `noindex` and excluded; aliases are also excluded. Development output has no sitemap at all.
+
+## Commerce and form boundaries
+
+`catalogue.ts` centralizes all book information and formats. An edition's selected SKU resolves to one validated Payment Link with matching USD amount, Stripe product/price IDs and test/live environment. PDF readiness requires genuine private content and a verified delivery workflow. Print readiness requires approved shipping and fulfilment. The USD 97 bundle additionally requires an exact confirmed edition of each of the four books. Missing prerequisites keep Buy Now unavailable.
+
+`integration-config.ts` contains public identifiers and readiness flags only. Every flag starts false or empty. Secret Stripe keys, webhook secrets, AWS credentials and download-signing secrets belong on the server. A browser redirect or `paid=true` query parameter never verifies a payment or unlocks a PDF.
+
+Contact and waitlist interfaces use real HTTPS submission clients. Success requires an explicit accepted acknowledgement from the backend. Until configured, contact allows a validated local copy/download only; those actions say that nothing was sent. Waitlist registration remains unavailable. No invented email address, phone number or unverified clickable social profile is published.
+
+The optional backend supplies durable form storage, consent checks, abuse controls, authenticated Stripe events, idempotent paid entitlements, private expiring PDF links and recovery to the original order email. Its tests use local adapters and fixture events. The SAM template has **not been deployed**, no genuine PDF has been uploaded, no receipt has been sent, and no live Stripe transaction has been performed. Receipt email can be retried after a partial storage failure; exactly-once inbox delivery is not claimed. Print dispatch and refund/customer-service operations remain merchant responsibilities.
+
+Configuration fields, prerequisites and deployment instructions are documented in [docs/COMMERCE_SETUP.md](docs/COMMERCE_SETUP.md).
+
+## SEO, build and hosting
+
+`updateSeo()` maintains page-specific titles/descriptions, Open Graph metadata, canonical paths, breadcrumbs, and appropriate Organization/WebSite/Book/Product/LearningResource entities. Offers are included only for validated live checkout destinations; no ISBN, review, rating, inventory quantity or independent credential is invented.
+
+`npm run build` runs Angular's optimized build and writes safe public environment metadata into the resulting HTML. `prerender:amplify` uses the existing packaged Chromium approach to generate static HTML for every supported route. A `404.html` fallback is generated. The build process uses an ephemeral server rather than the visual preview port.
+
+All unconfigured builds default to `noindex` and test payments. `AWS_BRANCH=dev-aafxx` and other nonproduction Amplify branches cannot become indexable or live merely through inherited app settings. A future indexable build requires `SITE_ENVIRONMENT=production` and an approved HTTPS `SITE_ORIGIN`; missing origin fails explicitly. `SITE_BASE` must match the Angular base href.
+
+The latest measured optimized build at this documentation snapshot was **384.89 kB initial JavaScript**, with **94.72 kB estimated transfer size** reported by Angular. This estimate is not a measured download size, Lighthouse score or field Core Web Vitals result. LCP, CLS and INP targets remain goals until measured under an identified environment.
+
+The existing Amplify app and `develop` deployment have not been changed. Connecting `dev-aafxx`, verifying its actual returned URL, checking shared rewrite scope and confirming deployed HTTP 404 behavior remain external steps. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+
+## Commands and CI
+
+```bash
 npm ci
+npm run check:config
+npm run check:commerce
+npm ci --prefix backend
+npm --prefix backend test
+npm --prefix backend run check
 npm run build -- --base-href /
-SITE_ORIGIN=https://YOUR-VERIFIED-DOMAIN npm run prerender:amplify
-SITE_ORIGIN=https://YOUR-VERIFIED-DOMAIN npm run check:seo
-SITE_BASE=/ CHROME_PATH=/tmp/chromium npm run check:ui
-SITE_BASE=/ CHROME_PATH=/tmp/chromium npm run check:a11y
+npm run prerender:amplify
+npm run check:seo -- --preview
 ```
 
-For GitHub project Pages, the existing workflow builds `/aafxx-angular/` and uses `npm run prerender`. Validation on `develop` continues to upload built HTML and screenshots; it does not publish `main`.
+The `Validate AAFXX academy and shop` workflow includes pushes to `dev-aafxx`. It runs configuration, commerce, backend, build, generated-SEO, browser-functional and automated accessibility checks with read-only repository permissions, and uploads review artifacts. It does not deploy this branch. The existing Pages deployment workflow has not been expanded to include `dev-aafxx`.
+
+Do not interpret an implemented workflow as a passed run. The current evidence and outstanding checks are recorded in [VALIDATION.md](VALIDATION.md).
