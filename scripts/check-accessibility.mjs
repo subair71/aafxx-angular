@@ -6,7 +6,8 @@ const server = await startCheckServer();
 let browser;
 try {
   browser = await launchCheckBrowser();
-  const page = await browser.newPage({viewport: {width: 390, height: 844}});
+  const context = await browser.newContext({viewport: {width: 390, height: 844}});
+  const page = await context.newPage();
   const reports = [];
   for (const theme of ["dark", "light"]) {
     await page.goto(server.origin + server.config.base);

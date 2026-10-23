@@ -7,7 +7,8 @@ Status snapshot: **23 October 2026**. This report describes the current implemen
 | Repository | `subair71/aafxx-angular` |
 | Implementation branch | `dev-aafxx` |
 | Base `origin/develop` commit | `4542b9ecb2d1e6c2d418385ac121bd37058add97` |
-| Final implementation commit / push verification | **Pending** — record the actual committed revision and remote result in the final delivery report |
+| Reviewed application revision | `86d5e5edbbe55c3dffb6850c8a5e831f88b4287e` — published and fetched successfully; remote and locally verified file trees match |
+| Publication boundary | `origin/dev-aafxx` only; `develop` remains at the base above and `main` at `52609d43e4a5ed6e6769c723a00d2ee2102b8d69` |
 | Existing branch deployment | Existing `develop` deployment is not repointed by this implementation |
 | New AWS branch deployment | **Not performed or verified** |
 
@@ -15,7 +16,7 @@ Status snapshot: **23 October 2026**. This report describes the current implemen
 
 | Check | Result | Scope and limits |
 | --- | --- | --- |
-| Angular optimized build at root base href | **Passed** | Latest reported output: **384.89 kB initial**, **94.75 kB estimated transfer**. An Angular estimate, not field performance. |
+| Angular optimized build at root base href | **Passed** | Latest reported output: **384.88 kB initial**, **94.75 kB estimated transfer**. An Angular estimate, not field performance. |
 | Configuration and route-boundary tests | **7 passed** | Default preview/test state, inherited production/live settings, approved-origin requirements, invalid origins/base paths and excluded sitemap routes. |
 | Commerce client tests | **9 passed** | Selected SKU and amount, invalid/tampered URLs, unverified references, test/live gating, bundle/fulfilment readiness, genuine form acknowledgements and an unavailable BenefitPay adapter. |
 | Optional backend tests | **15 passed** | Local Stripe signature verification and injected storage/email adapters; payment tampering, delayed and repeated events, delivery leases, revocation, private token expiry/recovery, shipping and bundle restrictions. |
@@ -33,9 +34,9 @@ Observed browser review and isolated metadata results are recorded below. CI-onl
 | --- | --- |
 | Explicit production-metadata fixture and sitemap validation | **Passed** — isolated temporary output at `https://example.org`, 43 rendered URLs and 25 sitemap entries; development output unchanged |
 | Current desktop/mobile visual review through the available browser | **Passed for the reviewed Chromium views** — desktop home/shop/detail/contact; 320/390 CSS-pixel iframe layouts; no overflow in the three narrow views; light theme, format/price, search, encoded enquiry subject, unavailable form sending, mobile-menu focus/Escape and skip-link focus checked |
-| Current browser-functional regression run | **Pending** |
-| Current automated WCAG 2.2 AA-tagged axe run | **Pending** |
-| Current GitHub Actions result for the final pushed commit | **Pending** |
+| Browser-functional regression | **Passed** — 9 functional check groups, 129 route/viewport combinations at 320/390/1440 widths, no reported JavaScript errors; [run 39994636996](https://github.com/subair71/aafxx-angular/actions/runs/39994636996) |
+| Automated WCAG 2.2 AA-tagged axe run | **Pending rerun** — explicit browser-context setup fixes the harness error observed in run 39994636996; no completed scan is claimed yet |
+| Recorded GitHub Actions result | Run 39994636996 passed all application, build, SEO and browser checks; the corrected axe harness still needs a successful full run |
 | Real iPhone Safari/device testing | **Not performed** |
 | Desktop Safari, Android Chrome, Firefox and Edge device/browser coverage | **Not verified** |
 | Field LCP, CLS and INP, or a repeatable Lighthouse measurement | **Not measured** |
