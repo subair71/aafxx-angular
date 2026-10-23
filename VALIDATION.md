@@ -15,9 +15,9 @@ Status snapshot: **23 October 2026**. This report describes the current implemen
 
 | Check | Result | Scope and limits |
 | --- | --- | --- |
-| Angular optimized build at root base href | **Passed** | Latest reported output: **384.89 kB initial**, **94.72 kB estimated transfer**. An Angular estimate, not field performance. |
+| Angular optimized build at root base href | **Passed** | Latest reported output: **384.89 kB initial**, **94.75 kB estimated transfer**. An Angular estimate, not field performance. |
 | Configuration and route-boundary tests | **7 passed** | Default preview/test state, inherited production/live settings, approved-origin requirements, invalid origins/base paths and excluded sitemap routes. |
-| Commerce client tests | **8 passed** | Selected SKU and amount, invalid/tampered URLs, unverified references, test/live gating, bundle/fulfilment readiness and genuine form acknowledgements. |
+| Commerce client tests | **9 passed** | Selected SKU and amount, invalid/tampered URLs, unverified references, test/live gating, bundle/fulfilment readiness, genuine form acknowledgements and an unavailable BenefitPay adapter. |
 | Optional backend tests | **15 passed** | Local Stripe signature verification and injected storage/email adapters; payment tampering, delayed and repeated events, delivery leases, revocation, private token expiry/recovery, shipping and bundle restrictions. |
 | Amplify-style static prerender | **Passed** | The actual `npm run prerender:amplify` command generated **43 route documents** for the current build. |
 | Generated preview SEO | **Passed** | `npm run check:seo -- --preview` passed across **43 rendered URLs / 33 canonical pages**, including development indexing and sitemap exclusions. |

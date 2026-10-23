@@ -18,7 +18,7 @@ after(() => rmSync(directory, { recursive: true, force: true }));
 const require = createRequire(import.meta.url);
 const { BOOKS, BUNDLE } = require(join(directory, "catalogue.js"));
 const { integrationConfig } = require(join(directory, "integration-config.js"));
-const { checkoutFor, bundleCheckout, submitContact, submitWaitlist, integrationAvailable } = require(join(directory, "commerce.js"));
+const { checkoutFor, bundleCheckout, resolveCheckoutProvider, submitContact, submitWaitlist, integrationAvailable } = require(join(directory, "commerce.js"));
 const context = { preview: true, environment: "test" };
 
 function readyConfig() {
@@ -113,6 +113,34 @@ test("bundle cannot be sold on price alone; contents and matching delivery must 
   assert.equal(bundleCheckout(c, context).available, true);
   c.payments.digital.privateDeliveryReady = false;
   assert.equal(bundleCheckout(c, context).url, null);
+});
+
+test("reserved BenefitPay never falls through to configured test or live Stripe checkout", () => {
+  for (const environment of ["test", "live"]) {
+    const c = readyConfig();
+    c.payments.environment = environment;
+    c.payments.liveApproved = true;
+    c.payments.bundle = { contentsConfirmed: true, format: "pdf", contentsLabel: "All four PDF editions", includedSkus: BOOKS.map((book) => book.formats.pdf.sku), fulfilmentReady: true };
+    c.payments.links[BUNDLE.sku] = { test: { ...c.payments.links[BOOKS[0].formats.pdf.sku].test, sku: BUNDLE.sku, amountCents: 9700, url: "https://buy.stripe.com/test_ProviderBundle" } };
+    if (environment === "live") for (const references of Object.values(c.payments.links)) {
+      references.live = { ...references.test, environment: "live", url: references.test.url.replace("/test_", "/") };
+    }
+    const mode = { preview: environment === "test", environment };
+    const stripeProvider = resolveCheckoutProvider("stripe", c, mode);
+    const reserved = resolveCheckoutProvider("benefitpay", c, mode);
+    assert.equal(reserved.provider, "benefitpay");
+    for (const book of BOOKS) for (const format of ["pdf", "print"]) {
+      assert.deepEqual(stripeProvider.checkoutFor(book, format), checkoutFor(book, format, c, mode));
+      assert.equal(stripeProvider.checkoutFor(book, format).available, true);
+      assert.equal(reserved.checkoutFor(book, format).available, false);
+      assert.equal(reserved.checkoutFor(book, format).url, null);
+    }
+    assert.deepEqual(stripeProvider.bundleCheckout(), bundleCheckout(c, mode));
+    assert.equal(stripeProvider.bundleCheckout().available, true);
+    assert.equal(reserved.bundleCheckout().available, false);
+    assert.equal(reserved.bundleCheckout().url, null);
+    assert.equal(reserved.bundleCheckout().reason, "benefitpay-not-implemented");
+  }
 });
 
 function formConfig() {

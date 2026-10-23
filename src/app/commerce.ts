@@ -15,6 +15,14 @@ export interface CheckoutContext {
   environment: PaymentEnvironment;
 }
 
+export type PaymentProvider = "stripe" | "benefitpay";
+
+export interface CheckoutProviderAdapter {
+  readonly provider: PaymentProvider;
+  checkoutFor(book: Book, format: BookFormat): CheckoutState;
+  bundleCheckout(): CheckoutState;
+}
+
 function runtimeContext(): CheckoutContext {
   if (typeof document === "undefined") return { preview: true, environment: "test" };
   return {
@@ -76,6 +84,29 @@ export function bundleCheckout(config: IntegrationConfig = integrationConfig, co
     : config.payments.print.fulfilmentReady && config.payments.print.shippingReadySkus.includes(sku));
   if (!deliveryReady) return { ...result, available: false, url: null, message: "Bundle purchasing is not available yet.", reason: "bundle-fulfilment-not-ready" };
   return result;
+}
+
+/** Provider boundary only: BenefitPay requires a separate verified integration. */
+export function resolveCheckoutProvider(provider: PaymentProvider = "stripe", config: IntegrationConfig = integrationConfig, context: CheckoutContext = runtimeContext()): CheckoutProviderAdapter {
+  if (provider === "stripe") return {
+    provider,
+    checkoutFor: (book, format) => checkoutFor(book, format, config, context),
+    bundleCheckout: () => bundleCheckout(config, context),
+  };
+  if (provider !== "benefitpay") throw new Error("Unsupported payment provider.");
+  const unavailable = (sku: string): CheckoutState => ({
+    available: false,
+    url: null,
+    message: "BenefitPay is not available yet.",
+    reason: "benefitpay-not-implemented",
+    sku,
+    environment: config.payments.environment,
+  });
+  return {
+    provider,
+    checkoutFor: (book, format) => unavailable(book.formats[format].sku),
+    bundleCheckout: () => unavailable(BUNDLE.sku),
+  };
 }
 
 export interface FormSubmission {

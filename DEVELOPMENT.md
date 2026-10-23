@@ -71,7 +71,7 @@ Configuration fields, prerequisites and deployment instructions are documented i
 
 All unconfigured builds default to `noindex` and test payments. `AWS_BRANCH=dev-aafxx` and other nonproduction Amplify branches cannot become indexable or live merely through inherited app settings. A future indexable build requires `SITE_ENVIRONMENT=production` and an approved HTTPS `SITE_ORIGIN`; missing origin fails explicitly. `SITE_BASE` must match the Angular base href.
 
-The latest measured optimized build at this documentation snapshot was **384.89 kB initial JavaScript**, with **94.72 kB estimated transfer size** reported by Angular. This estimate is not a measured download size, Lighthouse score or field Core Web Vitals result. LCP, CLS and INP targets remain goals until measured under an identified environment.
+The latest measured optimized build at this documentation snapshot was **384.89 kB initial JavaScript**, with **94.75 kB estimated transfer size** reported by Angular. This estimate is not a measured download size, Lighthouse score or field Core Web Vitals result. LCP, CLS and INP targets remain goals until measured under an identified environment.
 
 The existing Amplify app and `develop` deployment have not been changed. Connecting `dev-aafxx`, verifying its actual returned URL, checking shared rewrite scope and confirming deployed HTTP 404 behavior remain external steps. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 

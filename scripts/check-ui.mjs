@@ -87,16 +87,16 @@ try {
   report.checks.push("Native and refreshed enquiry subjects retain ampersands; required/email validation, real clipboard copy, denied-copy fallback and actual draft download never claim delivery");
 
   await goto("academy");
-  await page.getByLabel("Level", {exact: true}).selectOption("Advanced");
+  await page.getByRole("combobox", {name: "Level", exact: true}).selectOption("Advanced");
   assert.equal(await page.locator(".course-card").count(), 1);
   await page.getByRole("button", {name: "Reset filters", exact: true}).click();
-  await page.getByLabel("Topic", {exact: true}).selectOption("Risk Management");
+  await page.getByRole("combobox", {name: "Topic", exact: true}).selectOption("Risk Management");
   assert.equal(await page.locator(".course-card").count(), 1);
   await page.locator(".course-card").getByRole("link", {name: "Explore learning path", exact: true}).click();
   const courseEnquiryUrl = await page.getByRole("link", {name: "Enquire About This Course", exact: true}).getAttribute("href");
   assert.equal(new URL(courseEnquiryUrl, server.origin).searchParams.get("subject"), "Risk & Trade Management");
   await goto("academy");
-  await page.getByLabel("Learning format", {exact: true}).selectOption("Live online");
+  await page.getByRole("combobox", {name: "Learning format", exact: true}).selectOption("Live online");
   assert.equal(await page.locator(".course-card").count(), 0);
   await page.getByRole("heading", {name: "No matching courses", exact: true}).waitFor();
   await page.getByRole("button", {name: "Clear filters", exact: true}).click();
@@ -105,7 +105,7 @@ try {
   await page.getByLabel("Search resources", {exact: true}).fill("risk");
   assert.equal(await page.locator(".resource-card").count(), 2);
   await page.getByRole("button", {name: "Reset filters", exact: true}).click();
-  await page.getByLabel("Topic", {exact: true}).selectOption("Trading Journals");
+  await page.getByRole("combobox", {name: "Topic", exact: true}).selectOption("Trading Journals");
   assert.equal(await page.locator(".resource-card").count(), 1);
   await goto("resources/forex-basics");
   assert(await page.getByRole("button", {name: "Check answer", exact: true}).isDisabled());

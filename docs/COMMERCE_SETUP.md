@@ -15,7 +15,7 @@ The branch contains the approved four-book catalogue, format-specific USD pricin
 | PDF access | Signed 24-hour recovery links; 5-minute S3 download redirects | Backend deployment and successful delivery test |
 | Print order | Verified shipping settings and a durable merchant fulfilment record | Approved countries, rates and actual dispatch arrangements |
 | Contact / EA waitlist | Validation, explicit consent, rate limits and durable storage | Deployed API and merchant-approved privacy/retention terms |
-| BenefitPay | No operational UI or transaction flow | Future provider-specific integration and verification |
+| BenefitPay | Reserved `CheckoutProviderAdapter` through `resolveCheckoutProvider('benefitpay')`; always unavailable with no URL | Separate merchant integration, payment verification and fulfilment testing before implementation |
 
 Only the text brief was available in this session. Existing JPEG assets are certificate/biography artwork, not the four requested covers or a standalone original logo. The catalogue therefore retains `cover: null`, and `integrationConfig.brand` retains empty/null fields for unavailable or unverified assets and destinations. Do not replace these with invented artwork, email addresses, phone numbers or social profiles.
 
@@ -57,6 +57,8 @@ The following gates must all pass before a link is exposed:
 5. The configured Payment Link matches its SKU, amount, currency and mode.
 
 Unavailable states never provide a fake checkout destination. Merely changing a readiness flag does not make a backend or Stripe integration operational.
+
+`resolveCheckoutProvider()` defaults to the Stripe adapter and delegates to the existing guarded `checkoutFor` and `bundleCheckout` functions. The reserved BenefitPay adapter never falls back to a Stripe link, including when live Stripe configuration is ready. It adds no customer-facing payment option, network request or operational BenefitPay support.
 
 ### Bundle contents
 
