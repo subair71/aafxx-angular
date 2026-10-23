@@ -6,7 +6,7 @@ The branch contains the approved four-book catalogue, format-specific USD pricin
 
 | Component | Implemented in source | External dependency |
 | --- | --- | --- |
-| Four books and eight variants | `src/app/catalogue.ts` | Original covers and final paid PDFs |
+| Four books and eight variants | `src/app/catalogue.ts`, with supplied original cover images | Final paid PDFs |
 | PDF / Print selectors | Each selection has its own stable SKU and price | Eight merchant-verified Payment Links |
 | Four-book bundle | USD 97; contents and format gates | Merchant confirmation of one edition of each book |
 | Stripe handoff | Allowed Stripe host, product/price/SKU checks, test/live separation | Verified Stripe products, prices and completion settings |
@@ -17,7 +17,7 @@ The branch contains the approved four-book catalogue, format-specific USD pricin
 | Contact / EA waitlist | Validation, explicit consent, rate limits and durable storage | Deployed API and merchant-approved privacy/retention terms |
 | BenefitPay | Reserved `CheckoutProviderAdapter` through `resolveCheckoutProvider('benefitpay')`; always unavailable with no URL | Separate merchant integration, payment verification and fulfilment testing before implementation |
 
-Only the text brief was available in this session. Existing JPEG assets are certificate/biography artwork, not the four requested covers or a standalone original logo. The catalogue therefore retains `cover: null`, and `integrationConfig.brand` retains empty/null fields for unavailable or unverified assets and destinations. Do not replace these with invented artwork, email addresses, phone numbers or social profiles.
+The original AAFXX logo and all four cover JPEGs have now been supplied. Byte-exact originals are retained in `design-assets/originals/`, and the catalogue points to optimized WebP covers. `integrationConfig.brand.logo` uses `assets/brand/aafxx-logo.svg`, which embeds the original bitmap with surrounding black whitespace trimmed through its viewBox. See [ASSETS.md](ASSETS.md) for the exact mapping. These public artwork files do not include the paid book contents: final PDFs and A3 Checklist artwork remain pending. Unavailable or unverified contact details and destinations remain empty; supplying artwork does not enable checkout or fulfilment.
 
 ## Public configuration
 

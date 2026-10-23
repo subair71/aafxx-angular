@@ -15,6 +15,7 @@ Angular 20 website for **AAFXX – Anybody Wins Trading Academy**, founded by **
 - Home, Books Shop, four book detail pages, academy learning paths, Standard Checklist overview, founder/about, contact, FAQ and policy structures.
 - Eight preserved free learning guides with search, topic filters, practice questions and a downloadable study journal.
 - PDF/Print selection with USD 27 / USD 47 pricing and stable, format-specific product identifiers.
+- The supplied original AAFXX logo and four book covers, with retained source JPEGs and optimized web variants.
 - A USD 97 four-book bundle whose contents and delivery remain gated on merchant confirmation.
 - Centralized Stripe Payment Link configuration with test/live separation and unavailable states when payment or fulfilment is not ready.
 - Expert Advisors page announcing the planned 2027 release, with a consent-based waitlist interface.
@@ -32,9 +33,9 @@ All four books are attributed to Prince Prof. Berthram Chidi Eke. The USD 97 bun
 
 ## Development design preview
 
-![Current AAFXX development homepage](docs/design-preview.jpg)
+[Open the private ChatGPT preview](https://aafxx-academy-preview.subair-info7.chatgpt.site).
 
-Browser capture of the implemented homepage. The text wordmark and labelled artwork placeholders remain until the original assets are supplied. This is a local development preview, not a verified Amplify deployment.
+The original logo and four supplied covers are integrated into the current source. See [VALIDATION.md](VALIDATION.md) for the asset-update checks and browser-review limits. The historical capture in `docs/design-preview.jpg` predates the supplied artwork and is not a current screenshot. A separate Amplify deployment remains unverified.
 
 ## Run locally
 
@@ -63,7 +64,7 @@ The build output is `dist/aafxx/browser`. Builds default to a development enviro
 
 **Purchasing, paid PDF delivery, printed-book fulfilment, and online enquiry/waitlist registration are not operational in the supplied configuration.** The website shows unavailable states honestly and does not simulate payment, registration, delivered enquiries, or downloads.
 
-Only the text brief was attached for this implementation. The original AAFXX logo, four original book covers, final paid PDFs and A3 Checklist artwork were not available. Existing certificate/biography artwork remains in the repository and is not relabelled as those missing assets.
+The original AAFXX logo and four book covers have now been supplied. Byte-exact source JPEGs are retained in `design-assets/originals/`, with the title-to-file mapping and web derivatives documented in [docs/ASSETS.md](docs/ASSETS.md). Final paid PDFs and A3 Checklist artwork are still required. Existing certificate/biography artwork remains separate from these supplied brand and book assets.
 
 Launch also requires merchant-verified Stripe links and product/price mappings, confirmed bundle contents, print destinations/rates/dispatch arrangements, approved policies and contact details, deployed backend services, genuine end-to-end integration tests, and verified branch hosting. The mission of 1000 Wealth Creators remains an educational aspiration, not a claim of achieved or guaranteed financial results.
 

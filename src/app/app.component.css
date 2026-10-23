@@ -10,3 +10,43 @@
 @media(max-width:360px){.wrap{padding-inline:18px}.header-shop{padding-inline:9px}.header-shop app-icon{display:none}.hero .eyebrow{font-size:7px}.hero .button-row{align-items:stretch;flex-direction:column}.hero .button{width:100%;font-size:12px}.hero h1{font-size:29px}.hero-signature strong{font-size:15px}.hero-library{padding-inline:20px}.library-intro>span{font-size:22px}.library-foot>span:last-child{display:none}.principles-band span{font-size:8px}.bundle-block{padding:28px 24px}.bundle-copy h2{font-size:30px}.format-selector.large button{min-width:69px}.detail-price strong{font-size:26px}.detail-copy h1{font-size:29px}.purchase-panel .eyebrow{font-size:7px}.form-panel{padding:23px}.draft-actions{flex-direction:column;align-items:flex-start}.founder-location{font-size:8px}}
 
 .recovery-panel{width:100%;max-width:600px;text-align:left;margin-block:35px}.recovery-panel h2{font-size:32px}
+
+/* Supplied brand artwork retains its complete original proportions. */
+.site-header .nav-shell{min-height:100px}
+.site-header .brand-logo,.site-footer .brand-logo{display:block;height:auto;max-height:none;aspect-ratio:31/22;object-fit:contain}
+.site-header .brand-logo{width:116px}
+.site-footer .brand-logo{width:160px}
+.library-entries>a{padding-block:12px}
+.library-entries .library-cover{display:block;flex:0 0 42px;width:42px;height:63px;object-fit:contain;box-shadow:0 5px 12px #00000026}
+.library-entry-copy{flex:1;min-width:0}
+.library-entries app-icon{flex:none}
+.detail-visual.has-cover{min-height:0;align-self:start;align-items:center;justify-content:center;padding:30px}
+.detail-visual.has-cover::after{display:none}
+.detail-visual.has-cover img{display:block;position:relative;z-index:1;width:100%;height:auto;max-width:400px;aspect-ratio:2/3;object-fit:contain;box-shadow:0 18px 38px #00000038}
+.bundle-titles .bundle-cover{display:block;flex:0 0 64px;width:64px;height:96px;object-fit:contain;box-shadow:0 7px 18px #00000026}
+.bundle-title-copy{flex:1;min-width:0}
+@media(max-width:900px){
+  .library-entries>a{gap:12px}
+  .library-entries .library-cover{flex-basis:36px;width:36px;height:54px}
+  .detail-visual.has-cover{padding:24px}
+  .bundle-titles .bundle-cover{flex-basis:54px;width:54px;height:81px}
+}
+@media(max-width:760px){
+  .site-header .nav-shell{min-height:84px}
+  .site-header .brand-logo{width:96px}
+  #primary-navigation{max-height:calc(100svh - 84px)}
+  .library-entries .library-cover{flex-basis:40px;width:40px;height:60px}
+  .detail-visual.has-cover img{max-width:360px}
+}
+@media(max-width:600px){
+  .library-entries>a{gap:12px}
+  .detail-visual.has-cover{padding:24px}
+  .bundle-titles>a{gap:12px;padding-block:19px}
+  .bundle-titles .bundle-cover{flex-basis:52px;width:52px;height:78px}
+}
+@media(max-width:360px){
+  .library-entries .library-cover{flex-basis:36px;width:36px;height:54px}
+  .detail-visual.has-cover{padding:20px}
+  .bundle-titles .bundle-cover{flex-basis:44px;width:44px;height:66px}
+  .bundle-titles>a{gap:10px}
+}

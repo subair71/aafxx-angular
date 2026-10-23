@@ -65,7 +65,7 @@ export const integrationConfig: IntegrationConfig = {
   },
   forms: { apiBase: "", contactReady: false, waitlistReady: false, privacyApproved: false, privacyVersion: "2026-10-23" },
   brand: {
-    logo: null,
+    logo: "assets/brand/aafxx-logo.svg",
     checklist: null,
     founderPhoto: null,
     email: "",

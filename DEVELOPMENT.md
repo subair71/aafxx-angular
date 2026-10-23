@@ -10,7 +10,9 @@ The starting branch had a standalone Angular shell with pathname-based navigatio
 
 The application now follows the supplied black/charcoal, white and gold (`#D4AF37`) direction. Dark remains the initial theme, with the existing saved light preference respected. The layout uses system body fonts, an editorial serif display treatment, local SVG icons, thin borders, restrained chart-inspired decoration, responsive product cards, touch-friendly controls and reduced-motion support. No external market-data feed or global Stripe.js dependency is required.
 
-The merchant's four titles, subtitles, author, USD prices and named methodologies replace the former illustrative book concepts. The original logo, book covers and Checklist screenshot remain missing, so the application uses clearly labelled artwork-pending spaces and a text brand treatment. It does not claim that the official assets have been integrated. Original certificate/biography files remain preserved in the repository; they are not presented as independently verified credentials, trading performance evidence or the new books' covers.
+The merchant's four titles, subtitles, author, USD prices and named methodologies replace the former illustrative book concepts. The original AAFXX logo and four cover JPEGs have since been supplied. Byte-exact copies are retained in `design-assets/originals/`; the catalogue uses optimized WebP covers and smaller card variants. The logo SVG embeds the supplied bitmap and trims only the surrounding black whitespace through its viewBox, preserving the original artwork. A square WebP version supplies the production Organization logo metadata. Asset identities follow the visible book titles, including the archive's nonsequential Book 3/Book 4 filename suffixes; see [docs/ASSETS.md](docs/ASSETS.md).
+
+The A3 Checklist artwork and final paid PDFs remain unavailable. Original certificate/biography files remain preserved in the repository; they are not presented as independently verified credentials, trading performance evidence or the new books' covers. Fresh validation of the original-asset update is pending in [VALIDATION.md](VALIDATION.md).
 
 The 1000 Wealth Creators mission is an aspiration. Academy paths remain proposed, with no invented curriculum, confirmed teaching format, enrolment price, student count or result. Expert Advisors remain a 2027 waitlist concept without sales or backtest claims.
 
@@ -23,6 +25,7 @@ The 1000 Wealth Creators mission is an aspiration. Academy paths remain proposed
 | Four-book catalogue, eight edition SKUs and bundle price | `src/app/catalogue.ts` |
 | Reusable book cards and format selectors | `src/app/book-card.component.ts`, `.css` |
 | Local SVG icon component and attribution | `src/app/icon.component.ts`, `public/assets/icons/` |
+| Supplied logo/covers and retained originals | `public/assets/brand/`, `public/assets/books/`, `design-assets/originals/`, `docs/ASSETS.md` |
 | Public merchant integration settings | `src/app/integration-config.ts` |
 | Payment readiness and HTTP submission clients | `src/app/commerce.ts` |
 | Preserved introductory guides and course metadata | `src/app/learning-content.ts` |
@@ -67,11 +70,13 @@ Configuration fields, prerequisites and deployment instructions are documented i
 
 `updateSeo()` maintains page-specific titles/descriptions, Open Graph metadata, canonical paths, breadcrumbs, and appropriate Organization/WebSite/Book/Product/LearningResource entities. Offers are included only for validated live checkout destinations; no ISBN, review, rating, inventory quantity or independent credential is invented.
 
+When an approved production origin is configured, book metadata uses the corresponding supplied cover and the EducationalOrganization uses the supplied square logo. Preview output remains origin-free and omits canonical/image URLs and structured data.
+
 `npm run build` runs Angular's optimized build and writes safe public environment metadata into the resulting HTML. `prerender:amplify` uses the existing packaged Chromium approach to generate static HTML for every supported route. A `404.html` fallback is generated. The build process uses an ephemeral server rather than the visual preview port.
 
 All unconfigured builds default to `noindex` and test payments. `AWS_BRANCH=dev-aafxx` and other nonproduction Amplify branches cannot become indexable or live merely through inherited app settings. A future indexable build requires `SITE_ENVIRONMENT=production` and an approved HTTPS `SITE_ORIGIN`; missing origin fails explicitly. `SITE_BASE` must match the Angular base href.
 
-The latest measured optimized build at this documentation snapshot was **384.88 kB initial bundle total**, with **94.75 kB estimated transfer size** reported by Angular. This estimate is not a measured download size, Lighthouse score or field Core Web Vitals result. LCP, CLS and INP targets remain goals until measured under an identified environment.
+The optimized build including the supplied artwork integration reports **389.96 kB initial bundle total**, with **95.31 kB estimated transfer size** from Angular. Images are separate assets and are not included in those initial JavaScript/stylesheet totals. This estimate is not a measured download size, Lighthouse score or field Core Web Vitals result. LCP, CLS and INP targets remain goals until measured under an identified environment.
 
 The existing Amplify app and `develop` deployment have not been changed. Connecting `dev-aafxx`, verifying its actual returned URL, checking shared rewrite scope and confirming deployed HTTP 404 behavior remain external steps. See [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 

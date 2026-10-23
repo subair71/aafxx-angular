@@ -19,6 +19,7 @@ export interface Book {
   readonly topics: readonly string[];
   /** Null means the original cover has not been supplied. Never substitute an invented cover. */
   readonly cover: string | null;
+  readonly coverThumbnail: string | null;
   readonly coverAlt: string;
   readonly formats: Readonly<Record<BookFormat, BookVariant>>;
 }
@@ -42,7 +43,8 @@ export const BOOKS: readonly Book[] = [
     author: AUTHOR,
     description: "The AAFXX Standard Checklist is the central methodology named by the academy. This publication introduces that educational focus within AAFXX’s approach to structured forex study and disciplined execution.",
     topics: ["The AAFXX Standard Checklist", "Structured forex study", "Trading discipline"],
-    cover: null,
+    cover: "assets/books/book-1.webp",
+    coverThumbnail: "assets/books/book-1-480.webp",
     coverAlt: "ANYBODY WINS ANYTIME, ANYDAY, ANYWHERE — The AAFXX Standard Checklist, by Prince Prof. Berthram Chidi Eke",
     formats: variants(1),
   },
@@ -55,7 +57,8 @@ export const BOOKS: readonly Book[] = [
     author: AUTHOR,
     description: "A publication centred on the academy’s LOW IN, MIDDLE OUT methodology and its stated 5-minute and 15-minute execution focus. Explore the named framework as educational material, with appropriate attention to trading risk.",
     topics: ["LOW IN, MIDDLE OUT", "5M / 15M chart context", "Disciplined execution"],
-    cover: null,
+    cover: "assets/books/book-2.webp",
+    coverThumbnail: "assets/books/book-2-480.webp",
     coverAlt: "FOREX LOW IN, MIDDLE OUT — The 5M/15M Execution Bible, by Prince Prof. Berthram Chidi Eke",
     formats: variants(2),
   },
@@ -68,7 +71,8 @@ export const BOOKS: readonly Book[] = [
     author: AUTHOR,
     description: "An AAFXX publication focused on the academy’s named BBB FLOW and Leader Alignment methodologies. Its stated theme is trend flow within the wider AAFXX educational approach.",
     topics: ["BBB FLOW", "Leader Alignment", "Trend flow"],
-    cover: null,
+    cover: "assets/books/book-3.webp",
+    coverThumbnail: "assets/books/book-3-480.webp",
     coverAlt: "BBB FLOW & LEADER ALIGNMENT — Mastering Trend Flow, by Prince Prof. Berthram Chidi Eke",
     formats: variants(3),
   },
@@ -81,7 +85,8 @@ export const BOOKS: readonly Book[] = [
     author: AUTHOR,
     description: "The publication associated with AAFXX’s 1000 Wealth Creators educational mission. The mission expresses the academy’s aspiration to support informed, disciplined learners; it is not a promise of financial outcomes.",
     topics: ["The AAFXX educational mission", "Disciplined learning", "1000 Wealth Creators aspiration"],
-    cover: null,
+    cover: "assets/books/book-4.webp",
+    coverThumbnail: "assets/books/book-4-480.webp",
     coverAlt: "PROF STANDARD — 1000 Wealth Creators Playbook, by Prince Prof. Berthram Chidi Eke",
     formats: variants(4),
   },

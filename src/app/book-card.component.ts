@@ -7,9 +7,12 @@ import { IconComponent } from './icon.component';
   selector: 'app-book-card', standalone: true, imports: [IconComponent],
   template: `
     <article class="book-card">
-      <a class="book-visual" [href]="href" (click)="open($event)" [attr.aria-label]="'View ' + book.title">
+      <a class="book-visual" [class.has-cover]="!!book.cover" [href]="href" (click)="open($event)" [attr.aria-label]="'View ' + book.title">
         @if(book.cover) {
-          <img [src]="base + book.cover" [alt]="book.coverAlt" width="600" height="840" loading="lazy" />
+          <img [src]="base + (book.coverThumbnail || book.cover)"
+            [attr.srcset]="book.coverThumbnail ? base + book.coverThumbnail + ' 480w, ' + base + book.cover + ' 1066w' : null"
+            sizes="(max-width: 380px) calc(100vw - 96px), (max-width: 1150px) 280px, 240px"
+            [alt]="book.coverAlt" width="1066" height="1599" loading="lazy" decoding="async" />
         } @else {
           <span class="visual-top"><span>AAFXX / THE COLLECTION</span><app-icon name="book-open" /></span>
           <span class="volume-number" aria-hidden="true">0{{book.number}}</span>
