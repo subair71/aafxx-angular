@@ -39,6 +39,7 @@ export interface IntegrationConfig {
     apiBase: string;
     contactReady: boolean;
     waitlistReady: boolean;
+    leadsReady: boolean;
     privacyApproved: boolean;
     privacyVersion: string;
   };
@@ -63,7 +64,7 @@ export const integrationConfig: IntegrationConfig = {
     print: { fulfilmentReady: false, shippingReadySkus: [] },
     bundle: { contentsConfirmed: false, format: null, contentsLabel: "", includedSkus: [], fulfilmentReady: false },
   },
-  forms: { apiBase: "", contactReady: false, waitlistReady: false, privacyApproved: false, privacyVersion: "2026-10-23" },
+  forms: { apiBase: "", contactReady: false, waitlistReady: false, leadsReady: false, privacyApproved: false, privacyVersion: "2026-10-23" },
   brand: {
     logo: "assets/brand/aafxx-logo.svg",
     checklist: null,

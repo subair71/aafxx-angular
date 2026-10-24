@@ -12,5 +12,11 @@
   "stripeSecretKey": "",
   "stripeWebhookSecret": "",
   "testRecipientAllowlist": [],
-  "products": []
+  "products": [],
+  "leadsEnabled": false,
+  "leadsRetentionDays": 365,
+  "checklist": {
+    "approved": false,
+    "key": ""
+  }
 }

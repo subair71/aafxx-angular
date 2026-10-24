@@ -109,7 +109,9 @@ Resources:
               Resource: !GetAtt Data.Arn
             - Effect: Allow
               Action: ['s3:GetObject']
-              Resource: !Sub '${PrivatePdfs.Arn}/paid-content/*'
+              Resource:
+                - !Sub '${PrivatePdfs.Arn}/paid-content/*'
+                - !Sub '${PrivatePdfs.Arn}/free-content/*'
             - Effect: Allow
               Action: ['secretsmanager:GetSecretValue']
               Resource: !Ref ConfigSecretArn

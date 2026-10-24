@@ -24,11 +24,12 @@ try {
   assert.equal(await page.locator(".book-card").count(), 4);
   for (const card of await page.locator(".book-card").all()) {
     assert.match(await card.locator(".book-price").innerText(), /27/);
-    await card.getByRole("button", {name: "Print", exact: true}).click();
-    assert.equal(await card.getByRole("button", {name: "Print", exact: true}).getAttribute("aria-pressed"), "true");
+    await card.getByRole("button", {name: "Paperback", exact: true}).click();
+    assert.equal(await card.getByRole("button", {name: "Paperback", exact: true}).getAttribute("aria-pressed"), "true");
     assert.match(await card.locator(".book-price").innerText(), /47/);
-    assert(await card.getByRole("button", {name: "Buy Now", exact: true}).isDisabled());
-    await card.getByRole("button", {name: "PDF", exact: true}).click();
+    assert.match(await card.locator(".purchase-action").getAttribute("href"), /launch-notifications\/\?book=aafxx-book-[1-4]&format=print/);
+    assert.match(await card.locator(".purchase-action").innerText(), /Pre-Order on Amazon/);
+    await card.getByRole("button", {name: "eBook", exact: true}).click();
     assert.match(await card.locator(".book-price").innerText(), /27/);
   }
   await page.getByLabel("Search books", {exact: true}).fill("BBB");
@@ -37,21 +38,40 @@ try {
   assert.equal(await page.locator(".book-card").count(), 0);
   await page.getByLabel("Search books", {exact: true}).fill("");
   assert.equal(await page.locator(".book-card").count(), 4);
-  report.checks.push("Four books, search, accessible PDF/Print state, USD27/USD47 prices and unavailable checkout");
+  report.checks.push("Four books, search, accessible eBook/Paperback state, $27/$47 prices and honest launch-notification destinations");
 
   for (const slug of bookSlugs) {
     await goto("books/" + slug);
     await page.reload();
     assert.equal(await page.locator("main h1").count(), 1);
-    const purchaseActions = await page.getByRole("button", {name: "Buy Now", exact: true}).all();
-    assert(purchaseActions.length >= 1);
-    for (const action of purchaseActions) assert(await action.isDisabled());
+    const action=page.locator(".detail-copy .button.full");
+    assert.match(await action.getAttribute("href"), /launch-notifications/);
+    assert.equal(await page.locator('a[href*="buy.stripe.com"],a[href*="amazon.com/dp/"]').count(),0);
   }
   await page.goto(href("checkout/success") + "?session_id=cs_test_forged&paid=true");
   await page.locator("main h1").waitFor();
   assert.equal(await page.locator('a[href$=".pdf"],a[href*="X-Amz-Signature"],a[download]').count(), 0);
   assert.match(await page.locator('meta[name="robots"]').getAttribute("content"), /noindex/);
   report.checks.push("All book deep links/reload; query parameters cannot unlock a PDF or index a checkout page");
+
+  assert.match(await page.locator('main').innerText(), /No purchase is confirmed/);
+  assert.equal(await page.getByRole('heading',{name:'Thank You for Joining the AAFXX Learning Community!'}).count(),0);
+  await goto('books');
+  await page.getByRole('link',{name:'Register Interest in the Bundle',exact:true}).click();
+  assert.equal(await page.getByRole('combobox',{name:'Book selection',exact:true}).inputValue(),'aafxx-complete-library');
+  assert.match(await page.locator('app-lead-form').innerText(),/not a paid pre-order/);
+  await page.getByLabel('Full Name',{exact:true}).fill('A Reader');
+  await page.getByLabel('Email Address',{exact:true}).fill('reader@example.test');
+  await page.locator('app-lead-form input[type="checkbox"]').check();
+  assert(await page.getByRole('button',{name:'Register for Launch Notifications',exact:true}).isDisabled());
+  await goto('registration-confirmed');
+  assert.match(await page.locator('main').innerText(),/No registration is confirmed/);
+  await goto('mentorship');
+  assert(await page.getByRole('button',{name:'Submit Mentorship Application',exact:true}).isDisabled());
+  assert.equal(await page.locator('a[href*="wa.me"]').count(),0);
+  await goto('about-author');assert.equal(await page.locator('.author-portrait').count(),1);assert.match(await page.locator('main').innerText(),/late Ezi Achama Eke/);
+  await goto();assert.equal(await page.locator('app-testimonials section').count(),0);
+  report.checks.push('Bundle selection reaches the correct launch form; unavailable forms, direct confirmation URLs, missing WhatsApp and testimonials fail honestly; genuine author portrait and dedication render');
 
   // Native links must retain ampersands in subjects when opened in a new tab.
   await goto("books/bbb-flow-leader-alignment");
@@ -139,7 +159,7 @@ try {
   report.checks.push("Legacy URL redirects and noindex unknown-route page");
 
   await mkdir("screenshots", {recursive: true});
-  for (const width of [320, 390, 1440]) {
+  for (const width of [320, 390, 768, 1440]) {
     await page.setViewportSize({width, height: 900});
     for (const route of allRoutes) {
       await goto(route);
@@ -152,7 +172,7 @@ try {
       }
     }
   }
-  report.checks.push("All canonical and compatibility routes at 320/390/1440 widths, one H1, decodable images, no overflow");
+  report.checks.push("All canonical and compatibility routes at 320/390/768/1440 widths, one H1, decodable images, no overflow");
   await page.setViewportSize({width: 390, height: 844});
   await goto();
   await page.keyboard.press("Tab");

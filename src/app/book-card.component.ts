@@ -1,6 +1,8 @@
 import { Component, Input, Output, EventEmitter, signal } from '@angular/core';
 import { Book, BookFormat } from './catalogue';
 import { checkoutFor, formatPrice } from './commerce';
+import { purchaseAction } from './funnel';
+import { track } from './analytics';
 import { IconComponent } from './icon.component';
 
 @Component({
@@ -26,20 +28,15 @@ import { IconComponent } from './icon.component';
         <p class="book-author">{{book.author}}</p>
         <div class="format-price-row">
           <div class="format-selector" role="group" [attr.aria-label]="'Format for ' + book.title">
-            <button type="button" (click)="format.set('pdf')" [attr.aria-pressed]="format() === 'pdf'">PDF</button>
-            <button type="button" (click)="format.set('print')" [attr.aria-pressed]="format() === 'print'">Print</button>
+            <button type="button" (click)="format.set('pdf')" [attr.aria-pressed]="format() === 'pdf'">eBook</button>
+            <button type="button" (click)="format.set('print')" [attr.aria-pressed]="format() === 'print'">Paperback</button>
           </div>
           <strong class="book-price" aria-live="polite">{{price(book.formats[format()].price)}}</strong>
         </div>
-        <div class="book-actions">
-          <a class="text-link" [href]="href" (click)="open($event)">View Details <app-icon name="arrow-up-right" /></a>
-          @if(checkout().available) {
-            <a class="button gold small" [href]="checkout().url" rel="noopener">Buy Now <app-icon name="arrow-right" /></a>
-          } @else {
-            <button type="button" class="button gold small" disabled [attr.aria-describedby]="book.id + '-availability'">Buy Now</button>
-          }
-        </div>
-        <p class="availability-note" [id]="book.id + '-availability'" role="status">{{checkout().message}}</p>
+        <p class="price-guide">EBOOK: $27 | PAPERBACK: $47<br />BUNDLE (4 Books): $97</p>
+        <div class="book-actions"><a class="text-link" [href]="href" (click)="open($event)">View Details <app-icon name="arrow-up-right" /></a></div>
+        <a class="button gold purchase-action" [href]="action().href" (click)="purchase($event)" [attr.rel]="action().external?'noopener noreferrer':null">{{action().label}} <app-icon name="arrow-right" /></a>
+        @if(!action().available){<p class="availability-note">Launch notification only. No payment collected.</p>}
       </div>
     </article>`,
   styleUrl: './book-card.component.css',
@@ -51,6 +48,8 @@ export class BookCardComponent {
   format = signal<BookFormat>('pdf');
   price = formatPrice;
   get href() { return this.base + 'books/' + this.book.slug + '/'; }
+  action() { return purchaseAction(this.book,this.format(),this.base); }
+  purchase(event: MouseEvent) { const action=this.action(); if(action.available)track('buy_now_clicked',{product:this.book.formats[this.format()].sku}); if(!action.external)this.navigate.emit({url:action.href,event}); }
   checkout() { return checkoutFor(this.book, this.format()); }
   open(event: MouseEvent) { this.navigate.emit({url:this.href,event}); }
 }

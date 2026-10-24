@@ -1,3 +1,5 @@
+> October 24 sales-funnel update: see [SALES_FUNNEL.md](SALES_FUNNEL.md) for current storefront destinations, Amazon paperback routing, lead/checklist APIs, order-status verification and operational limitations. The older Stripe print backend remains supported but is not exposed by the new storefront.
+
 # AAFXX commerce and enquiry setup
 
 ## Current state

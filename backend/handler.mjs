@@ -1,3 +1,4 @@
+import { randomUUID } from "node:crypto";
 import Stripe from "stripe";
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb";
 import { DynamoDBDocumentClient, GetCommand, PutCommand, UpdateCommand } from "@aws-sdk/lib-dynamodb";
@@ -31,7 +32,7 @@ const store = {
       await dynamo.send(new PutCommand({ TableName: table, Item: { pk: `${kind.toUpperCase()}#${id}`, kind, ...record }, ConditionExpression: "attribute_not_exists(pk)" }));
     } catch (error) {
       // Existing waitlist membership is accepted without leaking registration state.
-      if (!(kind === "waitlist" && conditionFailed(error))) throw error;
+      if (!(["waitlist", "leads"].includes(kind) && conditionFailed(error))) throw error;
     }
   },
   async getOrder(sessionId) {
@@ -117,6 +118,34 @@ async function service() {
     retrieveSession: (id) => stripe.checkout.sessions.retrieve(id, { expand: ["line_items.data.price.product"] }),
     async signDownload(file) {
       return getSignedUrl(s3, new GetObjectCommand({ Bucket: bucket, Key: file.key, ResponseContentType: "application/pdf", ResponseContentDisposition: `attachment; filename="${file.filename}"`, ResponseCacheControl: "private, no-store" }), { expiresIn: 300 });
+    },
+    async sendChecklist(id, data) {
+      if (!config.checklist?.approved || !/^free-content\/[A-Za-z0-9/_-]+\.pdf$/.test(config.checklist.key) || !process.env.SENDER_EMAIL) throw new Error("Checklist delivery is not configured.");
+      if (config.mode === "test" && !config.testRecipientAllowlist?.includes(data.email)) throw new Error("Test recipient not approved.");
+      const key = { pk: `LEADS#${id}` };
+      const now = Math.floor(Date.now()/1000);
+      const lease = randomUUID();
+      try {
+        await dynamo.send(new UpdateCommand({ TableName: table, Key: key,
+          UpdateExpression: "SET deliveryLease = :lease, deliveryLeaseUntil = :until",
+          ConditionExpression: "attribute_exists(pk) AND attribute_not_exists(checklistSent) AND (attribute_not_exists(deliveryLeaseUntil) OR deliveryLeaseUntil < :now)",
+          ExpressionAttributeValues: { ":lease": lease, ":until": now+90, ":now": now } }));
+      } catch(error) {
+        if (!conditionFailed(error)) throw error;
+        const existing = (await dynamo.send(new GetCommand({TableName:table, Key:key, ConsistentRead:true}))).Item;
+        return existing?.checklistSent ? "sent" : "pending";
+      }
+      try {
+        const head = await s3.send(new HeadObjectCommand({Bucket:bucket, Key:config.checklist.key}));
+        if (!head.ContentLength || !head.ContentType?.toLowerCase().startsWith("application/pdf")) throw new Error("Checklist unavailable.");
+        const url = await getSignedUrl(s3, new GetObjectCommand({Bucket:bucket, Key:config.checklist.key, ResponseContentType:"application/pdf", ResponseContentDisposition:'attachment; filename="AAFXX-Standard-Checklist.pdf"', ResponseCacheControl:"private, no-store"}), {expiresIn:86400});
+        await ses.send(new SendEmailCommand({FromEmailAddress:process.env.SENDER_EMAIL, Destination:{ToAddresses:[data.email]}, Content:{Simple:{Subject:{Data:"Your free AAFXX Standard Checklist",Charset:"UTF-8"}, Body:{Text:{Data:`Thank you for your interest in structured forex education.\n\nDownload your approved AAFXX Standard Checklist using this private link (valid for up to 24 hours):\n${url}\n\nEducation does not guarantee trading outcomes.`,Charset:"UTF-8"}}}}}));
+        await dynamo.send(new UpdateCommand({TableName:table, Key:key, UpdateExpression:"SET checklistSent = :sent REMOVE deliveryLease, deliveryLeaseUntil",ConditionExpression:"deliveryLease = :lease",ExpressionAttributeValues:{":sent":true,":lease":lease}}));
+        return "sent";
+      } catch(error) {
+        await dynamo.send(new UpdateCommand({TableName:table,Key:key,UpdateExpression:"REMOVE deliveryLease, deliveryLeaseUntil",ConditionExpression:"deliveryLease = :lease",ExpressionAttributeValues:{":lease":lease}}));
+        throw error;
+      }
     },
     async sendReceipt(order, files) {
       // Missing PDFs fail delivery and allow a webhook retry, instead of emailing broken links.
