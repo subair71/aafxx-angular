@@ -12,7 +12,8 @@
     "check:a11y": "node scripts/check-accessibility.mjs",
     "check:config": "node scripts/build-config.test.mjs",
     "check:commerce": "node tests/commerce.test.mjs",
-    "check:funnel": "node tests/funnel.test.mjs"
+    "check:funnel": "node tests/funnel.test.mjs",
+    "check:browsers": "node scripts/check-browsers.mjs"
   },
   "dependencies": {
     "@angular/common": "^20.3.0",
