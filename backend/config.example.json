@@ -1,0 +1,16 @@
+{
+  "mode": "test",
+  "publicApiBase": "",
+  "paymentsEnabled": false,
+  "contactEnabled": false,
+  "waitlistEnabled": false,
+  "privacyVersion": "2026-10-23",
+  "contactRetentionDays": 90,
+  "waitlistRetentionDays": 365,
+  "rateLimitSalt": "SET_A_RANDOM_32_BYTE_OR_LONGER_SECRET_IN_AWS",
+  "downloadTokenSecret": "SET_A_DIFFERENT_RANDOM_32_BYTE_OR_LONGER_SECRET_IN_AWS",
+  "stripeSecretKey": "",
+  "stripeWebhookSecret": "",
+  "testRecipientAllowlist": [],
+  "products": []
+}

@@ -1,106 +1,31 @@
-import { chromium } from "playwright";
-import { createServer } from "node:http";
-import { readFile, mkdir, writeFile } from "node:fs/promises";
-import { join, extname, resolve } from "node:path";
 import assert from "node:assert/strict";
-import { routes, privateRoutes } from "./routes.mjs";
-const root = "dist/aafxx/browser",
-  base = process.env.SITE_BASE || "/aafxx-angular/";
-const server = createServer(async (req, res) => {
-  let path = decodeURIComponent(req.url.split("?")[0]).slice(base.length);
-  if (!extname(path)) path += "index.html";
-  const file = resolve(root, path);
-  if (!file.startsWith(resolve(root) + "/")) {
-    res.writeHead(403);
-    res.end();
-    return;
-  }
-  try {
-    res.setHeader(
-      "Content-Type",
-      {
-        ".js": "text/javascript",
-        ".css": "text/css",
-        ".jpeg": "image/jpeg",
-        ".png": "image/png",
-        ".svg": "image/svg+xml",
-        ".html": "text/html",
-      }[extname(file)] || "text/plain",
-    );
-    res.end(await readFile(file));
-  } catch {
-    res.writeHead(404, { "Content-Type": "text/html" });
-    res.end(await readFile(join(root, "404.html")));
-  }
-}).listen(4174);
+import { mkdir, writeFile } from "node:fs/promises";
 import AxeBuilder from "@axe-core/playwright";
+import { startCheckServer, launchCheckBrowser } from "./browser-check-support.mjs";
+const server = await startCheckServer();
 let browser;
 try {
-  browser = await chromium.launch({
-    headless: true,
-    ...(process.env.CHROME_PATH
-      ? {
-          executablePath: process.env.CHROME_PATH,
-          args: ["--no-sandbox", "--disable-dev-shm-usage"],
-        }
-      : {}),
-  });
-  const context = await browser.newContext();
+  browser = await launchCheckBrowser();
+  const context = await browser.newContext({viewport: {width: 390, height: 844}});
   const page = await context.newPage();
   const reports = [];
   for (const theme of ["dark", "light"]) {
-    await page.goto("http://localhost:4174" + base);
-    await page.evaluate((t) => localStorage.setItem("aafxx-theme", t), theme);
-    for (const route of [
-      "",
-      "books/",
-      "courses/",
-      "books/trading-with-discipline/",
-      "resources/forex-basics/",
-      "webinars/",
-      "contact/",
-      "account/",
-    ]) {
-      await page.goto("http://localhost:4174" + base + route);
+    await page.goto(server.origin + server.config.base);
+    await page.evaluate((value) => localStorage.setItem("aafxx-theme", value), theme);
+    for (const route of ["", "books", "books/anybody-wins-anytime-anyday-anywhere", "academy", "checklist", "expert-advisors", "contact", "checkout/success"]) {
+      await page.goto(server.origin + server.config.base + (route ? route + "/" : ""));
       await page.locator("main h1").waitFor();
-      const r = await new AxeBuilder({ page })
-        .withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"])
-        .analyze();
-      reports.push({
-        theme,
-        route: route || "home",
-        violations: r.violations.map((v) => ({
-          id: v.id,
-          impact: v.impact,
-          description: v.description,
-          nodes: v.nodes.map((n) => ({
-            target: n.target,
-            summary: n.failureSummary,
-          })),
-        })),
-      });
+      const result = await new AxeBuilder({page}).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      reports.push({theme, route: route || "home", violations: result.violations.map((violation) => ({id: violation.id, impact: violation.impact, description: violation.description, nodes: violation.nodes.map((node) => ({target: node.target, summary: node.failureSummary}))}))});
     }
   }
-  await mkdir("screenshots", { recursive: true });
-  await writeFile(
-    "screenshots/accessibility.json",
-    JSON.stringify(reports, null, 2),
-  );
-  console.log(
-    JSON.stringify(
-      reports.filter((r) => r.violations.length),
-      null,
-      2,
-    ),
-  );
-  assert(
-    reports.every((r) => !r.violations.length),
-    "Accessibility violations found",
-  );
-  console.log(
-    "Automated accessibility checks passed on 8 pages in both themes.",
-  );
+  await mkdir("screenshots", {recursive: true});
+  await writeFile("screenshots/accessibility.json", JSON.stringify(reports, null, 2));
+  const failures = reports.filter((report) => report.violations.length);
+  if (failures.length) console.error(JSON.stringify(failures, null, 2));
+  assert.equal(failures.length, 0, "Accessibility violations found");
+  console.log("Automated WCAG 2.2 AA-tagged accessibility checks passed on eight pages in both themes (16 scans).");
 } finally {
   await browser?.close();
-  server.close();
+  await server.close();
 }

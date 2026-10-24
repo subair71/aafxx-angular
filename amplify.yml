@@ -5,10 +5,12 @@ frontend:
       commands:
         - nvm use 22
         - npm ci
+        - npm run check:config
     build:
       commands:
         - npm run build -- --base-href /
         - npm run prerender:amplify
+        - npm run check:seo
   artifacts:
     baseDirectory: dist/aafxx/browser
     files:
