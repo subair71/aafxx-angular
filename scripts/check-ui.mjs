@@ -58,7 +58,7 @@ try {
   assert.equal(await page.getByRole('heading',{name:'Thank You for Joining the AAFXX Learning Community!'}).count(),0);
   await goto('books');
   await page.getByRole('link',{name:'Register Interest in the Bundle',exact:true}).click();
-  assert.equal(await page.getByLabel('Book selection',{exact:true}).inputValue(),'aafxx-complete-library');
+  assert.equal(await page.getByRole('combobox',{name:'Book selection',exact:true}).inputValue(),'aafxx-complete-library');
   assert.match(await page.locator('app-lead-form').innerText(),/not a paid pre-order/);
   await page.getByLabel('Full Name',{exact:true}).fill('A Reader');
   await page.getByLabel('Email Address',{exact:true}).fill('reader@example.test');
