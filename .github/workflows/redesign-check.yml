@@ -22,6 +22,7 @@ jobs:
       - run: npm ci
       - run: npm run check:config
       - run: npm run check:commerce
+      - run: npm run check:funnel
       - run: npm ci --prefix backend
       - run: npm --prefix backend test
       - run: npm run build -- --base-href /

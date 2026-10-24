@@ -26,6 +26,12 @@ export function validateSubmission(kind, input, config, now = Date.now()) {
     if (typeof input[key] !== "string" || !input[key].trim() || input[key].length > maximum || (key !== "message" && /[\r\n]/.test(input[key]))) throw new RequestError(400, "Check the name, subject and message fields.");
     result[key] = input[key].trim();
   }
+  if (kind === "leads") {
+    if (typeof input.name !== "string" || !input.name.trim() || input.name.length > 100 || /[\r\n]/.test(input.name) || typeof input.country !== "string" || input.country.length > 80 || /[\r\n]/.test(input.country)) throw new RequestError(400, "Check the name and country fields.");
+    if (!["books", "checklist", "mentorship"].includes(input.kind) || !["all", "aafxx-complete-library", ...[1,2,3,4].map(n=>`aafxx-book-${n}`)].includes(input.bookId) || !["pdf", "print", "undecided"].includes(input.format)) throw new RequestError(400, "Choose a valid book and format.");
+    if (input.kind !== "books" && (input.bookId !== "all" || input.format !== "undecided")) throw new RequestError(400, "Invalid registration selection.");
+    Object.assign(result, { name: input.name.trim(), country: input.country.trim(), kind: input.kind, bookId: input.bookId, format: input.format });
+  }
   return result;
 }
 
@@ -167,7 +173,7 @@ export function createApi(deps) {
         const url = await deps.signDownload(order.files[token.file]);
         return response(303, { ok: true }, "", { location: url });
       }
-      if (!["/contact", "/waitlist", "/recover"].includes(path)) return response(404, { ok: false, message: "Endpoint not found." });
+      if (!["/contact", "/waitlist", "/recover", "/leads", "/order-status"].includes(path)) return response(404, { ok: false, message: "Endpoint not found." });
       if (!origin) throw new RequestError(403, "Origin is not permitted.");
       if (method === "OPTIONS") return response(204, null, origin, { "access-control-allow-methods": "POST,OPTIONS", "access-control-allow-headers": "Content-Type", "access-control-max-age": "600" });
       if (method !== "POST") throw new RequestError(405, "Method not allowed.");
@@ -176,7 +182,27 @@ export function createApi(deps) {
       if (raw.length > 12000) throw new RequestError(413, "Request is too large.");
       let input;
       try { input = JSON.parse(raw.toString("utf8")); } catch { throw new RequestError(400, "Invalid JSON data."); }
-      await rateLimit(event, path, path === "/recover" ? 2 : 5);
+      await rateLimit(event, path, ["/recover", "/order-status"].includes(path) ? 2 : 5);
+      if (path === "/order-status") {
+        if (!config.paymentsEnabled) throw new RequestError(503, "Order verification is not available.");
+        const email = cleanEmail(input?.email);
+        if (!EMAIL.test(email) || email.length > 254 || !SESSION.test(input?.sessionId || "")) throw new RequestError(400, "Check the order reference and checkout email.");
+        const unavailable = () => response(200, { ok: true, status: "unconfirmed" }, origin);
+        const order = await store.getOrder(input.sessionId);
+        // A query parameter, Stripe redirect or browser assertion can never establish payment.
+        if (!order || order.paymentStatus !== "paid" || order.mode !== config.mode || order.email !== email) return unavailable();
+        const session = await deps.retrieveSession(input.sessionId);
+        const verified = validateSession(session, config);
+        if (session.id !== order.sessionId || session.payment_status !== "paid" || session.status !== "complete" || verified.email !== email || verified.product.sku !== order.sku || session.amount_total !== order.amountTotal) return unavailable();
+        // Re-read after the provider call so an operator revocation remains authoritative.
+        const current = await store.getOrder(order.sessionId);
+        if (current?.paymentStatus !== "paid" || current.downloadVersion !== order.downloadVersion) return unavailable();
+        const files = current.downloadExpiresAt > seconds() ? current.files.map((file, index) => ({ name: file.filename, url: `${config.publicApiBase}/download?token=${encodeURIComponent(createDownloadToken(current, index, config.downloadTokenSecret))}` })) : [];
+        return response(200, { ok: true, status: "paid", order: {
+          title: current.title, sku: current.sku, format: current.format, amountTotal: current.amountTotal, currency: current.currency,
+          transactionId: hash(`analytics:${current.sessionId}`, config.rateLimitSalt), files,
+        } }, origin);
+      }
       if (path === "/recover") {
         if (!config.paymentsEnabled) throw new RequestError(503, "Order recovery is unavailable.");
         const email = cleanEmail(input?.email);
@@ -196,8 +222,17 @@ export function createApi(deps) {
       const data = validateSubmission(kind, input, config);
       const retention = config[`${kind}RetentionDays`];
       if (!Number.isInteger(retention) || retention < 1 || retention > 730) throw new RequestError(503, "Data retention must be configured.");
-      const id = kind === "waitlist" ? hash(data.email, config.rateLimitSalt) : randomUUID();
+      const id = kind === "waitlist" ? hash(data.email, config.rateLimitSalt) : kind === "leads" ? hash(`${data.email}:${data.kind}:${data.bookId}:${data.format}`, config.rateLimitSalt) : randomUUID();
+      if (kind === "leads") {
+        const day = Math.floor(seconds() / 86400);
+        if (!await store.rateLimit(`EMAIL#${hash(data.email, config.rateLimitSalt)}#${day}`, 8, (day+2)*86400)) throw new RequestError(429, "Too many attempts. Please try again later.");
+      }
       await store.persistSubmission(kind, id, { ...data, createdAt: new Date().toISOString(), expiresAt: seconds() + retention * 86400 });
+      if (kind === "leads" && data.kind === "checklist" && config.checklist?.approved && config.checklist?.key) {
+        let delivery = "pending";
+        try { delivery = await deps.sendChecklist(id, data); } catch { /* Durable lead remains accepted; retry can resume delivery. */ }
+        return response(202, { ok: true, accepted: true, delivery }, origin);
+      }
       return response(202, { ok: true, accepted: true }, origin);
     } catch (error) {
       // Never return Stripe/SDK messages, email addresses, tokens, or secret details.

@@ -7,13 +7,28 @@ import { checkoutFor, bundleCheckout, formatPrice, integrationAvailable, submitC
 import { integrationConfig } from './integration-config';
 import { updateSeo } from './seo';
 import { BookCardComponent } from './book-card.component';
+import { LeadFormComponent } from './lead-form.component';
+import { OrderConfirmationComponent } from './order-confirmation.component';
+import { TestimonialsComponent } from './testimonials.component';
+import { funnelConfig } from './funnel-config';
+import { purchaseAction, notificationHref, checkoutHref, selectedCheckout, whatsappUrl, LeadKind, leadsAvailable } from './funnel';
+import { track, analyticsConfigured, analyticsConsent, analyticsPreference } from './analytics';
 import { IconComponent } from './icon.component';
 
-type Page = 'Home'|'Books'|'Book'|'Academy'|'Course'|'Checklist'|'About'|'EAs'|'Contact'|'CheckoutSuccess'|'CheckoutCancel'|'Privacy'|'Terms'|'Refund'|'Resources'|'Lesson'|'FAQ'|'Webinars'|'Checkout'|'Account'|'NotFound';
+type Page = 'Home'|'Books'|'Book'|'Academy'|'Course'|'Checklist'|'About'|'EAs'|'Contact'|'CheckoutSuccess'|'CheckoutCancel'|'Privacy'|'Terms'|'Refund'|'Resources'|'Lesson'|'FAQ'|'Webinars'|'Checkout'|'Account'|'NotFound'|'Launch'|'LeadConfirmation'|'Mentorship'|'Risk'|'Author';
 interface Course {id: number; title: string; description: string; topics: string[]}
 
-@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,BookCardComponent,IconComponent],templateUrl:'./app.component.html',styleUrl:'./app.component.css'})
+@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,BookCardComponent,IconComponent,LeadFormComponent,OrderConfirmationComponent,TestimonialsComponent],templateUrl:'./app.component.html',styleUrl:'./app.component.css'})
 export class AppComponent {
+  funnel = funnelConfig;
+  whatsapp = whatsappUrl();
+  analyticsReady = analyticsConfigured();
+  analyticsChoice = signal(analyticsPreference());
+  leadReceipt = signal<{kind: LeadKind;delivery?:string}|null>(null);
+  launchBook = 'all';
+  launchFormat: 'pdf'|'print'|'undecided' = 'undecided';
+  checkoutSku = '';
+  popupStartedAt = Date.now();
   base = new URL(document.baseURI).pathname;
   books = BOOKS;
   bundle = BUNDLE;
@@ -49,7 +64,7 @@ export class AppComponent {
   startedAt = Date.now(); waitStartedAt = Date.now();
   pages: Page[] = ['Home','Books','Academy','Checklist','About'];
   topics = ['Forex Fundamentals','Technical Analysis','Fundamental Analysis','Risk Management','Trading Psychology','Trading Journals'];
-  paths: Record<Page,string> = {Home:'',Books:'books',Book:'books',Academy:'academy',Course:'courses',Checklist:'checklist',About:'about',EAs:'expert-advisors',Contact:'contact',CheckoutSuccess:'checkout/success',CheckoutCancel:'checkout/cancel',Privacy:'privacy-policy',Terms:'terms',Refund:'refund-policy',Resources:'resources',Lesson:'resources',FAQ:'faq',Webinars:'webinars',Checkout:'checkout',Account:'account',NotFound:'404'};
+  paths: Record<Page,string> = {Home:'',Books:'books',Book:'books',Academy:'academy',Course:'courses',Checklist:'checklist',About:'about',EAs:'expert-advisors',Contact:'contact',CheckoutSuccess:'checkout/success',CheckoutCancel:'checkout/cancel',Privacy:'privacy-policy',Terms:'terms',Refund:'refund-policy',Resources:'resources',Lesson:'resources',FAQ:'faq',Webinars:'webinars',Checkout:'checkout',Account:'account',NotFound:'404',Launch:'launch-notifications',LeadConfirmation:'registration-confirmed',Mentorship:'mentorship',Risk:'risk-disclaimer',Author:'about-author'};
   courses: Course[] = [
     {id:4,title:'Forex Foundations',description:'Currency pairs, market terminology and the essentials of risk.',topics:['Currency pairs, pips and spreads','Reading price and chart structure','Practice and a considered learning plan']},
     {id:5,title:'The AAFXX Method',description:'An introduction to the academy’s focus on chart context and structured study.',topics:['Market structure and context','Moving averages as analytical tools','Disciplined observation and trade review']},
@@ -63,7 +78,7 @@ export class AppComponent {
   ];
   faqs = [
     ['What does each book cost?','Each individual book is listed at USD 27 for PDF or USD 47 for print. The four-book library is USD 97. Bundle format and delivery details will be confirmed before ordering opens.'],
-    ['Can I purchase a book now?','Ordering opens when the payment and delivery arrangements for that edition are ready. The format selector shows the correct price; an unavailable Buy Now button means that edition cannot currently be purchased.'],
+    ['Can I purchase a book now?','Ordering opens when the payment and delivery arrangements for that edition are ready. The format selector shows the correct price; unreleased editions offer launch notifications only. These registrations are not paid pre-orders.'],
     ['How will I receive a PDF or printed book?','Digital delivery will be available only after payment is verified. Print destinations, shipping costs and fulfilment arrangements must be confirmed before print ordering opens. No delivery timeframe is promised here.'],
     ['Where should I begin learning?','Start with the free forex foundations guides. They cover currency pairs, pips, spreads and leverage before you move on to chart context, risk planning and trading discipline.'],
     ['Are courses open for enrolment?','The academy presents proposed learning paths and free introductory reading. Course schedules, teaching formats, final curricula and fees have not yet been confirmed.'],
@@ -77,6 +92,7 @@ export class AppComponent {
 
   constructor(){
     try { this.dark.set(localStorage.getItem('aafxx-theme')!=='light'); } catch {}
+    if(this.analyticsChoice()==='granted')analyticsConsent(true);
     this.setTheme(); this.readLocation();
     window.addEventListener('popstate',()=>{this.resetFilters();this.menu.set(false);this.readLocation();});
     window.addEventListener('seo-origin',()=>this.seo());
@@ -87,7 +103,7 @@ export class AppComponent {
   @HostListener('document:keydown.escape') escape(){if(this.menu()){this.menu.set(false);document.querySelector<HTMLElement>('.menu-toggle')?.focus();}}
   @HostListener('document:click',['$event']) outside(event:MouseEvent){if(this.menu()&&event.target instanceof Element&&!event.target.closest('.site-header'))this.menu.set(false);}
   resetFilters(){this.query.set('');this.topic.set('All');this.level.set('All');this.learningFormat.set('All');}
-  label(p:Page):string{return ({Books:'Books Shop',Academy:'Academy',Checklist:'The Checklist',EAs:'Expert Advisors',Privacy:'Privacy Policy',Terms:'Terms & Conditions',Refund:'Refund Policy',Resources:'Learning Resources',FAQ:'Frequently Asked Questions',CheckoutSuccess:'Checkout status',CheckoutCancel:'Checkout cancelled',NotFound:'Page not found'} as Partial<Record<Page,string>>)[p]||p;}
+  label(p:Page):string{return ({Books:'Books Shop',Academy:'Academy',Checklist:'The Checklist',EAs:'Expert Advisors',Privacy:'Privacy Policy',Terms:'Terms & Conditions',Refund:'Refund Policy',Resources:'Learning Resources',FAQ:'Frequently Asked Questions',CheckoutSuccess:'Checkout status',CheckoutCancel:'Checkout cancelled',NotFound:'Page not found',Launch:'Book Launch Notifications',LeadConfirmation:'Registration Confirmation',Mentorship:'1000 Wealth Creators Mentorship',Risk:'Forex Risk Disclaimer',Author:'About the Author'} as Partial<Record<Page,string>>)[p]||p;}
   href(p:Page){return this.base+(this.paths[p]?this.paths[p]+'/':'');}
   bookHref(b:Book){return this.href('Books')+b.slug+'/';}
   courseHref(c:Course){return this.base+'courses/'+this.meta[c.id].slug+'/';}
@@ -116,8 +132,32 @@ export class AppComponent {
     if(this.page()==='Contact'){this.subject=new URLSearchParams(location.search).get('subject')?.slice(0,200)||'General enquiry';this.startedAt=Date.now();}
     if(this.page()==='EAs')this.waitStartedAt=Date.now();
     if(this.page()==='CheckoutSuccess'){this.recoveryStartedAt=Date.now();const id=new URLSearchParams(location.search).get('session_id')||'';this.recoverySession=/^cs_(?:test_|live_)?[A-Za-z0-9]+$/.test(id)?id:'';}
-    this.seo();
+    if(this.page()==='Launch'){
+      const params=new URLSearchParams(location.search);const id=params.get('book')||'all';
+      this.launchBook=['all',BUNDLE.id,...BOOKS.map(b=>b.id)].includes(id)?id:'all';
+      const format=params.get('format');this.launchFormat=format==='pdf'||format==='print'?format:'undecided';
+    }
+    if(this.page()==='Checkout')this.checkoutSku=new URLSearchParams(location.search).get('sku')||'';
+    if(this.page()==='Book')track('book_viewed',{product:this.book().id});
+    this.seo(); track('page_view');
   }
+  action(){return purchaseAction(this.book(),this.bookFormat(),this.base);}
+  buy(event:MouseEvent){const a=this.action();if(a.available)track('buy_now_clicked',{product:this.book().formats[this.bookFormat()].sku});if(!a.external)this.navigate(a.href,event);}
+  bundleHref(){return this.bundleStatus().available?checkoutHref(this.base,BUNDLE.sku):notificationHref(this.base,BUNDLE.id);}
+  selectBundle(event:Event){if(this.bundleStatus().available)track('buy_now_clicked',{product:BUNDLE.sku});track('bundle_selected',{product:BUNDLE.sku});this.navigate(this.bundleHref(),event);}
+  checkoutSelection(){return selectedCheckout(this.checkoutSku);}
+  beginCheckout(){track('begin_checkout',{product:this.checkoutSku});}
+  notificationHref(){return notificationHref(this.base);}
+  whatsappClick(){track('whatsapp_mentorship_clicked');}
+  registered(receipt:{kind:LeadKind;delivery?:string}){this.leadReceipt.set(receipt);this.go('LeadConfirmation');}
+  setAnalytics(allow:boolean){analyticsConsent(allow);this.analyticsChoice.set(allow?'granted':'denied');}
+  @HostListener('document:mouseout',['$event']) exitIntent(event:MouseEvent){
+    if(event.relatedTarget||event.clientY>0||!['Home','Books'].includes(this.page())||Date.now()-this.popupStartedAt<25000||!matchMedia('(pointer:fine) and (min-width:900px)').matches||!leadsAvailable())return;
+    try{if(sessionStorage.getItem('aafxx-exit-shown'))return;sessionStorage.setItem('aafxx-exit-shown','1');}catch{return;}
+    document.querySelector<HTMLDialogElement>('#checklist-dialog')?.showModal();
+  }
+  closePopup(){document.querySelector<HTMLDialogElement>('#checklist-dialog')?.close();}
+  popupChecklist(event:Event){this.closePopup();this.go('Checklist',event);}
   checkout(){return checkoutFor(this.book(),this.bookFormat());}
   bundleStatus(){return bundleCheckout();}
   bundlePdfSavings(){const b=this.config.payments.bundle;return b.contentsConfirmed&&b.format==='pdf'&&b.includedSkus.length===4&&this.books.every(book=>b.includedSkus.includes(book.formats.pdf.sku));}
@@ -163,6 +203,11 @@ export class AppComponent {
       Webinars:'Check AAFXX live-learning availability and explore free study guides while webinar schedules await confirmation.',
       Checkout:'AAFXX purchasing uses configured book-specific checkout links. Find your chosen edition and its current availability in the Books Shop.',
       Account:'Explore AAFXX free learning resources without an account. Account services and paid learning access are not currently available.',
+      Launch:'Register for AAFXX book launch notifications, planned for November 2026. Choose a book and preferred format. No payment or Amazon reservation is taken.',
+      LeadConfirmation:'Review the status of your AAFXX launch, checklist or mentorship registration. Registration does not confirm a purchase.',
+      Mentorship:'Apply for the AAFXX 1000 Wealth Creators mentorship programme. Explore structured forex education, disciplined learning and the Standard Checklist.',
+      Risk:'Forex trading involves significant financial risk. Read the AAFXX risk disclaimer before using its educational material.',
+      Author:'Meet Prince Prof. Berthram Chidi Eke, founder of AAFXX Anybody Wins Trading Academy, and explore the four-book learning collection.',
       NotFound:'The requested AAFXX page could not be found. Return to the Books Shop, academy or learning resources.',
     };
     const titles:Partial<Record<Page,string>>={Home:'AAFXX | Anybody Wins Trading Academy & Books',Books:'Books Shop | AAFXX Trading Library',Academy:'Forex Education & Learning Paths | AAFXX Academy',Checklist:'The AAFXX Standard Checklist | Anybody Wins',About:'Our Founder & Mission | AAFXX',EAs:'Expert Advisors — Coming 2027 | AAFXX'};
@@ -172,6 +217,6 @@ export class AppComponent {
     else if(this.page()==='Course')crumbs.push({name:'Academy',path:this.href('Academy')},{name:this.course().title,path:this.courseHref(this.course())});
     else if(this.page()==='Lesson')crumbs.push({name:'Resources',path:this.href('Resources')},{name:this.lesson().title,path:this.lessonHref(this.lesson().slug)});
     else if(this.page()!=='Home')crumbs.push({name:this.label(this.page()),path:this.canonicalPath()});
-    updateSeo({title,description:descriptions[this.page()],path:this.canonicalPath(),noindex:['CheckoutSuccess','CheckoutCancel','Checkout','Account','NotFound','Refund','Privacy','Terms'].includes(this.page()),breadcrumbs:crumbs,learningResource:this.page()==='Lesson',...(this.page()==='Book'?{book:{id:this.book().id,title:this.book().title,subtitle:this.book().subtitle,description:this.book().description,author:this.book().author,cover:this.book().cover,offers:(['pdf','print'] as BookFormat[]).flatMap(format=>{const c=checkoutFor(this.book(),format);return c.available&&c.environment==='live'&&c.url?[{sku:c.sku,format,price:this.book().formats[format].price,url:c.url}]:[]})}}:{})});
+    updateSeo({title,description:descriptions[this.page()],path:this.canonicalPath(),noindex:['CheckoutSuccess','CheckoutCancel','Checkout','Account','NotFound','Refund','Privacy','Terms','LeadConfirmation','Launch'].includes(this.page()),breadcrumbs:crumbs,learningResource:this.page()==='Lesson',...(this.page()==='Book'?{book:{id:this.book().id,title:this.book().title,subtitle:this.book().subtitle,description:this.book().description,author:this.book().author,cover:this.book().cover,offers:(['pdf','print'] as BookFormat[]).flatMap(format=>{const c=checkoutFor(this.book(),format);return format==='pdf'&&c.available&&c.environment==='live'&&c.url?[{sku:c.sku,format,price:this.book().formats[format].price,url:c.url}]:[]})}}:{})});
   }
 }

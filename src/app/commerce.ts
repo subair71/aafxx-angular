@@ -32,7 +32,7 @@ function runtimeContext(): CheckoutContext {
 }
 
 export function formatPrice(amount: number): string {
-  return `USD ${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(amount)}`;
+  return `$${new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 }).format(amount)}`;
 }
 
 function checkoutReference(
@@ -66,7 +66,7 @@ export function checkoutFor(book: Book, format: BookFormat, config: IntegrationC
   const ready = format === "pdf"
     ? config.payments.digital.privateDeliveryReady && config.payments.digital.contentReadySkus.includes(variant.sku)
     : config.payments.print.fulfilmentReady && config.payments.print.shippingReadySkus.includes(variant.sku);
-  if (!ready) return { ...result, available: false, url: null, message: format === "pdf" ? "PDF purchasing is not available yet." : "Printed editions are not available to order yet.", reason: format === "pdf" ? "digital-delivery-not-ready" : "print-fulfilment-not-ready" };
+  if (!ready) return { ...result, available: false, url: null, message: format === "pdf" ? "Register for the eBook launch notification. No payment is collected." : "Amazon launch planned for November 2026. Register for updates; no payment is collected.", reason: format === "pdf" ? "digital-delivery-not-ready" : "print-fulfilment-not-ready" };
   return result;
 }
 
@@ -127,8 +127,8 @@ function validApiBase(value: string): boolean {
   } catch { return false; }
 }
 
-export function integrationAvailable(kind: "contact" | "waitlist", config: IntegrationConfig = integrationConfig): boolean {
-  return config.forms.privacyApproved && Boolean(config.forms.privacyVersion.trim()) && config.forms[kind === "contact" ? "contactReady" : "waitlistReady"] && validApiBase(config.forms.apiBase);
+export function integrationAvailable(kind: "contact" | "waitlist" | "leads", config: IntegrationConfig = integrationConfig): boolean {
+  return config.forms.privacyApproved && Boolean(config.forms.privacyVersion.trim()) && config.forms[kind === "contact" ? "contactReady" : kind === "leads" ? "leadsReady" : "waitlistReady"] && validApiBase(config.forms.apiBase);
 }
 
 async function submit(kind: "contact" | "waitlist", data: FormSubmission | ContactSubmission, config: IntegrationConfig, fetcher: typeof fetch): Promise<SubmissionResult> {

@@ -28,8 +28,8 @@ export const AUTHOR = "Prince Prof. Berthram Chidi Eke";
 
 function variants(number: number): Readonly<Record<BookFormat, BookVariant>> {
   return {
-    pdf: { sku: `aafxx-book-${number}-pdf`, label: "PDF", price: 27, currency: "USD" },
-    print: { sku: `aafxx-book-${number}-print`, label: "Print", price: 47, currency: "USD" },
+    pdf: { sku: `aafxx-book-${number}-pdf`, label: "eBook (PDF)", price: 27, currency: "USD" },
+    print: { sku: `aafxx-book-${number}-print`, label: "Paperback", price: 47, currency: "USD" },
   };
 }
 

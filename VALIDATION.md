@@ -79,3 +79,14 @@ On the recorded baseline, the accessibility script completed all 16 scans across
 - **Hosting:** no `dev-aafxx` Amplify branch deployment or actual preview URL has been verified. Shared rewrite rules, route HTML, asset MIME types and HTTP 404 status require testing on the deployed branch. Production DNS is unchanged.
 
 Production availability, delivery, security and performance must be reported from observed integration results. A repository push, local test, browser redirect, successful build or generic hostname does not establish those outcomes.
+
+## Sales funnel update — 24 October 2026
+
+- Production Angular compilation passed; initial estimated transfer is about 105 kB.
+- Build configuration (7), commerce (9), sales funnel (5) and backend (21) tests passed: **42 tests total**. Backend syntax checks and `git diff --check` passed.
+- Cloud Chrome verified the home/shop pricing, four-book cards, paperback selector changing to $47, correct book/format launch-registration destination, bundle interest destination, pending registration messaging and actual supplied author photograph.
+- A temporary iframe harness rendered the catalogue at 320 / 390 / 768 px. The DOM widths were 305 / 375 / 753 px after scrollbars; each matched its scroll width (no horizontal overflow). The 390 px bundle action displayed the bundle-specific registration note.
+- Real device Safari, Firefox and Edge were not available. Do not interpret responsive Chromium rendering as native iPhone verification.
+- Local browser automation/prerender was blocked by Chromium extraction/runtime failure in this executor (`EINVAL chown /tmp/fonts`, then empty Chromium executable). Automated local SEO/UI/axe results are **not claimed**. Existing GitHub CI retains those checks and now includes the new funnel suite.
+- Temporary QA harnesses and route shells live only in ignored build output; they are not shipped or used as proof of production prerender success.
+- Paid delivery, cloud lead persistence, signed production webhooks, email delivery and live Amazon URLs remain unverified and disabled pending merchant setup. See `docs/SALES_FUNNEL.md` for exact destinations and all pending inputs.

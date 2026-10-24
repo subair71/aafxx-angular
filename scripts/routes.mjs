@@ -9,13 +9,13 @@ export const courseSlugs = ["forex-foundations", "the-aafxx-method", "risk-and-t
 export const lessonSlugs = ["forex-basics", "pips-and-spreads", "leverage-and-margin", "reading-market-structure", "fundamental-analysis", "risk-planning", "trading-psychology", "trading-journal"];
 export const routes = [
   "", "books", ...bookSlugs.map((slug) => `books/${slug}`),
-  "academy", "checklist", "about", "expert-advisors", "contact",
+  "academy", "checklist", "about", "about-author", "mentorship", "risk-disclaimer", "launch-notifications", "registration-confirmed", "expert-advisors", "contact",
   "checkout/success", "checkout/cancel", "privacy-policy", "terms", "refund-policy",
   "resources", ...lessonSlugs.map((slug) => `resources/${slug}`),
   ...courseSlugs.map((slug) => `courses/${slug}`),
   "webinars", "faq", "checkout", "account", "404",
 ];
-export const privateRoutes = ["checkout", "checkout/success", "checkout/cancel", "account", "404", "privacy-policy", "terms", "refund-policy"];
+export const privateRoutes = ["registration-confirmed", "launch-notifications", "checkout", "checkout/success", "checkout/cancel", "account", "404", "privacy-policy", "terms", "refund-policy"];
 export const redirects = {
   courses: "academy", privacy: "privacy-policy", strategies: "checklist", achievements: "about",
   "books/why-they-call-me-prof": "books",

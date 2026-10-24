@@ -11,7 +11,7 @@ const now = () => Math.floor(Date.now() / 1000);
 function fixture() {
   const product = { enabled: true, sku: "aafxx-book-1-pdf", title: "ANYBODY WINS ANYTIME, ANYDAY, ANYWHERE", stripePriceId: "price_pdf1", stripeProductId: "prod_pdf1", stripePaymentLinkId: "plink_pdf1", priceCents: 2700, format: "pdf", fulfilmentApproved: true, files: [{ sku: "aafxx-book-1-pdf", key: "paid-content/book-1.pdf", filename: "AAFXX-Book-1.pdf" }] };
   const config = { mode: "test", paymentsEnabled: true, contactEnabled: true, waitlistEnabled: true, privacyVersion: "2026-10-23", contactRetentionDays: 90, waitlistRetentionDays: 365, rateLimitSalt: "R".repeat(44), downloadTokenSecret: "D".repeat(44), testRecipientAllowlist: ["reader@example.test"], products: [product], allowedOrigins: [origin], publicApiBase: "https://api.example.test" };
-  let session = { id: "cs_test_fixture1", mode: "payment", livemode: false, currency: "usd", payment_status: "paid", payment_link: "plink_pdf1", amount_subtotal: 2700, amount_total: 2700, total_details: { amount_tax: 0, amount_shipping: 0, amount_discount: 0 }, customer_details: { email: "reader@example.test" }, line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 2700, price: { id: "price_pdf1", product: "prod_pdf1", currency: "usd", unit_amount: 2700, type: "one_time" } }] } };
+  let session = { id: "cs_test_fixture1", mode: "payment", livemode: false, currency: "usd", payment_status: "paid", status: "complete", payment_link: "plink_pdf1", amount_subtotal: 2700, amount_total: 2700, total_details: { amount_tax: 0, amount_shipping: 0, amount_discount: 0 }, customer_details: { email: "reader@example.test" }, line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 2700, price: { id: "price_pdf1", product: "prod_pdf1", currency: "usd", unit_amount: 2700, type: "one_time" } }] } };
   const records = new Map(), submissions = new Map(), receipts = [], signed = [];
   const store = {
     rateLimit: async () => true,
@@ -257,4 +257,59 @@ test("mixed bundles grant only their explicitly selected digital editions", () =
   assert.equal(validateSession(s, f.config).product.files.length, 2);
   f.product.files.push({ sku: "aafxx-book-3-pdf", key: "paid-content/book-3.pdf", filename: "Book-3.pdf" });
   assert.throws(() => validateSession(s, f.config));
+});
+
+test('launch leads persist the selected book, preferred format, name and versioned consent; repeated selection deduplicates', async () => {
+  const f=fixture(); Object.assign(f.config,{leadsEnabled:true,leadsRetentionDays:365});
+  const lead={...submission(),kind:'books',bookId:'aafxx-book-2',format:'print',country:'Bahrain'};
+  assert.equal((await f.api(request('/leads',lead))).statusCode,202);
+  assert.equal((await f.api(request('/leads',lead))).statusCode,202);
+  assert.equal(f.submissions.size,1);
+  const record=[...f.submissions.values()][0];
+  assert.equal(record.bookId,'aafxx-book-2');assert.equal(record.format,'print');assert.equal(record.name,'A reader');assert.equal(record.consent,true);
+  await f.api(request('/leads',{...lead,bookId:'aafxx-complete-library',format:'undecided'}));
+  assert.equal(f.submissions.size,2);
+});
+test('lead gates, invalid selections, missing consent and storage failure never claim registration',async()=>{
+  const f=fixture();const lead={...submission(),kind:'books',bookId:'all',format:'undecided',country:''};
+  assert.equal((await f.api(request('/leads',lead))).statusCode,503);
+  Object.assign(f.config,{leadsEnabled:true,leadsRetentionDays:365});
+  for(const change of [{name:''},{bookId:'fake'},{format:'bundle-pdf'},{kind:'unknown'},{consent:false},{country:'x'.repeat(81)},{kind:'checklist',bookId:'aafxx-book-1'}])assert.equal((await f.api(request('/leads',{...lead,...change}))).statusCode,400);
+  f.store.persistSubmission=async()=>{throw new Error('offline');};
+  assert.equal(body(await f.api(request('/leads',lead))).accepted,false);
+});
+test('checklist registration never fabricates download delivery; approved email failures retain a durable request',async()=>{
+  const f=fixture();Object.assign(f.config,{leadsEnabled:true,leadsRetentionDays:365});
+  const lead={...submission(),kind:'checklist',bookId:'all',format:'undecided',country:''};
+  let sends=0;f.deps.sendChecklist=async()=>{sends++;return 'sent';};
+  let result=body(await f.api(request('/leads',lead)));assert.equal(result.accepted,true);assert.equal(result.delivery,undefined);assert.equal(sends,0);
+  f.config.checklist={approved:true,key:'free-content/checklist.pdf'};
+  result=body(await f.api(request('/leads',lead)));assert.equal(result.delivery,'sent');assert.equal(sends,1);
+  f.deps.sendChecklist=async()=>{throw new Error('SES unavailable');};
+  result=body(await f.api(request('/leads',lead)));assert.equal(result.accepted,true);assert.equal(result.delivery,'pending');assert.equal(f.submissions.size,1);
+});
+test('order-status reveals no payment success for a forged redirect, mismatched email, pending/failed/revoked order or open session',async()=>{
+  const f=fixture();const query={sessionId:f.session.id,email:'reader@example.test'};
+  assert.equal(body(await f.api(request('/order-status',query))).status,'unconfirmed');
+  await f.api(f.webhook());
+  assert.equal(body(await f.api(request('/order-status',{...query,email:'different@example.test'}))).status,'unconfirmed');
+  for(const paymentStatus of ['pending','failed','revoked']){f.records.get(f.session.id).paymentStatus=paymentStatus;assert.equal(body(await f.api(request('/order-status',query))).status,'unconfirmed');}
+  f.records.get(f.session.id).paymentStatus='paid';f.session.status='open';assert.equal(body(await f.api(request('/order-status',query))).status,'unconfirmed');
+  f.session.status='complete';f.session.payment_status='unpaid';assert.equal(body(await f.api(request('/order-status',query))).status,'unconfirmed');
+});
+test('order-status rechecks the provider, returns only paid entitlements and excludes customer PII from analytics payload',async()=>{
+  const f=fixture();await f.api(f.webhook());
+  const result=body(await f.api(request('/order-status',{sessionId:f.session.id,email:'reader@example.test'})));
+  assert.equal(result.status,'paid');assert.equal(result.order.amountTotal,2700);assert.equal(result.order.files.length,1);assert.match(result.order.transactionId,/^[a-f0-9]{64}$/);
+  assert.equal(result.order.email,undefined);assert.equal(result.order.sessionId,undefined);assert.equal(result.order.shippingDetails,undefined);
+  const token=new URL(result.order.files[0].url).searchParams.get('token');assert.equal(readDownloadToken(token,f.config.downloadTokenSecret).order,f.session.id);
+  f.records.get(f.session.id).downloadExpiresAt=now()-10;
+  const expired=body(await f.api(request('/order-status',{sessionId:f.session.id,email:'reader@example.test'})));assert.equal(expired.status,'paid');assert.equal(expired.order.files.length,0);
+});
+test('revocation during provider verification and provider outages cannot unlock order downloads',async()=>{
+  const f=fixture();await f.api(f.webhook());const query={sessionId:f.session.id,email:'reader@example.test'};
+  f.deps.retrieveSession=async()=>{f.records.get(f.session.id).paymentStatus='revoked';return f.session;};
+  assert.equal(body(await f.api(request('/order-status',query))).status,'unconfirmed');
+  f.records.get(f.session.id).paymentStatus='paid';f.deps.retrieveSession=async()=>{throw new Error('provider unavailable');};
+  const result=await f.api(request('/order-status',query));assert.equal(result.statusCode,503);assert.equal(body(result).ok,false);
 });
