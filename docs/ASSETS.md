@@ -11,18 +11,24 @@ Cover identity was determined from the visible title, rather than archive order 
 | Original filename | Visible identity | Retained original | Public primary asset |
 | --- | --- | --- | --- |
 | `WhatsApp Image 2026-10-23 at 3.58.02 PM(1).jpeg` | AAFXX logo | `design-assets/originals/aafxx-logo-original.jpeg` | `public/assets/brand/aafxx-logo.svg` |
-| `WhatsApp Image 2026-10-23 at 3.58.35 PM.jpeg` | ANYBODY WINS ANYTIME, ANYDAY, ANYWHERE | `design-assets/originals/book-1-original.jpeg` | `public/assets/books/book-1.webp` |
-| `WhatsApp Image 2026-10-23 at 3.58.35 PM (1).jpeg` | FOREX LOW IN, MIDDLE OUT | `design-assets/originals/book-2-original.jpeg` | `public/assets/books/book-2.webp` |
-| `WhatsApp Image 2026-10-23 at 3.58.35 PM (3).jpeg` | BBB FLOW & LEADER ALIGNMENT | `design-assets/originals/book-3-original.jpeg` | `public/assets/books/book-3.webp` |
-| `WhatsApp Image 2026-10-23 at 3.58.35 PM (2).jpeg` | PROF STANDARD | `design-assets/originals/book-4-original.jpeg` | `public/assets/books/book-4.webp` |
+| `WhatsApp Image 2026-10-23 at 3.58.35 PM.jpeg` | ANYBODY WINS ANYTIME, ANYDAY, ANYWHERE | `design-assets/originals/book-1-original.jpeg` | `public/assets/books/book-1.jpg` |
+| `WhatsApp Image 2026-10-23 at 3.58.35 PM (1).jpeg` | FOREX LOW IN, MIDDLE OUT | `design-assets/originals/book-2-original.jpeg` | `public/assets/books/book-2.jpg` |
+| `WhatsApp Image 2026-10-23 at 3.58.35 PM (3).jpeg` | BBB FLOW & LEADER ALIGNMENT | `design-assets/originals/book-3-original.jpeg` | `public/assets/books/book-3.jpg` |
+| `WhatsApp Image 2026-10-23 at 3.58.35 PM (2).jpeg` | PROF STANDARD | `design-assets/originals/book-4-original.jpeg` | `public/assets/books/book-4.jpg` |
 
 ## Web derivatives and metadata
 
-Each book has a primary WebP and a 480-pixel-wide card variant at `public/assets/books/book-N-480.webp`. The cover artwork, visible title and proportions are preserved.
+Each book has a primary JPEG (an exact copy of the original) and an optimized 480-pixel-wide JPEG card variant at `public/assets/books/book-N-480.jpg`. The cover artwork, visible title and proportions are preserved.
 
-`public/assets/brand/aafxx-logo.svg` embeds an optimized rendition of the supplied logo. Its viewBox removes only the surrounding black whitespace; it does not redraw the lettering or emblem or claim a transparent-background conversion. The complete source JPEG remains available in the originals directory. `public/assets/brand/aafxx-logo-square.webp` provides an 800 × 800 version for production Organization metadata. The favicon displays the supplied crest through a square SVG viewport.
+`public/assets/brand/aafxx-logo.svg` embeds an optimized rendition of the supplied logo. Its viewBox removes only the surrounding black whitespace; it does not redraw the lettering or emblem or claim a transparent-background conversion. The complete source JPEG remains available in the originals directory. `public/assets/brand/aafxx-logo-square.jpg` provides an 800 × 800 version for production Organization metadata. The favicon displays the supplied crest through a square SVG viewport.
 
 With an explicitly configured approved production origin, Book/Product and book social metadata use the corresponding cover, and EducationalOrganization metadata uses the square logo. Development previews remain `noindex` and omit absolute canonical/image URLs and structured data. No production hostname, offer, review or rating is inferred from the supplied artwork.
+
+## Hosting compatibility
+
+On 26 October 2026, the development host returned `200 text/html` for the WebP covers and the `.jpeg` founder biography, while PNG and SVG assets loaded correctly. This behavior is consistent with an SPA rewrite that does not exclude those extensions. Runtime covers, the CSS founder portrait, and the square metadata logo now use `.jpg`, an extension excluded by the [Amplify SPA rewrite example](https://docs.aws.amazon.com/amplify/latest/userguide/redirect-rewrite-examples.html). Existing originals and WebP derivatives are retained.
+
+Run `npm run check:images` after building and prerendering. It reproduces HTML fallback responses for `.webp` and `.jpeg`, then decodes all page images and the CSS portrait on home, shop, four product pages, and both author pages at desktop and mobile widths. After deployment, verify the new `.jpg` requests return `image/jpeg` on the actual host.
 
 ## Content still required
 

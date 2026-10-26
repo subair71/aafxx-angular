@@ -9,6 +9,7 @@
     "prerender:amplify": "node scripts/amplify-prerender.mjs",
     "check:seo": "node scripts/check-seo.mjs",
     "check:ui": "node scripts/check-ui.mjs",
+    "check:images": "node scripts/check-images.mjs",
     "check:a11y": "node scripts/check-accessibility.mjs",
     "check:config": "node scripts/build-config.test.mjs",
     "check:commerce": "node tests/commerce.test.mjs",

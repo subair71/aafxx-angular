@@ -3,7 +3,7 @@ export const funnelConfig = {
   amazon: {} as Record<string, { url: string; asin: string; verified: boolean }>,
   launchLabel: 'Pre-Order on Amazon – Nov 2026',
   author: {
-    photoSource: 'assets/founder-biography.jpeg',
+    photoSource: 'assets/founder-biography.jpg',
     // The supplied artwork contains a genuine portrait. Display it with CSS cropping.
     photoIsBiographyArtwork: true,
     approvedBiography: [] as string[],
