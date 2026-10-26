@@ -73,7 +73,7 @@ export function updateSeo(page: SeoPage): void {
     {
       "@type": "EducationalOrganization", "@id": home + "#academy",
       name: "AAFXX – Anybody Wins Trading Academy", url: home,
-      logo: absolute("assets/brand/aafxx-logo-square.webp"),
+      logo: absolute("assets/brand/aafxx-logo-square.jpg"),
       founder: { "@type": "Person", name: "Prince Prof. Berthram Chidi Eke" },
       address: { "@type": "PostalAddress", addressLocality: "Manama", addressCountry: "BH" },
     },

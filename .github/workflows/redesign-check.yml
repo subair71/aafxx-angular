@@ -30,6 +30,7 @@ jobs:
       - id: prerender
         run: npm run prerender
       - run: npm run check:seo -- --preview
+      - run: npm run check:images
       - run: npm run check:ui
       - run: npm run check:browsers
         if: ${{ !cancelled() && steps.prerender.outcome == 'success' }}
