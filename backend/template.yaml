@@ -1,0 +1,136 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: Optional AAFXX Payment Links fulfilment and consented enquiry/waitlist API. Deploy separately after merchant configuration.
+
+Parameters:
+  DeploymentMode:
+    Type: String
+    Default: test
+    AllowedValues: [test, live]
+  AllowedOrigin:
+    Type: String
+    Description: Exact verified HTTPS branch origin, without trailing slash. Do not use a wildcard.
+    AllowedPattern: '^https://[A-Za-z0-9.-]+$'
+  ConfigSecretArn:
+    Type: String
+    Description: ARN of an existing AWS Secrets Manager secret containing the private integration configuration.
+    AllowedPattern: '^arn:aws[a-z-]*:secretsmanager:[a-z0-9-]+:[0-9]{12}:secret:.+$'
+  SenderEmail:
+    Type: String
+    Description: Merchant-approved, SES-verified sender email. Required before payment fulfilment is enabled.
+  SenderIdentityArn:
+    Type: String
+    Description: ARN of the corresponding SES verified identity.
+
+Resources:
+  Api:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: '$default'
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 20
+        ThrottlingRateLimit: 10
+  Data:
+    Type: AWS::DynamoDB::Table
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: pk
+          AttributeType: S
+      KeySchema:
+        - AttributeName: pk
+          KeyType: HASH
+      SSESpecification:
+        SSEEnabled: true
+      PointInTimeRecoverySpecification:
+        PointInTimeRecoveryEnabled: true
+      TimeToLiveSpecification:
+        AttributeName: expiresAt
+        Enabled: true
+  PrivatePdfs:
+    Type: AWS::S3::Bucket
+    DeletionPolicy: Retain
+    UpdateReplacePolicy: Retain
+    Properties:
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      OwnershipControls:
+        Rules:
+          - ObjectOwnership: BucketOwnerEnforced
+  PrivatePdfsTls:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref PrivatePdfs
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Deny
+            Principal: '*'
+            Action: 's3:*'
+            Resource:
+              - !GetAtt PrivatePdfs.Arn
+              - !Sub '${PrivatePdfs.Arn}/*'
+            Condition:
+              Bool:
+                aws:SecureTransport: false
+  IntegrationFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: .
+      Handler: handler.handler
+      Runtime: nodejs22.x
+      Architectures: [arm64]
+      Timeout: 30
+      MemorySize: 256
+      Environment:
+        Variables:
+          DATA_TABLE: !Ref Data
+          PDF_BUCKET: !Ref PrivatePdfs
+          CONFIG_SECRET_ARN: !Ref ConfigSecretArn
+          DEPLOYMENT_MODE: !Ref DeploymentMode
+          ALLOWED_ORIGINS: !Ref AllowedOrigin
+          SENDER_EMAIL: !Ref SenderEmail
+      Policies:
+        - Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action: ['dynamodb:GetItem', 'dynamodb:PutItem', 'dynamodb:UpdateItem']
+              Resource: !GetAtt Data.Arn
+            - Effect: Allow
+              Action: ['s3:GetObject']
+              Resource:
+                - !Sub '${PrivatePdfs.Arn}/paid-content/*'
+                - !Sub '${PrivatePdfs.Arn}/free-content/*'
+            - Effect: Allow
+              Action: ['secretsmanager:GetSecretValue']
+              Resource: !Ref ConfigSecretArn
+            - Effect: Allow
+              Action: ['ses:SendEmail']
+              Resource: !Ref SenderIdentityArn
+      Events:
+        Proxy:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref Api
+            Path: '/{proxy+}'
+            Method: ANY
+            PayloadFormatVersion: '2.0'
+Outputs:
+  ApiBase:
+    Description: Actual API origin for the public frontend configuration, after deployment.
+    Value: !Sub 'https://${Api}.execute-api.${AWS::Region}.${AWS::URLSuffix}'
+  PrivatePdfBucket:
+    Value: !Ref PrivatePdfs
+  DataTable:
+    Value: !Ref Data

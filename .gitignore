@@ -1,0 +1,10 @@
+
+node_modules/
+dist/
+screenshots/
+.angular/
+.env
+.env.*
+!.env.example
+*.local.json
+.aws-sam/
