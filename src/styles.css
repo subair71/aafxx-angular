@@ -96,4 +96,4 @@ h1:focus { outline:none; }
   --band:#0b0b09;
 }
 body{font-family:var(--sans);letter-spacing:-.005em}
-input,textarea,select{border-radius:4px;background:#0b0b09}
+input,textarea,select{border-radius:4px;background:var(--band)}

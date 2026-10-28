@@ -2,8 +2,31 @@
 
 .purchase-action{width:100%;font-size:11px;line-height:1.6;text-align:center;min-height:48px}.price-guide{font-size:10px;color:var(--gold);line-height:1.7;margin:12px 0}.book-actions{margin-bottom:12px}.format-selector button{padding-inline:10px}
 
-/* Stitch book catalogue treatment */
-:host{border-radius:4px}
-.book-card{background:#111111!important;border-color:#2a2821!important;border-radius:4px!important;box-shadow:none!important}
-.book-card:hover{background:#181818!important;border-color:#6d5b29!important;transform:translateY(-1px)!important}
-.book-cover{background:#0b0b09!important}
+/* Shared collection cards follow the supplied Stitch composition. */
+.book-card{background:var(--surface);border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.book-visual.has-cover{background:var(--band);padding:16px}
+.book-copy{padding:20px 16px}
+.book-copy h3{font:400 22px/28px var(--serif);min-height:84px}
+.book-subtitle{font:400 12px/20px var(--sans);min-height:40px;color:var(--muted)}
+.book-author{font-size:10px;margin-bottom:16px}
+.format-price-row{margin-bottom:8px;gap:6px}
+.format-selector button{font-size:10px;padding:7px;min-width:0}
+.price-guide{font-size:9px;margin-block:8px}
+.book-actions{margin-bottom:4px}
+@media(max-width:600px){
+.book-card{display:grid;grid-template-columns:104px minmax(0,1fr);gap:0 16px;padding:16px}
+.book-visual.has-cover{grid-column:1;grid-row:1/5;align-self:start;padding:0;border:0;background:none}
+.book-visual img{width:104px;aspect-ratio:2/3}
+.book-copy{display:contents}
+.book-copy>.eyebrow,.book-copy>h3,.book-subtitle,.book-author{grid-column:2;min-height:0}
+.book-copy>.eyebrow{font-size:8px;margin:0 0 6px}
+.book-copy>h3{font:400 22px/28px var(--serif);margin:0 0 8px}
+.book-subtitle{font-size:11px;line-height:18px;margin-bottom:8px}
+.book-author{font-size:9px;line-height:16px;margin:0 0 16px}
+.format-price-row,.price-guide,.book-actions,.purchase-action,.availability-note{grid-column:1/-1}
+.format-price-row{margin-top:16px;margin-bottom:8px}
+.format-selector{flex:1;display:flex}.format-selector button{flex:1;min-height:44px}
+.book-price{font-size:22px;margin-left:12px}
+.price-guide{margin:4px 0;font-size:9px}
+.book-actions{margin:0}.availability-note{min-height:0;font-size:9px;margin-top:8px}
+}

@@ -57,7 +57,7 @@
 
 
 /* ===== Stitch pixel-pass: desktop + 390px mobile ===== */
-.site-header{background:rgba(0,0,0,.94);border-bottom-color:#2a2821;backdrop-filter:blur(14px)}
+.site-header{background:rgba(0,0,0,.94);border-bottom-color:var(--line);backdrop-filter:blur(14px)}
 .nav-shell{min-height:64px;gap:20px}
 .brand img{width:118px;max-height:48px}
 #primary-navigation{gap:22px}
@@ -69,24 +69,24 @@
 .hero h1{font-size:56px;line-height:64px;letter-spacing:-.02em;margin-bottom:20px}
 .hero-description{font-size:14px;line-height:1.65;max-width:560px}
 .hero-signature{margin-top:30px}
-.hero-library{background:#0b0b09;border-color:#6d5b29;padding:22px 24px 0;box-shadow:none;border-radius:4px}
-.hero-library::before{inset:7px;border-color:#2a2821}
+.hero-library{background:var(--band);border-color:var(--line-strong);padding:22px 24px 0;box-shadow:none;border-radius:4px}
+.hero-library::before{inset:7px;border-color:var(--line)}
 .library-intro{min-height:116px;padding:22px 0}
 .principles-band>.wrap{min-height:70px}
 .principles-band span{font-size:10px}
 .section-heading{margin-bottom:32px}
-.collection-band,.founder-band{background:#0b0b09}
+.collection-band,.founder-band{background:var(--band)}
 .book-grid{gap:16px}
-.method-grid{border-color:#2a2821;background:#0b0b09}
-.method-card{padding:26px 22px;background:#111;border-color:#2a2821}
-.method-card:hover{background:#181818}
+.method-grid{border-color:var(--line);background:var(--band)}
+.method-card{padding:26px 22px;background:var(--surface);border-color:var(--line)}
+.method-card:hover{background:var(--raised)}
 .method-card h3{font-size:22px;min-height:54px}
-.bundle-block{border-color:#6d5b29;border-radius:4px;background:radial-gradient(ellipse at 20% 0,rgba(212,175,55,.07),transparent 60%),#0b0b09;box-shadow:0 0 30px rgba(212,175,55,.035)}
-.bundle-block::before{border-color:#2a2821}
-.resource-card,.form-panel,.course-card{border-radius:4px;background:#111;border-color:#2a2821;box-shadow:none}
-.resource-card:hover,.course-card:hover{background:#181818;border-color:#6d5b29}
-.mentorship-band{background:#0b0b09;border-block:1px solid #2a2821}
-.site-footer{background:#0b0b09;border-top:1px solid #2a2821}
+.bundle-block{border-color:var(--line-strong);border-radius:4px;background:radial-gradient(ellipse at 20% 0,rgba(212,175,55,.07),transparent 60%),var(--band);box-shadow:0 0 30px rgba(212,175,55,.035)}
+.bundle-block::before{border-color:var(--line)}
+.resource-card,.form-panel,.course-card{border-radius:4px;background:var(--surface);border-color:var(--line);box-shadow:none}
+.resource-card:hover,.course-card:hover{background:var(--raised);border-color:var(--line-strong)}
+.mentorship-band{background:var(--band);border-block:1px solid var(--line)}
+.site-footer{background:var(--band);border-top:1px solid var(--line)}
 
 @media(max-width:900px){
   .nav-shell{min-height:60px}

@@ -14,7 +14,8 @@
     "check:config": "node scripts/build-config.test.mjs",
     "check:commerce": "node tests/commerce.test.mjs",
     "check:funnel": "node tests/funnel.test.mjs",
-    "check:browsers": "node scripts/check-browsers.mjs"
+    "check:browsers": "node scripts/check-browsers.mjs",
+    "check:stitch": "node scripts/check-stitch-layout.mjs"
   },
   "dependencies": {
     "@angular/common": "^20.3.0",

@@ -18,7 +18,7 @@ import { IconComponent } from './icon.component';
 type Page = 'Home'|'Books'|'Book'|'Academy'|'Course'|'Checklist'|'About'|'EAs'|'Contact'|'CheckoutSuccess'|'CheckoutCancel'|'Privacy'|'Terms'|'Refund'|'Resources'|'Lesson'|'FAQ'|'Webinars'|'Checkout'|'Account'|'NotFound'|'Launch'|'LeadConfirmation'|'Mentorship'|'Risk'|'Author';
 interface Course {id: number; title: string; description: string; topics: string[]}
 
-@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,BookCardComponent,IconComponent,LeadFormComponent,OrderConfirmationComponent,TestimonialsComponent],templateUrl:'./app.component.html',styleUrl:'./app.component.css'})
+@Component({selector:'app-root',standalone:true,imports:[CommonModule,FormsModule,BookCardComponent,IconComponent,LeadFormComponent,OrderConfirmationComponent,TestimonialsComponent],templateUrl:'./app.component.html',styleUrls:['./app.component.css','./stitch-layout.css']})
 export class AppComponent {
   funnel = funnelConfig;
   whatsapp = whatsappUrl();
@@ -85,7 +85,9 @@ export class AppComponent {
     ['When will the Expert Advisors launch?','The planned release year is 2027. The Expert Advisors page is for launch interest only. There are no EA purchases, prices or verified performance results available here.'],
     ['Does the academy guarantee trading results?','No. Anybody Wins is the brand tagline and 1000 Wealth Creators is an educational aspiration. Forex and leveraged trading involve risk, and education does not guarantee financial outcomes.'],
   ];
-  visibleBooks = computed(()=>BOOKS.filter(b=>(b.title+' '+b.subtitle+' '+b.topics.join(' ')).toLowerCase().includes(this.query().trim().toLowerCase())));
+  bookTopic = signal(0);
+  bookFilters = [{value:0,label:'All Volumes (4)'},{value:1,label:'Checklist & Foundational'},{value:2,label:'Execution (5M/15M)'},{value:3,label:'Trend & Alignment'},{value:4,label:'Mentorship Playbook'}];
+  visibleBooks = computed(()=>BOOKS.filter(b=>(this.bookTopic()===0||b.number===this.bookTopic())&&(b.title+' '+b.subtitle+' '+b.topics.join(' ')).toLowerCase().includes(this.query().trim().toLowerCase())));
   visibleCourses = computed(()=>this.courses.filter(c=>(c.title+' '+c.description+' '+this.meta[c.id].topic).toLowerCase().includes(this.query().trim().toLowerCase())&&(this.topic()==='All'||this.meta[c.id].topic===this.topic())&&(this.level()==='All'||this.meta[c.id].level===this.level())&&(this.learningFormat()==='All'||this.learningFormat()==='To be confirmed')));
   filteredLessons = computed(()=>lessons.filter(l=>(this.topic()==='All'||l.category===this.topic())&&(l.title+' '+l.category).toLowerCase().includes(this.query().trim().toLowerCase())));
   relatedBooks = computed(()=>BOOKS.filter(b=>b.id!==this.book().id));
@@ -102,7 +104,7 @@ export class AppComponent {
   toggleMenu(){this.menu.update(v=>!v);if(this.menu())setTimeout(()=>document.querySelector<HTMLElement>('#primary-navigation a')?.focus());}
   @HostListener('document:keydown.escape') escape(){if(this.menu()){this.menu.set(false);document.querySelector<HTMLElement>('.menu-toggle')?.focus();}}
   @HostListener('document:click',['$event']) outside(event:MouseEvent){if(this.menu()&&event.target instanceof Element&&!event.target.closest('.site-header'))this.menu.set(false);}
-  resetFilters(){this.query.set('');this.topic.set('All');this.level.set('All');this.learningFormat.set('All');}
+  resetFilters(){this.bookTopic.set(0);this.query.set('');this.topic.set('All');this.level.set('All');this.learningFormat.set('All');}
   label(p:Page):string{return ({Books:'Books Shop',Academy:'Academy',Checklist:'The Checklist',EAs:'Expert Advisors',Privacy:'Privacy Policy',Terms:'Terms & Conditions',Refund:'Refund Policy',Resources:'Learning Resources',FAQ:'Frequently Asked Questions',CheckoutSuccess:'Checkout status',CheckoutCancel:'Checkout cancelled',NotFound:'Page not found',Launch:'Book Launch Notifications',LeadConfirmation:'Registration Confirmation',Mentorship:'1000 Wealth Creators Mentorship',Risk:'Forex Risk Disclaimer',Author:'About the Author'} as Partial<Record<Page,string>>)[p]||p;}
   href(p:Page){return this.base+(this.paths[p]?this.paths[p]+'/':'');}
   bookHref(b:Book){return this.href('Books')+b.slug+'/';}
