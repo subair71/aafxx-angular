@@ -71,6 +71,6 @@ export const integrationConfig: IntegrationConfig = {
     founderPhoto: null,
     email: "",
     whatsapp: "",
-    social: { instagram: "", youtube: "", tiktok: "" },
+    social: { instagram: "https://www.instagram.com/aafxx_official/", youtube: "https://www.youtube.com/@aafxx_official", tiktok: "https://www.tiktok.com/@aafxx_official" },
   },
 };

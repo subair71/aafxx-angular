@@ -8,7 +8,7 @@
 #primary-navigation{gap:24px}
 #primary-navigation>a{font-size:13px}
 .header-shop{font-size:11px;text-transform:uppercase}
-.hero-copy{animation:none}
+.hero-copy{animation:none;min-width:0}
 .hero{grid-template-columns:minmax(0,1fr) minmax(0,1fr);padding-block:96px;gap:64px}
 .hero .hero-kicker{display:inline-flex;padding:4px 12px;border:1px solid var(--line-strong);border-radius:3px;background:var(--surface);font-size:10px;letter-spacing:1.5px;margin-bottom:24px}
 .hero h1{font-size:56px;line-height:1;letter-spacing:-.02em;margin-bottom:12px}
@@ -118,7 +118,7 @@
 }
 @media(max-width:600px){
   .hero{padding-block:32px 40px;gap:28px}.hero .hero-kicker{font-size:8px;letter-spacing:1px;padding:0;border:0;background:none;margin-bottom:20px}
-  .hero h1{font-size:36px;line-height:44px;margin-bottom:16px}.hero h1 br{display:none}.hero-motto{display:none}.hero-description{font-size:16px;line-height:26px}
+  .hero h1{font-size:36px;line-height:44px;margin-bottom:16px}.hero h1 br{display:initial}.hero-motto{display:none}.hero-description{font-size:16px;line-height:26px}
   .hero .button-row{display:grid;gap:8px;margin-top:20px}.hero .button{font-size:12px;width:100%;min-height:48px}
   .hero-signature{padding:16px 12px;margin-top:24px;background:var(--surface);border:1px solid var(--line);border-radius:4px;gap:10px}.hero-signature strong{font-size:12px;line-height:20px}.hero-signature span{font-size:7px;letter-spacing:.7px}.hero-signature>app-icon{width:32px;height:32px;flex:none}
   .showcase-label{display:flex;justify-content:space-between;gap:8px;font-size:8px;color:var(--gold);letter-spacing:.5px;margin-bottom:16px}.showcase-label small{font-size:8px;color:var(--muted)}

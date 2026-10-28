@@ -1,3 +1,5 @@
+> Superseded for book purchasing by the October 28 Phase 1 brief: both PDF and print use Stripe. The Amazon launch date and paperback-only Amazon routing below are historical. See [PHASE_1_STATUS.md](PHASE_1_STATUS.md).
+
 # AAFXX sales funnel delivery — 24 October 2026
 
 Implemented on `dev-aafxx`, starting from `3ea7194`. No merge into `develop` or `main` is part of this change.

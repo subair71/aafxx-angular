@@ -22,7 +22,7 @@ const { checkoutFor, bundleCheckout, resolveCheckoutProvider, submitContact, sub
 const context = { preview: true, environment: "test" };
 
 
-const { amazonFor, whatsappUrl, submitLead, verifyOrder, selectedCheckout } = require(join(directory, 'funnel.js'));
+const { amazonFor, whatsappUrl, submitLead, verifyOrder, selectedCheckout, purchaseAction } = require(join(directory, 'funnel.js'));
 const { funnelConfig } = require(join(directory,'funnel-config.js'));
 const readyForms = () => {const c=structuredClone(integrationConfig);Object.assign(c.forms,{apiBase:'https://api.example.test',leadsReady:true,privacyApproved:true});return c;};
 const lead=()=>({name:'Reader',email:'reader@example.test',country:'',kind:'books',bookId:'all',format:'undecided',consent:true,website:'',startedAt:Date.now()-5000});
@@ -55,6 +55,36 @@ test('browser order verification cannot infer success from parameters and reject
   await assert.rejects(verifyOrder('cs_test_x','reader@example.test',integrationConfig,response({ok:true,status:'paid',order})));
 });
 test('unconfigured and unknown checkout selections never supply a functioning payment URL',()=>{
-  assert.equal(selectedCheckout('made-up'),null);assert.equal(selectedCheckout(BOOKS[0].formats.print.sku),null);
+  assert.equal(selectedCheckout('made-up'),null);assert.equal(selectedCheckout(BOOKS[0].formats.print.sku).state.available,false);
+  assert.equal(selectedCheckout(BOOKS[0].formats.print.sku).price,47);
   assert.equal(selectedCheckout(BOOKS[0].formats.pdf.sku).state.available,false);assert.equal(selectedCheckout(BUNDLE.sku).state.url,null);
+});
+
+// Both formats now use the same Stripe review flow; paperback must not fall
+// through to an old Amazon promotion or accidentally buy the PDF edition.
+test('all eight PDF and print buttons resolve the selected Stripe SKU, amount and edition',()=>{
+  const c=structuredClone(integrationConfig);
+  Object.assign(c.payments,{policiesApproved:true,verifiedPaymentWorkflowReady:true});
+  c.payments.digital.privateDeliveryReady=true;c.payments.print.fulfilmentReady=true;
+  for(const book of BOOKS) for(const format of ['pdf','print']){
+    const v=book.formats[format];
+    c.payments.links[v.sku]={test:{url:`https://buy.stripe.com/test_Book${book.number}${format}`,sku:v.sku,environment:'test',stripeProductId:`prod_Book${book.number}${format}`,stripePriceId:`price_Book${book.number}${format}`,amountCents:v.price*100,currency:'usd',merchantVerified:true}};
+    c.payments.digital.contentReadySkus.push(v.sku);c.payments.print.shippingReadySkus.push(v.sku);
+    const a=purchaseAction(book,format,'/aafxx-angular/',c,context);
+    assert.equal(a.available,true);assert.equal(a.external,false);
+    assert.equal(a.href,`/aafxx-angular/checkout/?sku=${v.sku}`);
+    assert.equal(a.label,`Buy ${format==='pdf'?'PDF':'Print'} — $${v.price}`);
+    const selected=selectedCheckout(v.sku,c,context);
+    assert.equal(selected.price,v.price);assert.equal(selected.title,book.title);
+    assert.equal(selected.format,format==='pdf'?'eBook (PDF)':'Print');
+    assert.equal(selected.state.url,c.payments.links[v.sku].test.url);
+  }
+});
+test('unconfigured purchase buttons retain honest notification destinations for each format',()=>{
+  for(const book of BOOKS) for(const format of ['pdf','print']){
+    const a=purchaseAction(book,format,'/');
+    assert.equal(a.available,false);
+    assert.equal(a.href,`/launch-notifications/?book=${book.id}&format=${format}`);
+    assert.doesNotMatch(a.label,/Amazon|Pre-Order/);
+  }
 });

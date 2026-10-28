@@ -23,7 +23,7 @@
 .book-copy>h3{font:400 22px/28px var(--serif);margin:0 0 8px}
 .book-subtitle{font-size:11px;line-height:18px;margin-bottom:8px}
 .book-author{font-size:9px;line-height:16px;margin:0 0 16px}
-.format-price-row,.price-guide,.book-actions,.purchase-action,.availability-note{grid-column:1/-1}
+.format-price-row,.price-guide,.book-actions,.purchase-action,.availability-note,.notification-action{grid-column:1/-1}
 .format-price-row{margin-top:16px;margin-bottom:8px}
 .format-selector{flex:1;display:flex}.format-selector button{flex:1;min-height:44px}
 .book-price{font-size:22px;margin-left:12px}

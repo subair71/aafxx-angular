@@ -205,7 +205,7 @@ export class AppComponent {
       Webinars:'Check AAFXX live-learning availability and explore free study guides while webinar schedules await confirmation.',
       Checkout:'AAFXX purchasing uses configured book-specific checkout links. Find your chosen edition and its current availability in the Books Shop.',
       Account:'Explore AAFXX free learning resources without an account. Account services and paid learning access are not currently available.',
-      Launch:'Register for AAFXX book launch notifications, planned for November 2026. Choose a book and preferred format. No payment or Amazon reservation is taken.',
+      Launch:'Register for AAFXX book ordering updates. Choose a book and preferred format. No payment is taken.',
       LeadConfirmation:'Review the status of your AAFXX launch, checklist or mentorship registration. Registration does not confirm a purchase.',
       Mentorship:'Apply for the AAFXX 1000 Wealth Creators mentorship programme. Explore structured forex education, disciplined learning and the Standard Checklist.',
       Risk:'Forex trading involves significant financial risk. Read the AAFXX risk disclaimer before using its educational material.',

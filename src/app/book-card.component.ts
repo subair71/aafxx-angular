@@ -35,8 +35,8 @@ import { IconComponent } from './icon.component';
         </div>
         <p class="price-guide">EBOOK: $27 | PAPERBACK: $47<br />BUNDLE (4 Books): $97</p>
         <div class="book-actions"><a class="text-link" [href]="href" (click)="open($event)">View Details <app-icon name="arrow-up-right" /></a></div>
-        <a class="button gold purchase-action" [href]="action().href" (click)="purchase($event)" [attr.rel]="action().external?'noopener noreferrer':null">{{action().label}} <app-icon name="arrow-right" /></a>
-        @if(!action().available){<p class="availability-note">Launch notification only. No payment collected.</p>}
+        @if(action().available){<a class="button gold purchase-action" [href]="action().href" (click)="purchase($event)">{{action().label}} <app-icon name="arrow-right" /></a><p class="availability-note">Secure checkout with Stripe.</p>}
+        @else{<button type="button" class="button gold purchase-action" disabled>{{action().label}}</button><p class="availability-note">Stripe checkout is not open yet. No payment is collected.</p><a class="text-link notification-action" [href]="action().href" (click)="purchase($event)">Notify me when ordering opens <app-icon name="arrow-right" /></a>}
       </div>
     </article>`,
   styleUrl: './book-card.component.css',

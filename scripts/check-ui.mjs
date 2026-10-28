@@ -27,8 +27,10 @@ try {
     await card.getByRole("button", {name: "Paperback", exact: true}).click();
     assert.equal(await card.getByRole("button", {name: "Paperback", exact: true}).getAttribute("aria-pressed"), "true");
     assert.match(await card.locator(".book-price").innerText(), /47/);
-    assert.match(await card.locator(".purchase-action").getAttribute("href"), /launch-notifications\/\?book=aafxx-book-[1-4]&format=print/);
-    assert.match(await card.locator(".purchase-action").innerText(), /Pre-Order on Amazon/);
+    assert.match(await card.locator(".notification-action").getAttribute("href"), /launch-notifications\/\?book=aafxx-book-[1-4]&format=print/);
+    assert.match(await card.locator(".purchase-action").innerText(), /Buy Print — \$47/);
+    assert.equal(await card.locator(".purchase-action").isDisabled(), true);
+    assert.equal(await card.locator(".purchase-action").getAttribute("href"), null);
     await card.getByRole("button", {name: "eBook", exact: true}).click();
     assert.match(await card.locator(".book-price").innerText(), /27/);
   }
@@ -45,7 +47,9 @@ try {
     await page.reload();
     assert.equal(await page.locator("main h1").count(), 1);
     const action=page.locator(".detail-copy .button.full");
-    assert.match(await action.getAttribute("href"), /launch-notifications/);
+    assert.equal(await action.isDisabled(),true);
+    assert.equal(await action.getAttribute("href"),null);
+    assert.match(await page.locator(".detail-copy").getByRole("link",{name:"Notify me when ordering opens",exact:true}).getAttribute("href"), /launch-notifications/);
     assert.equal(await page.locator('a[href*="buy.stripe.com"],a[href*="amazon.com/dp/"]').count(),0);
   }
   await page.goto(href("checkout/success") + "?session_id=cs_test_forged&paid=true");

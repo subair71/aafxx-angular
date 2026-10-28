@@ -1,5 +1,5 @@
 import { BOOKS, BUNDLE, Book, BookFormat } from './catalogue';
-import { checkoutFor, bundleCheckout, integrationAvailable, FormSubmission, SubmissionResult } from './commerce';
+import { checkoutFor, bundleCheckout, integrationAvailable, FormSubmission, SubmissionResult, CheckoutContext } from './commerce';
 import { integrationConfig, IntegrationConfig } from './integration-config';
 import { funnelConfig } from './funnel-config';
 
@@ -22,17 +22,17 @@ export function notificationHref(base: string, bookId = 'all', format: string = 
   return `${base}launch-notifications/?book=${encodeURIComponent(bookId)}&format=${encodeURIComponent(format)}`;
 }
 export function checkoutHref(base: string, sku: string) { return `${base}checkout/?sku=${encodeURIComponent(sku)}`; }
-export function purchaseAction(book: Book, format: BookFormat, base: string) {
-  const amazon = format === 'print' ? amazonFor(book) : null;
-  const digital = format === 'pdf' ? checkoutFor(book, format) : null;
-  if (amazon) return { href: amazon, label: 'Buy Paperback on Amazon', external: true, available: true };
-  if (digital?.available) return { href: checkoutHref(base, digital.sku), label: 'Buy eBook — $27', external: false, available: true };
-  return { href: notificationHref(base, book.id, format), label: format === 'print' ? funnelConfig.launchLabel : 'Notify Me About the eBook', external: false, available: false };
+export function purchaseAction(book: Book, format: BookFormat, base: string, config: IntegrationConfig = integrationConfig, context?: CheckoutContext) {
+  const state = checkoutFor(book, format, config, context);
+  const label = `Buy ${format === 'pdf' ? 'PDF' : 'Print'} — $${book.formats[format].price}`;
+  return { href: state.available ? checkoutHref(base, state.sku) : notificationHref(base, book.id, format), label, external: false, available: state.available };
 }
-export function selectedCheckout(sku: string) {
-  if (sku === BUNDLE.sku) return { title: BUNDLE.title, format: integrationConfig.payments.bundle.contentsLabel || 'Format awaiting confirmation', price: 97, state: bundleCheckout() };
-  const book = BOOKS.find(b => b.formats.pdf.sku === sku);
-  return book ? { title: book.title, format: 'eBook (PDF)', price: 27, state: checkoutFor(book, 'pdf') } : null;
+export function selectedCheckout(sku: string, config: IntegrationConfig = integrationConfig, context?: CheckoutContext) {
+  if (sku === BUNDLE.sku) return { title: BUNDLE.title, format: config.payments.bundle.contentsLabel || 'Format awaiting confirmation', price: 97, state: bundleCheckout(config, context) };
+  for (const book of BOOKS) for (const format of ['pdf', 'print'] as const) {
+    if (book.formats[format].sku === sku) return { title: book.title, format: format === 'pdf' ? 'eBook (PDF)' : 'Print', price: book.formats[format].price, state: checkoutFor(book, format, config, context) };
+  }
+  return null;
 }
 export function whatsappUrl(value = integrationConfig.brand.whatsapp): string | null {
   // Accept an approved E.164 number or an exact wa.me link; reject other hosts and query strings.

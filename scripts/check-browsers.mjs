@@ -24,7 +24,7 @@ try{
       const first=page.locator('.book-card').first();
       await first.getByRole('button',{name:'Paperback',exact:true}).click();
       assert.match(await first.locator('.book-price').innerText(),/47/);
-      await first.getByRole('link',{name:'Pre-Order on Amazon – Nov 2026',exact:true}).click();
+      await first.getByRole('link',{name:'Notify me when ordering opens',exact:true}).click();
       assert.equal(await page.getByRole('combobox',{name:'Book selection',exact:true}).inputValue(),'aafxx-book-1');
       assert.equal(await page.getByRole('combobox',{name:'Preferred format',exact:true}).inputValue(),'print');
       await page.getByLabel('Full Name',{exact:true}).fill('QA Reader');
