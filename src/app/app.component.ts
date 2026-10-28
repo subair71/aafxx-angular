@@ -77,8 +77,8 @@ export class AppComponent {
     {number:'04',name:'Leader Alignment',detail:'A methodology taught alongside BBB FLOW as part of the academy’s approach to market context.',icon:'shield-check'},
   ];
   faqs = [
-    ['What does each book cost?','Each individual book is listed at USD 27 for PDF or USD 47 for print. The four-book library is USD 97. Bundle format and delivery details will be confirmed before ordering opens.'],
-    ['Can I purchase a book now?','Ordering opens when the payment and delivery arrangements for that edition are ready. The format selector shows the correct price; unreleased editions offer launch notifications only. These registrations are not paid pre-orders.'],
+    ['What does each book cost?','Each individual book is listed at USD 27 for PDF or USD 47 for print. The four-book library is USD 97. The bundle includes PDF + Paperback + Bonus. Contact AAFXX for current purchase and delivery availability.'],
+    ['Can I purchase a book now?','PayPal is the selected payment method. The supplied payment page could not be verified, so purchases are currently blocked. Contact admin@aafxx.com before paying.'],
     ['How will I receive a PDF or printed book?','Digital delivery will be available only after payment is verified. Print destinations, shipping costs and fulfilment arrangements must be confirmed before print ordering opens. No delivery timeframe is promised here.'],
     ['Where should I begin learning?','Start with the free forex foundations guides. They cover currency pairs, pips, spreads and leverage before you move on to chart context, risk planning and trading discipline.'],
     ['Are courses open for enrolment?','The academy presents proposed learning paths and free introductory reading. Course schedules, teaching formats, final curricula and fees have not yet been confirmed.'],
@@ -145,8 +145,8 @@ export class AppComponent {
   }
   action(){return purchaseAction(this.book(),this.bookFormat(),this.base);}
   buy(event:MouseEvent){const a=this.action();if(a.available)track('buy_now_clicked',{product:this.book().formats[this.bookFormat()].sku});if(!a.external)this.navigate(a.href,event);}
-  bundleHref(){return this.bundleStatus().available?checkoutHref(this.base,BUNDLE.sku):notificationHref(this.base,BUNDLE.id);}
-  selectBundle(event:Event){if(this.bundleStatus().available)track('buy_now_clicked',{product:BUNDLE.sku});track('bundle_selected',{product:BUNDLE.sku});this.navigate(this.bundleHref(),event);}
+  bundleHref(){const state=this.bundleStatus();return state.available?state.url!:checkoutHref(this.base,BUNDLE.sku);}
+  selectBundle(event:Event){if(this.bundleStatus().available)track('buy_now_clicked',{product:BUNDLE.sku});track('bundle_selected',{product:BUNDLE.sku});if(!this.bundleStatus().available)this.navigate(this.bundleHref(),event);}
   checkoutSelection(){return selectedCheckout(this.checkoutSku);}
   beginCheckout(){track('begin_checkout',{product:this.checkoutSku});}
   notificationHref(){return notificationHref(this.base);}

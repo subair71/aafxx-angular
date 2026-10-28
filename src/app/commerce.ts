@@ -15,7 +15,28 @@ export interface CheckoutContext {
   environment: PaymentEnvironment;
 }
 
-export type PaymentProvider = "stripe" | "benefitpay";
+export type PaymentProvider = "stripe" | "paypal" | "benefitpay";
+
+export const PAYPAL_BUTTON_LABELS = {
+  pdf: "Buy PDF - $27 USD (Instant Download)",
+  print: "Buy Paperback - $47 USD",
+  bundle: "Buy Bundle - $97 USD (PDF + Paperback + Bonus)",
+} as const;
+
+/** PayPal.Me links are not proof of payment, product selection or fulfilment. */
+export function paypalCheckout(kind: "pdf" | "print" | "bundle", sku: string, config: IntegrationConfig = integrationConfig): CheckoutState {
+  const settings = config.payments.paypal;
+  const unavailable = (reason: string, message: string): CheckoutState => ({ available: false, url: null, message, reason, sku, environment: "live" });
+  const price = { pdf: 27, print: 47, bundle: 97 }[kind];
+  if (settings.links[kind] !== `https://www.paypal.com/paypalme/AAFXMLSOLUTI/${price}`) return unavailable("paypal-link-invalid", "Please contact AAFXX to confirm the payment link.");
+  if (!settings.destinationVerified) return unavailable("paypal-profile-unavailable", "The PayPal payment page could not be verified. Please contact AAFXX before paying.");
+  if (!settings.usdVerified) return unavailable("paypal-currency-unverified", "The PayPal checkout currency must be confirmed as USD before payment.");
+  if (!settings.paymentVerificationReady) return unavailable("paypal-payment-verification-unavailable", "Order confirmation is unavailable. Please contact AAFXX before paying.");
+  if (kind !== "print" && !settings.digitalDeliveryReady) return unavailable("paypal-digital-delivery-unverified", "Instant PDF delivery has not been verified. Please contact AAFXX before paying.");
+  if (kind !== "pdf" && !settings.shippingCaptureReady) return unavailable("paypal-shipping-unverified", "Shipping address collection and fulfilment must be confirmed before payment.");
+  if (kind === "bundle" && !settings.bundleDeliveryReady) return unavailable("paypal-bundle-delivery-unverified", "Bundle PDF, paperback and bonus fulfilment must be confirmed before payment.");
+  return { available: true, url: settings.links[kind], message: "Pay securely with PayPal. Confirm the USD total before paying.", reason: "ready", sku, environment: "live" };
+}
 
 export interface CheckoutProviderAdapter {
   readonly provider: PaymentProvider;
@@ -62,6 +83,7 @@ function checkoutReference(
 
 export function checkoutFor(book: Book, format: BookFormat, config: IntegrationConfig = integrationConfig, context: CheckoutContext = runtimeContext()): CheckoutState {
   const variant = book.formats[format];
+  if (config.payments.provider === "paypal") return paypalCheckout(format, variant.sku, config);
   const result = checkoutReference(variant.sku, variant.price, config, context);
   const ready = format === "pdf"
     ? config.payments.digital.privateDeliveryReady && config.payments.digital.contentReadySkus.includes(variant.sku)
@@ -71,6 +93,7 @@ export function checkoutFor(book: Book, format: BookFormat, config: IntegrationC
 }
 
 export function bundleCheckout(config: IntegrationConfig = integrationConfig, context: CheckoutContext = runtimeContext()): CheckoutState {
+  if (config.payments.provider === "paypal") return paypalCheckout("bundle", BUNDLE.sku, config);
   const result = checkoutReference(BUNDLE.sku, BUNDLE.price, config, context);
   const bundle = config.payments.bundle;
   if (!bundle.contentsConfirmed || !bundle.format || !bundle.contentsLabel.trim()) return { ...result, available: false, url: null, message: "Bundle format and delivery details will be confirmed before ordering opens.", reason: "bundle-contents-unconfirmed" };
@@ -88,10 +111,11 @@ export function bundleCheckout(config: IntegrationConfig = integrationConfig, co
 
 /** Provider boundary only: BenefitPay requires a separate verified integration. */
 export function resolveCheckoutProvider(provider: PaymentProvider = "stripe", config: IntegrationConfig = integrationConfig, context: CheckoutContext = runtimeContext()): CheckoutProviderAdapter {
+  if (provider === "paypal") return { provider, checkoutFor: (book, format) => paypalCheckout(format, book.formats[format].sku, config), bundleCheckout: () => paypalCheckout("bundle", BUNDLE.sku, config) };
   if (provider === "stripe") return {
     provider,
-    checkoutFor: (book, format) => checkoutFor(book, format, config, context),
-    bundleCheckout: () => bundleCheckout(config, context),
+    checkoutFor: (book, format) => checkoutFor(book, format, { ...config, payments: { ...config.payments, provider: "stripe" } }, context),
+    bundleCheckout: () => bundleCheckout({ ...config, payments: { ...config.payments, provider: "stripe" } }, context),
   };
   if (provider !== "benefitpay") throw new Error("Unsupported payment provider.");
   const unavailable = (sku: string): CheckoutState => ({

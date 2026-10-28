@@ -7,6 +7,7 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { SESv2Client, SendEmailCommand } from "@aws-sdk/client-sesv2";
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 import { createApi } from "./core.mjs";
+import { checklistRegistrationEmail } from "./registration-email.mjs";
 
 const dynamo = DynamoDBDocumentClient.from(new DynamoDBClient({}), { marshallOptions: { removeUndefinedValues: true } });
 const s3 = new S3Client({});
@@ -114,6 +115,11 @@ async function service() {
   }
   const api = createApi({
     config, store,
+    async sendRegistration(data) {
+      if (!process.env.SENDER_EMAIL) throw new Error("An SES-verified sender is required.");
+      const result = await ses.send(new SendEmailCommand(checklistRegistrationEmail(process.env.SENDER_EMAIL, data)));
+      return { messageId: result.MessageId };
+    },
     verifyWebhook: (raw, signature) => stripe.webhooks.constructEvent(raw, signature, config.stripeWebhookSecret),
     retrieveSession: (id) => stripe.checkout.sessions.retrieve(id, { expand: ["line_items.data.price.product"] }),
     async signDownload(file) {

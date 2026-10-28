@@ -4,6 +4,7 @@ import { BOOKS, BUNDLE } from './catalogue';
 import { LeadKind, submitLead, leadsAvailable } from './funnel';
 import { track } from './analytics';
 import { funnelConfig } from './funnel-config';
+import { integrationConfig } from './integration-config';
 
 @Component({
   selector: 'app-lead-form', standalone: true, imports: [FormsModule],
@@ -23,7 +24,7 @@ import { funnelConfig } from './funnel-config';
       <div class="honeypot" aria-hidden="true"><label>Leave this empty<input name="companyWebsite" tabindex="-1" autocomplete="off" [(ngModel)]="website" /></label></div>
       <label class="checkbox-label"><input name="leadConsent" type="checkbox" required [(ngModel)]="consent" [disabled]="done()" /><span>{{consentText}} <a [href]="base+'privacy-policy/'">Privacy Policy</a>.</span></label>
       <button class="button gold full" type="submit" [disabled]="!available()||form.invalid||busy()||done()">{{busy()?'Registering…':done()?'Interest registered':buttonLabel}}</button>
-      @if(!available()){<p class="form-note">Registration is pending setup. Your details are not sent or saved while this form is unavailable.</p>}
+      @if(!available()){<p class="form-note">Online registration is unavailable. Please contact <a [href]="'mailto:'+contactEmail">{{contactEmail}}</a>. Your details have not been sent.</p>}
       <p role="status" class="form-status" [class.error]="error()">{{message()}}</p>
     </form>`,
   styles: [`:host{display:block}.lead-form{display:grid;gap:20px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}.form-note,.small-text{font-size:12px;margin:0}.notice{font-size:13px;margin:0;padding:16px;border:1px solid var(--line-strong);background:var(--gold-wash)}.form-status{margin:0}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}@media(max-width:560px){.form-row{grid-template-columns:1fr}}`],
@@ -34,6 +35,7 @@ export class LeadFormComponent {
   @Input() bookId = 'all';
   @Input() format: 'pdf'|'print'|'undecided' = 'undecided';
   @Output() registered = new EventEmitter<{kind: LeadKind; delivery?: string}>();
+  contactEmail = integrationConfig.brand.email;
   books = BOOKS; bundle = BUNDLE; pdfReady = funnelConfig.checklist.approvedPdfReady;
   name = ''; email = ''; country = ''; consent = false; website = ''; startedAt = Date.now();
   busy = signal(false); done = signal(false); error = signal(false); message = signal('');

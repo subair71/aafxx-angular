@@ -27,8 +27,8 @@ try {
     await card.getByRole("button", {name: "Paperback", exact: true}).click();
     assert.equal(await card.getByRole("button", {name: "Paperback", exact: true}).getAttribute("aria-pressed"), "true");
     assert.match(await card.locator(".book-price").innerText(), /47/);
-    assert.match(await card.locator(".notification-action").getAttribute("href"), /launch-notifications\/\?book=aafxx-book-[1-4]&format=print/);
-    assert.match(await card.locator(".purchase-action").innerText(), /Buy Print — \$47/);
+    assert.match(await card.locator(".notification-action").getAttribute("href"), /checkout\/\?sku=aafxx-book-[1-4]-print/);
+    assert.match(await card.locator(".purchase-action").innerText(), /Buy Paperback - \$47 USD/);
     assert.equal(await card.locator(".purchase-action").isDisabled(), true);
     assert.equal(await card.locator(".purchase-action").getAttribute("href"), null);
     await card.getByRole("button", {name: "eBook", exact: true}).click();
@@ -40,7 +40,7 @@ try {
   assert.equal(await page.locator(".book-card").count(), 0);
   await page.getByLabel("Search books", {exact: true}).fill("");
   assert.equal(await page.locator(".book-card").count(), 4);
-  report.checks.push("Four books, search, accessible eBook/Paperback state, $27/$47 prices and honest launch-notification destinations");
+  report.checks.push("Four books, search, accessible eBook/Paperback state, $27/$47 prices and safe PayPal order reviews");
 
   for (const slug of bookSlugs) {
     await goto("books/" + slug);
@@ -49,7 +49,7 @@ try {
     const action=page.locator(".detail-copy .button.full");
     assert.equal(await action.isDisabled(),true);
     assert.equal(await action.getAttribute("href"),null);
-    assert.match(await page.locator(".detail-copy").getByRole("link",{name:"Notify me when ordering opens",exact:true}).getAttribute("href"), /launch-notifications/);
+    assert.match(await page.locator(".detail-copy").getByRole("link",{name:"Review purchase details",exact:true}).getAttribute("href"), /checkout/);
     assert.equal(await page.locator('a[href*="buy.stripe.com"],a[href*="amazon.com/dp/"]').count(),0);
   }
   await page.goto(href("checkout/success") + "?session_id=cs_test_forged&paid=true");
@@ -61,8 +61,11 @@ try {
   assert.match(await page.locator('main').innerText(), /No purchase is confirmed/);
   assert.equal(await page.getByRole('heading',{name:'Thank You for Joining the AAFXX Learning Community!'}).count(),0);
   await goto('books');
-  await page.getByRole('link',{name:'Register Interest in the Bundle',exact:true}).click();
-  assert.equal(await page.getByRole('combobox',{name:'Book selection',exact:true}).inputValue(),'aafxx-complete-library');
+  await page.getByRole('link',{name:'Review bundle details',exact:true}).click();
+  assert.match(page.url(),/checkout\/\?sku=aafxx-four-book-bundle/);
+  assert.match(await page.locator('main').innerText(),/PDF \+ Paperback \+ Bonus/);
+  assert.match(await page.locator('main').innerText(),/PayPal payment page could not be verified/);
+  await goto('launch-notifications');
   assert.match(await page.locator('app-lead-form').innerText(),/not a paid pre-order/);
   await page.getByLabel('Full Name',{exact:true}).fill('A Reader');
   await page.getByLabel('Email Address',{exact:true}).fill('reader@example.test');
@@ -72,10 +75,10 @@ try {
   assert.match(await page.locator('main').innerText(),/No registration is confirmed/);
   await goto('mentorship');
   assert(await page.getByRole('button',{name:'Submit Mentorship Application',exact:true}).isDisabled());
-  assert.equal(await page.locator('a[href*="wa.me"]').count(),0);
-  await goto('about-author');assert.equal(await page.locator('.author-portrait').count(),1);assert.match(await page.locator('main').innerText(),/late Ezi Achama Eke/);
+  assert(await page.locator('a[href="https://wa.me/97334352786"]').count()>0);
+  await goto('about-author');assert.equal(await page.locator('a[href="mailto:berthram@aafxx.com"]').count(),1);assert.equal(await page.locator('.author-portrait').count(),1);assert.match(await page.locator('main').innerText(),/late Ezi Achama Eke/);
   await goto();assert.equal(await page.locator('app-testimonials section').count(),0);
-  report.checks.push('Bundle selection reaches the correct launch form; unavailable forms, direct confirmation URLs, missing WhatsApp and testimonials fail honestly; genuine author portrait and dedication render');
+  report.checks.push('Bundle selection reaches order review; unverified purchases and forms remain blocked; official WhatsApp is linked; genuine author portrait and dedication render');
 
   // Native links must retain ampersands in subjects when opened in a new tab.
   await goto("books/bbb-flow-leader-alignment");
@@ -170,6 +173,10 @@ try {
       assert.equal(await page.locator("h1").count(), 1, route);
       assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `Overflow: ${route} at ${width}`);
       await page.evaluate(async () => { await Promise.all(Array.from(document.images).map((image) => { image.loading = "eager"; return image.decode(); })); });
+      const footer = page.locator('.footer-contacts');
+      assert.equal(await footer.locator('a[href="mailto:admin@aafxx.com"]').innerText(), 'admin@aafxx.com');
+      assert.equal(await footer.locator('a[href="https://wa.me/97334352786"]').innerText(), '+973 3435 2786');
+      assert.equal(await footer.locator('span').innerText(), 'Manama, Bahrain - Online Global');
       report.responsivePages++;
       if ([390,1440].includes(width) && ["", "books", "books/" + bookSlugs[0], "expert-advisors"].includes(route)) {
         await page.screenshot({path: `screenshots/${route.replaceAll("/", "-") || "home"}-${width}.png`, fullPage: true});

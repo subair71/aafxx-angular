@@ -1,5 +1,5 @@
 import { BOOKS, BUNDLE, Book, BookFormat } from './catalogue';
-import { checkoutFor, bundleCheckout, integrationAvailable, FormSubmission, SubmissionResult, CheckoutContext } from './commerce';
+import { checkoutFor, bundleCheckout, integrationAvailable, FormSubmission, SubmissionResult, CheckoutContext, PAYPAL_BUTTON_LABELS } from './commerce';
 import { integrationConfig, IntegrationConfig } from './integration-config';
 import { funnelConfig } from './funnel-config';
 
@@ -24,11 +24,16 @@ export function notificationHref(base: string, bookId = 'all', format: string = 
 export function checkoutHref(base: string, sku: string) { return `${base}checkout/?sku=${encodeURIComponent(sku)}`; }
 export function purchaseAction(book: Book, format: BookFormat, base: string, config: IntegrationConfig = integrationConfig, context?: CheckoutContext) {
   const state = checkoutFor(book, format, config, context);
+  if (config.payments.provider === 'paypal') return {
+    href: state.available ? state.url! : checkoutHref(base, state.sku),
+    label: format === 'pdf' && !state.available ? 'Buy PDF - $27 USD' : PAYPAL_BUTTON_LABELS[format],
+    external: state.available, available: state.available, message: state.message,
+  };
   const label = `Buy ${format === 'pdf' ? 'PDF' : 'Print'} — $${book.formats[format].price}`;
-  return { href: state.available ? checkoutHref(base, state.sku) : notificationHref(base, book.id, format), label, external: false, available: state.available };
+  return { href: state.available ? checkoutHref(base, state.sku) : notificationHref(base, book.id, format), label, external: false, available: state.available, message: state.message };
 }
 export function selectedCheckout(sku: string, config: IntegrationConfig = integrationConfig, context?: CheckoutContext) {
-  if (sku === BUNDLE.sku) return { title: BUNDLE.title, format: config.payments.bundle.contentsLabel || 'Format awaiting confirmation', price: 97, state: bundleCheckout(config, context) };
+  if (sku === BUNDLE.sku) return { title: BUNDLE.title, format: config.payments.provider === 'paypal' ? 'PDF + Paperback + Bonus' : config.payments.bundle.contentsLabel || 'Format awaiting confirmation', price: 97, state: bundleCheckout(config, context) };
   for (const book of BOOKS) for (const format of ['pdf', 'print'] as const) {
     if (book.formats[format].sku === sku) return { title: book.title, format: format === 'pdf' ? 'eBook (PDF)' : 'Print', price: book.formats[format].price, state: checkoutFor(book, format, config, context) };
   }
@@ -37,9 +42,9 @@ export function selectedCheckout(sku: string, config: IntegrationConfig = integr
 export function whatsappUrl(value = integrationConfig.brand.whatsapp): string | null {
   // Accept an approved E.164 number or an exact wa.me link; reject other hosts and query strings.
   const raw = value.trim();
-  const number = raw.startsWith('https://wa.me/') ? raw.slice(14) : raw.replace(/^\+/, '');
+  const number = raw.startsWith('https://wa.me/') ? raw.slice(14) : raw.replace(/^\+/, '').replace(/ /g, '');
   if (!/^[1-9][0-9]{7,14}$/.test(number)) return null;
-  return `https://wa.me/${number}?text=${encodeURIComponent('Hello AAFXX, I would like to enquire about the 1000 Wealth Creators mentorship programme.')}`;
+  return `https://wa.me/${number}`;
 }
 export function leadsAvailable(config = integrationConfig) { return integrationAvailable('leads', config); }
 
@@ -59,6 +64,7 @@ export async function submitLead(data: LeadSubmission, config = integrationConfi
   try {
     const result = await postApi('leads', { ...data, email: data.email.trim().toLowerCase(), consentVersion: config.forms.privacyVersion }, config, fetcher);
     if (result.accepted !== true) return { ok: false, message: 'We could not confirm your registration. Please try again.' };
+    if (data.kind === 'checklist' && result.notification !== 'queued') return { ok: false, message: 'We could not confirm the registration email. Please try again or contact admin@aafxx.com.' };
     return { ok: true, message: 'Your interest has been registered. Thank you for joining the AAFXX learning community.', delivery: result.delivery };
   } catch (error) { return { ok: false, message: error instanceof Error ? error.message : 'Please try again later.' }; }
 }

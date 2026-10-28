@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import Stripe from "stripe";
+import { checklistRegistrationEmail } from "../registration-email.mjs";
 import { createApi, createDownloadToken, readDownloadToken, validateSession, validateSubmission } from "../core.mjs";
 
 const stripe = new Stripe("sk_test_local_unit_fixture");
@@ -25,6 +26,7 @@ function fixture() {
     async extendDownload(id, expires) { const order = records.get(id); order.downloadExpiresAt = Math.max(order.downloadExpiresAt, expires); return order; },
   };
   const deps = { config, store,
+    sendRegistration: async () => ({ messageId: "test-ses-message" }),
     verifyWebhook: (raw, signature) => stripe.webhooks.constructEvent(raw, signature, webhookSecret),
     retrieveSession: async () => structuredClone(session),
     async sendReceipt(order, files) { receipts.push({ email: order.email, files }); },
@@ -312,4 +314,36 @@ test('revocation during provider verification and provider outages cannot unlock
   assert.equal(body(await f.api(request('/order-status',query))).status,'unconfirmed');
   f.records.get(f.session.id).paymentStatus='paid';f.deps.retrieveSession=async()=>{throw new Error('provider unavailable');};
   const result=await f.api(request('/order-status',query));assert.equal(result.statusCode,503);assert.equal(body(result).ok,false);
+});
+
+test('every successful checklist registration emails all fields to the fixed admin destination with the exact subject',async()=>{
+  const f=fixture();Object.assign(f.config,{leadsEnabled:true,leadsRetentionDays:365});
+  const lead={name:'Launch QA',email:'reader@example.test',country:'Bahrain',kind:'checklist',bookId:'all',format:'undecided',consent:true,consentVersion:'2026-10-23',website:'',startedAt:Date.now()-5000};
+  const sent=[];
+  f.deps.sendRegistration=async(data)=>{sent.push(checklistRegistrationEmail('admin@aafxx.com',data));return {messageId:'ses-test-id'};};
+  for(let i=0;i<2;i++){
+    const result=await f.api(request('/leads',lead));
+    assert.equal(result.statusCode,202);assert.equal(body(result).notification,'queued');
+  }
+  assert.equal(sent.length,2);
+  const email=sent[0];assert.deepEqual(email.Destination.ToAddresses,['admin@aafxx.com']);
+  assert.deepEqual(email.ReplyToAddresses,[lead.email]);
+  assert.equal(email.Content.Simple.Subject.Data,'New AAFXX Checklist Registration');
+  const text=email.Content.Simple.Body.Text.Data;
+  for(const value of Object.values(lead).filter(v=>v!==''))assert.ok(text.includes(String(value)),String(value));
+  assert.match(text,/Website \(spam check\): \(not provided\)/);
+  assert.match(text,/Received at:/);
+});
+test('failed or unacknowledged registration email cannot claim success; retry and unrelated forms still work',async()=>{
+  const f=fixture();Object.assign(f.config,{leadsEnabled:true,leadsRetentionDays:365});
+  const lead={...submission(),kind:'checklist',bookId:'all',format:'undecided',country:''};
+  for(const send of [async()=>{throw new Error('private provider detail');},async()=>({})]){
+    f.deps.sendRegistration=send;
+    const result=await f.api(request('/leads',lead));
+    assert.equal(result.statusCode,503);assert.equal(body(result).accepted,false);assert.doesNotMatch(result.body,/private provider detail/);
+  }
+  f.deps.sendRegistration=async()=>({messageId:'retry-accepted'});
+  assert.equal(body(await f.api(request('/leads',lead))).accepted,true);
+  f.deps.sendRegistration=async()=>{throw new Error('should not send');};
+  assert.equal(body(await f.api(request('/leads',{...lead,kind:'books'}))).accepted,true);
 });

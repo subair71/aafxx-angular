@@ -32,8 +32,8 @@ test('Amazon destinations require an explicitly verified book-specific ASIN and 
   for(const url of ['https://www.amazon.com.evil.test/dp/B012345678','https://www.amazon.com/dp/B999999999','javascript:alert(1)','https://user:pass@www.amazon.com/dp/B012345678','https://www.amazon.com/dp/B012345678?redirect=1']){c.amazon[BOOKS[0].id].url=url;assert.equal(amazonFor(BOOKS[0],c),null);}
   c.amazon[BOOKS[0].id].url='https://www.amazon.com/dp/B012345678';c.amazon[BOOKS[0].id].verified=false;assert.equal(amazonFor(BOOKS[0],c),null);
 });
-test('WhatsApp accepts only an approved number or exact wa.me path and adds a mentorship message',()=>{
-  assert.match(whatsappUrl('+97312345678'),/^https:\/\/wa\.me\/97312345678\?text=/);assert.equal(whatsappUrl(''),null);
+test('WhatsApp accepts only an approved number or exact wa.me path without altering the supplied WhatsApp destination',()=>{
+  assert.equal(whatsappUrl('+97312345678'),'https://wa.me/97312345678');assert.equal(whatsappUrl(''),null);
   assert.equal(whatsappUrl('https://wa.me/97312345678'),whatsappUrl('+97312345678'));
   for(const value of ['https://evil.test/97312345678','https://wa.me/97312345678?text=other','123','+0123456789'])assert.equal(whatsappUrl(value),null);
 });
@@ -64,7 +64,7 @@ test('unconfigured and unknown checkout selections never supply a functioning pa
 // through to an old Amazon promotion or accidentally buy the PDF edition.
 test('all eight PDF and print buttons resolve the selected Stripe SKU, amount and edition',()=>{
   const c=structuredClone(integrationConfig);
-  Object.assign(c.payments,{policiesApproved:true,verifiedPaymentWorkflowReady:true});
+  Object.assign(c.payments,{provider:"stripe",policiesApproved:true,verifiedPaymentWorkflowReady:true});
   c.payments.digital.privateDeliveryReady=true;c.payments.print.fulfilmentReady=true;
   for(const book of BOOKS) for(const format of ['pdf','print']){
     const v=book.formats[format];
@@ -80,11 +80,39 @@ test('all eight PDF and print buttons resolve the selected Stripe SKU, amount an
     assert.equal(selected.state.url,c.payments.links[v.sku].test.url);
   }
 });
-test('unconfigured purchase buttons retain honest notification destinations for each format',()=>{
+test('blocked PayPal purchases lead to an honest order review for each format',()=>{
   for(const book of BOOKS) for(const format of ['pdf','print']){
     const a=purchaseAction(book,format,'/');
     assert.equal(a.available,false);
-    assert.equal(a.href,`/launch-notifications/?book=${book.id}&format=${format}`);
+    assert.equal(a.href,`/checkout/?sku=${book.formats[format].sku}`);
     assert.doesNotMatch(a.label,/Amazon|Pre-Order/);
   }
+});
+
+test('PayPal never advertises instant delivery or permits a purchase before destination, USD and fulfilment verification',()=>{
+  const c=structuredClone(integrationConfig);
+  assert.equal(whatsappUrl(), 'https://wa.me/97334352786');
+  assert.equal(checkoutFor(BOOKS[0],'pdf',c).reason,'paypal-profile-unavailable');
+  assert.doesNotMatch(purchaseAction(BOOKS[0],'pdf','/',c).label,/Instant Download/);
+  Object.assign(c.payments.paypal,{destinationVerified:true,usdVerified:true,paymentVerificationReady:true,digitalDeliveryReady:true,shippingCaptureReady:true,bundleDeliveryReady:true});
+  for(const book of BOOKS)for(const format of ['pdf','print']){
+    const a=purchaseAction(book,format,'/',c);
+    assert.equal(a.available,true);assert.equal(a.external,true);
+    assert.equal(a.href,`https://www.paypal.com/paypalme/AAFXMLSOLUTI/${format==='pdf'?27:47}`);
+    assert.equal(a.label,format==='pdf'?'Buy PDF - $27 USD (Instant Download)':'Buy Paperback - $47 USD');
+  }
+  assert.equal(bundleCheckout(c).url,'https://www.paypal.com/paypalme/AAFXMLSOLUTI/97');
+  for(const key of ['destinationVerified','usdVerified','paymentVerificationReady','digitalDeliveryReady','shippingCaptureReady','bundleDeliveryReady']){
+    c.payments.paypal[key]=false;
+    assert.equal(bundleCheckout(c).available,false,key);
+    c.payments.paypal[key]=true;
+  }
+  c.payments.paypal.links.pdf='https://www.paypal.com.evil.test/paypalme/AAFXMLSOLUTI/27';
+  assert.equal(checkoutFor(BOOKS[0],'pdf',c).available,false);
+});
+test('checklist UI requires server confirmation that the admin email was accepted',async()=>{
+  const c=readyForms();const data={...lead(),kind:'checklist'};
+  const response=(result)=>async()=>new Response(JSON.stringify(result),{status:202});
+  assert.equal((await submitLead(data,c,response({ok:true,accepted:true}))).ok,false);
+  assert.equal((await submitLead(data,c,response({ok:true,accepted:true,notification:'queued'}))).ok,true);
 });

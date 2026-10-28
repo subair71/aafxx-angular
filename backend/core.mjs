@@ -228,12 +228,20 @@ export function createApi(deps) {
         if (!await store.rateLimit(`EMAIL#${hash(data.email, config.rateLimitSalt)}#${day}`, 8, (day+2)*86400)) throw new RequestError(429, "Too many attempts. Please try again later.");
       }
       await store.persistSubmission(kind, id, { ...data, createdAt: new Date().toISOString(), expiresAt: seconds() + retention * 86400 });
+      let notification;
+      if (kind === "leads" && data.kind === "checklist") {
+        // Await the server-side email provider. Storage alone must not show success.
+        // A retry after provider failure must attempt notification again.
+        const result = await deps.sendRegistration({ ...data, startedAt: input.startedAt, website: input.website });
+        if (!result?.messageId) throw new RequestError(503, "We could not confirm the registration email. Please try again or contact admin@aafxx.com.");
+        notification = "queued";
+      }
       if (kind === "leads" && data.kind === "checklist" && config.checklist?.approved && config.checklist?.key) {
         let delivery = "pending";
         try { delivery = await deps.sendChecklist(id, data); } catch { /* Durable lead remains accepted; retry can resume delivery. */ }
-        return response(202, { ok: true, accepted: true, delivery }, origin);
+        return response(202, { ok: true, accepted: true, notification, delivery }, origin);
       }
-      return response(202, { ok: true, accepted: true }, origin);
+      return response(202, { ok: true, accepted: true, ...(notification ? { notification } : {}) }, origin);
     } catch (error) {
       // Never return Stripe/SDK messages, email addresses, tokens, or secret details.
       return response(error instanceof RequestError ? error.status : 503, { ok: false, accepted: false, message: error instanceof RequestError ? error.message : "We could not complete this request. Please try again later." }, origin);

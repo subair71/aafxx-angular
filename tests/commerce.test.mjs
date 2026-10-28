@@ -23,6 +23,7 @@ const context = { preview: true, environment: "test" };
 
 function readyConfig() {
   const config = structuredClone(integrationConfig);
+  config.payments.provider = "stripe";
   Object.assign(config.payments, { policiesApproved: true, verifiedPaymentWorkflowReady: true });
   config.payments.digital.privateDeliveryReady = true;
   config.payments.print.fulfilmentReady = true;

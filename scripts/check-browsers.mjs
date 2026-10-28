@@ -24,15 +24,16 @@ try{
       const first=page.locator('.book-card').first();
       await first.getByRole('button',{name:'Paperback',exact:true}).click();
       assert.match(await first.locator('.book-price').innerText(),/47/);
-      await first.getByRole('link',{name:'Notify me when ordering opens',exact:true}).click();
-      assert.equal(await page.getByRole('combobox',{name:'Book selection',exact:true}).inputValue(),'aafxx-book-1');
-      assert.equal(await page.getByRole('combobox',{name:'Preferred format',exact:true}).inputValue(),'print');
+      await first.getByRole('link',{name:'Review purchase details',exact:true}).click();
+      assert.match(page.url(),/checkout\/\?sku=aafxx-book-1-print/);
+      assert.match(await page.locator('main').innerText(),/PayPal payment page could not be verified/);
+      await goto('launch-notifications/');
       await page.getByLabel('Full Name',{exact:true}).fill('QA Reader');
       await page.getByLabel('Email Address',{exact:true}).fill('qa@example.test');
       await page.locator('app-lead-form input[type="checkbox"]').check();
       assert(await page.getByRole('button',{name:'Register for Launch Notifications',exact:true}).isDisabled());
-      await goto('books/');await page.getByRole('link',{name:'Register Interest in the Bundle',exact:true}).click();
-      assert.equal(await page.getByRole('combobox',{name:'Book selection',exact:true}).inputValue(),'aafxx-complete-library');
+      await goto('books/');await page.getByRole('link',{name:'Review bundle details',exact:true}).click();
+      assert.match(page.url(),/checkout\/\?sku=aafxx-four-book-bundle/);
       for(const route of ['','books/','launch-notifications/','mentorship/','about-author/','checklist/','privacy-policy/','terms/','refund-policy/','risk-disclaimer/','registration-confirmed/','checkout/success/?session_id=cs_test_forged&paid=true','checkout/cancel/']){
         await goto(route);
         assert.equal(await page.locator('main h1').count(),1,scenario.name+' '+route);
