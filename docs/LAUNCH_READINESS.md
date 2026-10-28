@@ -130,9 +130,15 @@ PayPal readiness gates, all eight book/format selections, email notification
 failure/retry, exact subject/recipient/fields and protection against unpaid or
 forged downloads. No real payment or email was made by these tests.
 
-Browser tests were updated for the current purchase review and official contacts,
-including all footer values at 320/390/768/1440 widths. The local browser runner
-could not start in this environment; use the `develop` GitHub validation run for
-executed responsive, image, cross-browser and accessibility results. Live domain,
-PayPal checkout and actual email delivery are separate launch blockers regardless
-of CI status.
+The initial implementation passed the full GitHub validation workflow:
+https://github.com/subair71/aafxx-angular/actions/runs/40744025234
+This includes prerendering, SEO, images, responsive checks at 320/390/768/1440,
+Chromium/Firefox/Edge desktop, WebKit iPhone emulation/tablet, and accessibility.
+The cloud preview was also visually reviewed on desktop and at 390 pixels;
+contact links were placed on separate lines after that review. This is emulation,
+not a physical-device test. The Amplify development site was observed serving
+these changes (HTTP 200, updated contact content) after the branch push.
+
+For the latest follow-up's validation status, use the check attached to the
+current `develop` commit. Live domain, PayPal checkout and actual email delivery
+remain separate launch blockers regardless of CI status.

@@ -120,3 +120,4 @@
   .resource-grid,.course-grid{gap:14px}
   .page-intro{padding-block:52px 38px}
 }
+.contact-details > .text-link{display:flex;width:fit-content;margin-block:14px}
