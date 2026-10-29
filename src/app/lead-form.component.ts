@@ -27,7 +27,7 @@ import { integrationConfig } from './integration-config';
       @if(!available()){<p class="form-note">Online registration is unavailable. Please contact <a [href]="'mailto:'+contactEmail">{{contactEmail}}</a>. Your details have not been sent.</p>}
       <p role="status" class="form-status" [class.error]="error()">{{message()}}</p>
     </form>`,
-  styles: [`:host{display:block}.lead-form{display:grid;gap:20px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}.form-note,.small-text{font-size:12px;margin:0}.notice{font-size:13px;margin:0;padding:16px;border:1px solid var(--line-strong);background:var(--gold-wash)}.form-status{margin:0}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}@media(max-width:560px){.form-row{grid-template-columns:1fr}}`],
+  styles: [`:host{display:block}.lead-form{display:grid;gap:20px}.form-row{display:grid;grid-template-columns:1fr 1fr;gap:18px}.form-note,.small-text{font-size:14px;margin:0}.notice{font-size:14px;margin:0;padding:16px;border:1px solid var(--line-strong);background:var(--gold-wash)}.form-status{margin:0}.honeypot{position:absolute;left:-10000px;width:1px;height:1px;overflow:hidden}@media(max-width:560px){.form-row{grid-template-columns:1fr}}`],
 })
 export class LeadFormComponent {
   @Input() kind: LeadKind = 'books';
