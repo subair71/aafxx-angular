@@ -24,7 +24,7 @@ import { track } from './analytics';
       @if(available()){<button class="text-link" type="button" [disabled]="form.invalid||busy()" (click)="recover()">Email fresh download links</button>}
     </form>
     <a class="text-link" [href]="base+'contact/?subject=Order%20support'">Order & download support</a>
-  </section>`,styles:[`.confirmation{max-width:900px}h1{font-size:clamp(36px,5vw,60px)}.verification-form,.order-details{display:grid;gap:20px;padding:30px;border:1px solid var(--line-strong);background:var(--surface);margin:30px 0}dt{color:var(--gold);font-size:12px;margin-top:14px}dd{margin:5px 0}.small-text,.pending{font-size:12px;color:var(--muted)}.button-row{flex-wrap:wrap}.notice{font-size:13px}.error{color:var(--error)}@media(max-width:500px){.verification-form,.order-details{padding:20px}}`]})
+  </section>`,styles:[`.confirmation{max-width:900px}h1{font-size:clamp(36px,5vw,60px)}.verification-form,.order-details{display:grid;gap:20px;padding:30px;border:1px solid var(--line-strong);background:var(--surface);margin:30px 0}dt{color:var(--gold);font-size:14px;margin-top:14px}dd{margin:5px 0}.small-text,.pending{font-size:14px;color:var(--muted)}.button-row{flex-wrap:wrap}.notice{font-size:14px}.error{color:var(--error)}@media(max-width:500px){.verification-form,.order-details{padding:20px}}`]})
 export class OrderConfirmationComponent {
   @Input() base = '/';
   sessionId = new URLSearchParams(location.search).get('session_id') || '';
