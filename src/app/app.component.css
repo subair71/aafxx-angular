@@ -121,3 +121,17 @@
   .page-intro{padding-block:52px 38px}
 }
 .contact-details > .text-link{display:flex;width:fit-content;margin-block:14px}
+
+/* Founder-requested research credits share the existing academy palette and type. */
+.research-credit{margin-top:24px;padding-top:20px;border-top:1px solid var(--line);min-width:0;overflow-wrap:anywhere}
+.research-credit p{margin:0;font-size:15px;line-height:1.7;color:var(--muted)}
+.research-credit p+p{margin-top:8px}
+.research-credit strong{color:var(--ink);font-weight:600}
+.research-acknowledgement{margin:24px 0 0;font-size:15px;line-height:1.75;color:var(--muted);overflow-wrap:anywhere}
+.mission-wide p.research-acknowledgement{max-width:70ch;margin:24px auto 0;padding-top:20px;border-top:1px solid var(--line);font-size:15px;line-height:1.75}
+.research-team{margin-top:28px;min-width:0}
+.research-team>h3{margin:0 0 12px;font-size:20px;line-height:1.4}
+.research-team-card{padding:20px;background:var(--surface);border:1px solid var(--line);border-left:2px solid var(--gold);border-radius:4px;overflow-wrap:anywhere}
+.research-team-card h4{margin:0 0 8px;font:500 22px/1.35 var(--serif);color:var(--ink)}
+.research-team-card p{margin:0;font-size:15px;line-height:1.7;color:var(--muted)}
+.research-team-card .research-team-role{margin-bottom:12px;color:var(--gold)}
